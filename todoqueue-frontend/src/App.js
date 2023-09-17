@@ -135,7 +135,7 @@ const App = () => {
                 <p>Min Interval: {selectedTask.min_interval}</p>
                 <p>Priority: {selectedTask.priority}</p>
                 <p>Description: {selectedTask.description}</p>
-                <button className="delete-button" onClick={() => deleteTask(selectedTask.task_id)}>Delete Task</button>
+                <button className="button delete-button" onClick={() => deleteTask(selectedTask.task_id)}>Delete Task</button>
               </div>
             ) : (
               <div>
@@ -148,11 +148,10 @@ const App = () => {
                   <input type="number" name="min_interval" placeholder="Min Interval" onChange={handleInputChange} />
                   <input type="number" name="priority" placeholder="Priority" onChange={handleInputChange} />
                   <input type="text" name="description" placeholder="Description" onChange={handleInputChange} />
-                  <button type="button" onClick={handleCreateTask}>Create Task</button>
+                  <button className="button create-button" onClick={handleCreateTask}>Create Task</button>
                 </form>
               </div>
             )}
-            <button onClick={() => { setShowPopup(false); setSelectedTask(null); }}>Close</button>
           </div>
         </div>
       ) : null}
