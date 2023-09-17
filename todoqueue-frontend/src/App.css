@@ -1,26 +1,22 @@
-/* App general styles */
 .App {
   text-align: center;
   margin-top: 40px;
   font-family: 'Arial', sans-serif;
 }
 
-/* Header */
 h1 {
   font-size: 2.5rem;
   margin-bottom: 30px;
   color: #333;
 }
 
-/* Task container */
 .task-container {
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;  /* Allows the task cards to wrap to the next line */
-  gap: 16px;  /* Space between task cards */
+  /* Space between task cards */
+  gap: 16px;
 }
 
-/* Individual task card */
 .task-card {
   background: #f9f9f9;
   width: 200px;
@@ -28,21 +24,32 @@ h1 {
   margin: 10px;
   border: 2px solid #e0e0e0;
   cursor: pointer;
-  border-radius: 8px;  /* Rounded corners */
+  border-radius: 8px;
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;  /* Adds smooth hover effect */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   position: relative;
 
-  /* Hover effect for task cards */
   &:hover {
-    transform: scale(1.05);  /* Scales the card */
-    box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);  /* Adds a subtle shadow */
+    transform: scale(1.05);
+    box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);
   }
 }
 
-/* Popup styles */
+.task-content {
+  text-align: center;
+}
+
+.task-text {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.task-button {
+  display: block;
+}
+
 .popup {
   position: fixed;
   top: 0;
@@ -53,19 +60,18 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10;  /* Ensures the popup appears above other elements */
+  z-index: 10;
 }
 
 .popup-inner {
   background: white;
-  padding: 24px;  /* Increased padding for more space */
-  border-radius: 12px;  /* Rounded corners */
-  width: 400px;  /* Wider popup */
+  padding: 24px;
+  border-radius: 12px;
+  width: 400px;
   text-align: center;
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);  /* Adds shadow to make popup stand out */
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);
 }
 
-/* Button styles */
 .button {
   background-color: #61dafb;
   color: white;
@@ -74,16 +80,14 @@ h1 {
   cursor: pointer;
   border: none;
   border-radius: 4px;
-  font-size: 16px;  /* Larger font size */
-  transition: background-color 0.2s ease;  /* Smooth transition for hover effect */
-  
-  /* Hover effect for buttons */
+  font-size: 16px;
+  transition: background-color 0.2s ease;
+
   &:hover {
     background-color: #4fa3e6;
   }
 }
 
-/* Additional button styles */
 .delete-button {
   background-color: #f44336;
 }
@@ -97,7 +101,6 @@ h1 {
 }
 
 .user-button {
-  /* Set the font color to black*/
   color: black;
   background-color: #f2f2f2;
   border: 1px solid #ccc;
@@ -106,7 +109,6 @@ h1 {
 }
 
 .user-button.selected {
-  /* Set the font color to white*/
   color: white;
   background-color: #4CAF50;
   color: white;

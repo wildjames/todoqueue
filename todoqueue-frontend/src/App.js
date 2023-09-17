@@ -135,7 +135,9 @@ const App = () => {
 
     // Clear the list of completionUsers and close the popup
     completionUsers.length = 0;
-    setShowCompleteTaskPopup(false);
+    
+    closeCompleteTaskPopup();
+    closeTaskPopup();
   };
 
 
@@ -385,22 +387,25 @@ const App = () => {
         </div>
       ) : null}
 
-
       <div className="task-container">
         {tasks.map((task) => (
           <div
             className="task-card"
             key={task.task_id}
-            onClick={() => showTaskDetails(task)}>
-            <div>
-              {task.task_name}
-            </div>
-            <div>
-              <button className="button complete-button" onClick={() => handleOpenCompleteTaskPopup(task)}>Complete Task</button>
+            onClick={() => showTaskDetails(task)}
+          >
+            <div className="task-content">
+              <span className="task-text">
+                {task.task_name}
+              </span>
+              <span className="task-button">
+                <button className="button complete-button" onClick={() => handleOpenCompleteTaskPopup(task)}>Complete Task</button>
+              </span>
             </div>
           </div>
         ))}
       </div>
+
     </div >
   );
 
