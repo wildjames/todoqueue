@@ -1,7 +1,12 @@
 from rest_framework import serializers
-from .models import Task
+from .models import Task, WorkLog
 
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ['task_name', 'task_id', 'brownie_point_value', 'max_interval', 'min_interval', 'priority', 'description']
+        fields = '__all__'
+
+class WorkLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkLog
+        fields = '__all__'

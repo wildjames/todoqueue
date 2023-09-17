@@ -27,8 +27,8 @@ SECRET_KEY = 'django-insecure-623ov0uawpvansx0o8^7x(0v&va!7wwoi09t1qd7svjnftsi8f
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["http://localhost:3936", "backend"]
-CSRF_TRUSTED_ORIGINS = ["http://localhost:3936", "backend"]
+ALLOWED_HOSTS = ["http://localhost:3936", "http://backend:8000", "*"]
+CSRF_TRUSTED_ORIGINS = ["http://localhost:3936", "http://backend:8000"]
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')

@@ -1,99 +1,116 @@
-# **TodoQueue API Backend Documentation**
+# Task & WorkLog API Documentation
 
-## **Base URL**
-All API requests are made to: `/api/`
+## Task
 
-## **Endpoints**
+### 1. List All Tasks
 
-### **1. Create Task**
+- **Endpoint**: `/api/tasks/`
+- **Method**: `GET`
+  
+### 2. Create a New Task
 
-- **URL:** `/tasks/`
-- **Method:** `POST`
-- **Payload:**
-
+- **Endpoint**: `/api/tasks/`
+- **Method**: `POST`
+- **Payload**:
   ```json
   {
-    "task_name": "Sample Task",
-    "task_id": "001",
-    "brownie_point_value": 5,
-    "max_interval": 10,
-    "min_interval": 3,
-    "priority": 1,
-    "description": "Description of the sample task."
+    "task_name": "string",
+    "task_id": "string",
+    "max_interval": "string",
+    "min_interval": "string",
+    "description": "string",
+    "last_completed": "datetime"
   }
   ```
 
-- **Success Response:**  
-  **Code:** `201 CREATED`  
-  **Content:** Newly created task object
+### 3. Retrieve a Task
 
-- **Error Responses:**  
-  If a required field is missing or any other validation fails:  
-  **Code:** `400 BAD REQUEST`
+- **Endpoint**: `/api/tasks/{task_id}/`
+- **Method**: `GET`
 
-### **2. Delete Task**
+### 4. Update a Task
 
-- **URL:** `/tasks/delete_task/`
-- **Method:** `POST`
-- **Payload:**
-
+- **Endpoint**: `/api/tasks/{task_id}/`
+- **Method**: `PUT`
+- **Payload**:
   ```json
   {
-    "task_id": "001"
+    "task_name": "string",
+    "max_interval": "string",
+    "min_interval": "string",
+    "description": "string",
+    "last_completed": "datetime"
   }
   ```
 
-- **Success Response:**  
-  **Code:** `200 OK`  
-  **Content:** `{"message": "Task deleted successfully"}`
+### 5. Delete a Task
 
-- **Error Responses:**  
-  If the task with the given ID does not exist:  
-  **Code:** `404 NOT FOUND`  
-  **Content:** `{"error": "Task does not exist"}`
-
-### **3. Task Done**
-
-- **URL:** `/tasks/task_done/`
-- **Method:** `POST`
-- **Payload:**
-
-  ```json
-  {
-    "task_id": "001",
-    "username": "test_user"
-  }
-  ```
-
-- **Success Response:**  
-  **Code:** `200 OK`  
-  **Content:** `{"message": "Task completed by test_user"}`
-
-- **Error Responses:**  
-  If the task with the given ID does not exist:  
-  **Code:** `404 NOT FOUND`  
-  **Content:** `{"error": "Task does not exist"}`
-
-### **4. List Tasks**
-
-- **URL:** `/tasks/`
-- **Method:** `GET`
-- **Success Response:**  
-  **Code:** `200 OK`  
-  **Content:** List of task objects
+- **Endpoint**: `/api/tasks/{task_id}/`
+- **Method**: `DELETE`
 
 ---
 
-## **Status Codes**
+## WorkLog
 
-The API returns the following status codes:
+### 1. List All WorkLogs
+
+- **Endpoint**: `/api/worklogs/`
+- **Method**: `GET`
+
+### 2. Create a New WorkLog
+
+- **Endpoint**: `/api/worklogs/`
+- **Method**: `POST`
+- **Payload**:
+  ```json
+  {
+    "task": "task_id",
+    "user": "user_id",
+    "timestamp": "string",
+    "grossness": "float",
+    "brownie_points": "integer",
+    "completion_time": "string"
+  }
+  ```
+
+### 3. Retrieve a WorkLog
+
+- **Endpoint**: `/api/worklogs/{worklog_id}/`
+- **Method**: `GET`
+
+### 4. Update a WorkLog
+
+- **Endpoint**: `/api/worklogs/{worklog_id}/`
+- **Method**: `PUT`
+- **Payload**:
+  ```json
+  {
+    "task": "task_id",
+    "user": "user_id",
+    "timestamp": "string",
+    "grossness": "float",
+    "brownie_points": "integer",
+    "completion_time": "string"
+  }
+  ```
+
+### 5. Delete a WorkLog
+
+- **Endpoint**: `/api/worklogs/{worklog_id}/`
+- **Method**: `DELETE`
+
+---
+
+# Status Codes
 
 - `200 OK`: The request was successful.
-- `201 CREATED`: The request was successful, and a resource was created.
-- `400 BAD REQUEST`: There was a problem with the request (e.g., missing required parameters).
-- `404 NOT FOUND`: The requested resource could not be found.
-- `500 INTERNAL SERVER ERROR`: A server error occurred.
+- `201 Created`: The resource was successfully created.
+- `400 Bad Request`: The request was malformed or invalid.
+- `401 Unauthorized`: User is not authenticated.
+- `403 Forbidden`: User is authenticated but doesn't have the required permissions.
+- `404 Not Found`: The requested resource could not be found.
+- `500 Internal Server Error`: An error occurred on the server.
 
----
+# Pagination
 
-**Note:** Be sure to replace `yourdomain.com` with your actual domain or IP address. If you use tools like Swagger or DRF's built-in browsable API, you can generate interactive documentation, which is even more user-friendly.
+The API supports pagination. To navigate through the list of items, use the pagination controls returned in the API response.

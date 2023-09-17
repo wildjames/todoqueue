@@ -1,48 +1,41 @@
-from django.contrib.auth import get_user_model
-from django.http import JsonResponse
-from rest_framework import status, viewsets
-from rest_framework.decorators import action
+from rest_framework import viewsets
+from .models import Task, WorkLog
+from .serializers import TaskSerializer, WorkLogSerializer
+
+from rest_framework import status
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from .models import Task
-from .serializers import TaskSerializer
-
-usermodel = get_user_model()
+from logging import getLogger
+logger = getLogger(__name__)
 
 
 class TaskViewSet(viewsets.ModelViewSet):
-    queryset = Task.objects.all().order_by("-priority")
+    queryset = Task.objects.all().order_by("-task_name")
     serializer_class = TaskSerializer
 
-    @action(detail=False, methods=["POST"])
-    def delete_task(self, request):
-        task_id = request.data.get("task_id")
-        try:
-            task = Task.objects.get(task_id=task_id)
-            task.delete()
-            return Response(
-                {"message": "Task deleted successfully"}, status=status.HTTP_200_OK
-            )
-        except Task.DoesNotExist:
-            return Response(
-                {"error": "Task does not exist"}, status=status.HTTP_404_NOT_FOUND
-            )
 
-    @action(detail=False, methods=["POST"])
-    def task_done(self, request):
-        task_id = request.data.get("task_id")
-        username = request.data.get("username")
-        try:
-            task = Task.objects.get(task_id=task_id)
-            user = usermodel.objects.get(username=username)
+class WorkLogViewSet(viewsets.ModelViewSet):
+    queryset = WorkLog.objects.all().order_by("-timestamp")
+    serializer_class = WorkLogSerializer
 
-            user.brownie_points += task.brownie_point_value
-            user.save()
 
-            return Response(
-                {"message": f"Task completed by {username}"}, status=status.HTTP_200_OK
-            )
-        except Task.DoesNotExist:
-            return Response(
-                {"error": "Task does not exist"}, status=status.HTTP_404_NOT_FOUND
-            )
+def calculate_brownie_points(task, completion_time, grossness):
+    # Perform  calculations here
+    # Return the calculated brownie points
+    return 10  # Placeholder, replace with calculation
+
+@api_view(['POST'])
+def calculate_brownie_points_view(request):
+    if request.method == 'POST':
+        task_id = request.data.get('task_id')
+        completion_time = request.data.get('completion_time')
+        grossness = request.data.get('grossness')
+        
+        if task_id is None or completion_time is None or grossness is None:
+            return Response({'error': 'Missing parameters'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Call your calculation function
+        brownie_points = calculate_brownie_points(task_id, completion_time, grossness)
+
+        return Response({'brownie_points': brownie_points}, status=status.HTTP_200_OK)
