@@ -14,14 +14,20 @@ class Task(models.Model):
     min_interval = models.DurationField()
     last_completed = models.DateTimeField(auto_now_add=True)
 
+    # Calculate the staleness of this task
     @property
-    def mean_completion_time(self):
-        if self.worklog_set.count() == 0:
-            return None
-        else:
-            return sum(
-                [worklog.completion_time for worklog in self.worklog_set.all()]
-            ) / self.worklog_set.count()
+    def staleness(self):
+        time_since_last_completed = timezone.now() - self.last_completed
+        
+        if time_since_last_completed < self.min_interval:
+            return 0
+        
+        if time_since_last_completed > self.max_interval:
+            return 1
+        
+        staleness = (time_since_last_completed - self.min_interval) / (self.max_interval - self.min_interval)
+        
+        return staleness
 
     def __str__(self):
         return self.task_name
@@ -36,6 +42,12 @@ class WorkLog(models.Model):
         validators=[MinValueValidator(0), MaxValueValidator(5)]
     )
     brownie_points = models.IntegerField()
+
+    # When a work log is created, set the last_completed field of the task to now
+    def save(self, *args, **kwargs):
+        self.task.last_completed = timezone.now()
+        self.task.save()
+        super(WorkLog, self).save(*args, **kwargs)
 
     def __str__(self):
         return (

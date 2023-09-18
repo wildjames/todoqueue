@@ -15,13 +15,6 @@ const App = () => {
     min_interval: '0:0',
     description: ''
   });
-  const [newWorkLog, setNewWorkLog] = useState({
-    task_id: '',
-    user: '',
-    timestamp: '',
-    brownie_points: 0,
-    completion_time: 0
-  });
 
   // Task completion states
   const [showCompleteTaskPopup, setShowCompleteTaskPopup] = useState(false);
@@ -40,6 +33,7 @@ const App = () => {
     fetch(list_tasks_url)
       .then((res) => res.json())
       .then((data) => {
+        console.log(data);
         setTasks(data);
       });
   };
@@ -300,9 +294,11 @@ const App = () => {
             {selectedTask ? (
               <div>
                 <h2>{selectedTask.task_name}</h2>
-                <p>ID: {selectedTask.task_id}</p>
+                {/* <p>ID: {selectedTask.task_id}</p> */}
                 <p>Max Interval: {selectedTask.max_interval}</p>
                 <p>Min Interval: {selectedTask.min_interval}</p>
+                <p>Last Completed: {selectedTask.last_completed}</p>
+                <p>Staleness: {selectedTask.staleness}</p>
                 <p>Description: {selectedTask.description}</p>
                 <button className="button delete-button" onClick={() => deleteTask(selectedTask.task_id)}>Delete Task</button>
               </div>
