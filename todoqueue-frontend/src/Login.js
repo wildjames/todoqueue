@@ -2,6 +2,9 @@ import axios from "axios";
 import { useState } from "react"; // Define the Login function.
 
 
+const apiUrl = process.env.REACT_APP_BACKEND_URL;
+
+
 export const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -19,7 +22,7 @@ export const Login = () => {
 
         // Create the POST requuest
         const res = await axios.post(
-            'http://localhost:3936/api/token/',
+            apiUrl + '/token/',
             user,
             {
                 headers:

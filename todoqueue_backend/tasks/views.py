@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Task, WorkLog
-from .serializers import TaskSerializer, UserStatisticsSerializer, WorkLogSerializer
+from .models import TaskSerializer, UserStatisticsSerializer, WorkLogSerializer
 
 logger = getLogger(__name__)
 basicConfig(level=INFO)

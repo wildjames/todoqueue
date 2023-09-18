@@ -3,6 +3,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import './App.css';
 
+
+const apiUrl = process.env.REACT_APP_BACKEND_URL;
+
+
 const Tasks = () => {
     const [tasks, setTasks] = useState([]);
     const [showTaskPopup, setShowTaskPopup] = useState(false);
@@ -24,9 +28,6 @@ const Tasks = () => {
     const [prevUsersBP, setPrevUsersBP] = useState({});
     const [userBPChanged, setUserBPChanged] = useState({});
     const updateSelectedTaskTimer = useRef(null);
-
-
-    const apiUrl = process.env.REACT_APP_BACKEND_URL;
 
 
     // useEffects //
