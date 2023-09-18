@@ -14,4 +14,7 @@ urlpatterns = [
         views.calculate_brownie_points_view,
         name="calculate_brownie_points",
     ),
+    path(
+        "user_statistics/", views.UserStatisticsView.as_view(), name="user_statistics"
+    ),
 ]

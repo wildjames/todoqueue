@@ -1,13 +1,14 @@
-from datetime import timedelta, datetime
-from rest_framework import viewsets
-from .models import Task, WorkLog
-from .serializers import TaskSerializer, WorkLogSerializer
+from datetime import datetime, timedelta
+from logging import INFO, basicConfig, getLogger
 
-from rest_framework import status
+from django.contrib.auth import get_user_model
+from rest_framework import status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.generics import ListAPIView
 
-from logging import getLogger, basicConfig, INFO
+from .models import Task, WorkLog
+from .serializers import TaskSerializer, UserStatisticsSerializer, WorkLogSerializer
 
 logger = getLogger(__name__)
 basicConfig(level=INFO)
@@ -23,6 +24,11 @@ class WorkLogViewSet(viewsets.ModelViewSet):
     serializer_class = WorkLogSerializer
 
 
+class UserStatisticsView(ListAPIView):
+    queryset = get_user_model().objects.all()
+    serializer_class = UserStatisticsSerializer
+
+
 def renormalize(value, old_min, old_max, new_min, new_max):
     old_range = old_max - old_min
     new_range = new_max - new_min
@@ -33,15 +39,15 @@ def renormalize(value, old_min, old_max, new_min, new_max):
 def parse_duration(duration_str):
     """Generate a timedelta object from a string formatted for a DurationField ("[-]DD HH:MM:SS")"""
     # Split by days and time
-    if ' ' in duration_str:
-        days_str, time_str = duration_str.split(' ')
+    if " " in duration_str:
+        days_str, time_str = duration_str.split(" ")
         days = int(days_str)
     else:
         days = 0
         time_str = duration_str
 
     # Split time into hours, minutes, and seconds
-    hours, minutes, seconds = map(int, time_str.split(':'))
+    hours, minutes, seconds = map(int, time_str.split(":"))
 
     # Create a timedelta object
     return timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
@@ -57,7 +63,7 @@ def calculate_brownie_points(task_id, completion_time, grossness):
 
     # Convert completion time to a timedelta. It's a string formatted for a DurationField ("[-]DD HH:MM:SS")
     completion_time = parse_duration(completion_time)
-    
+
     grossness = renormalize(float(grossness), 0, 5, 0.5, 2)
 
     logger.debug(f"[Task {task_id}]  Completion time as timedelta: {completion_time}")
@@ -67,7 +73,9 @@ def calculate_brownie_points(task_id, completion_time, grossness):
     # Get all the work logs associated with this task
     work_logs = WorkLog.objects.filter(task=task)
     if work_logs is None or len(work_logs) == 0:
-        logger.debug(f"[Task {task_id}]  No work logs for this task. Using this work log as the first.")
+        logger.debug(
+            f"[Task {task_id}]  No work logs for this task. Using this work log as the first."
+        )
         average_grossness = grossness
         average_completion_time = completion_time
 
@@ -91,10 +99,13 @@ def calculate_brownie_points(task_id, completion_time, grossness):
 
     # Calculate the brownie points
     brownie_points = (
-        (grossness * completion_time_minutes) / (average_grossness * average_completion_time_minutes)
+        (grossness * completion_time_minutes)
+        / (average_grossness * average_completion_time_minutes)
     ) * (average_completion_time_minutes)
 
-    logger.debug(f"[Task {task_id}]  Average completion time (minutes): {average_completion_time_minutes}")
+    logger.debug(
+        f"[Task {task_id}]  Average completion time (minutes): {average_completion_time_minutes}"
+    )
     logger.debug(f"[Task {task_id}]  Average grossness: {average_grossness}")
     logger.debug(f"[Task {task_id}]  Brownie points: {brownie_points}")
 
