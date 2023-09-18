@@ -9,9 +9,20 @@ const apiUrl = process.env.REACT_APP_BACKEND_URL;
 
 const Tasks = () => {
     const [tasks, setTasks] = useState([]);
-    const [showTaskPopup, setShowTaskPopup] = useState(false);
+    const [users, setUsers] = useState([]);
+    const [completionUsers, setCompletionUsers] = useState([]);
+    const [prevUsersBP, setPrevUsersBP] = useState({});
+    const [userBPChanged, setUserBPChanged] = useState({});
+
     const [selectedTask, setSelectedTask] = useState(null);
     const [selectedTaskId, setSelectedTaskId] = useState(null);
+
+    const [showTaskPopup, setShowTaskPopup] = useState(false);
+    const [showCompleteTaskPopup, setShowCompleteTaskPopup] = useState(false);
+    const [showAllTasks, setShowAllTasks] = useState(false);
+
+    const [grossness, setGrossness] = useState(0);
+    const [completionTime, setCompletionTime] = useState(0);
     const [newTask, setNewTask] = useState({
         task_name: '',
         task_id: '',
@@ -19,16 +30,12 @@ const Tasks = () => {
         min_interval: '0:0',
         description: ''
     });
-    const [showAllTasks, setShowAllTasks] = useState(false);
-    const [showCompleteTaskPopup, setShowCompleteTaskPopup] = useState(false);
-    const [completionUsers, setCompletionUsers] = useState([]);
-    const [completionTime, setCompletionTime] = useState(0);
-    const [grossness, setGrossness] = useState(0);
-    const [users, setUsers] = useState([]);
-    const [prevUsersBP, setPrevUsersBP] = useState({});
-    const [userBPChanged, setUserBPChanged] = useState({});
+
     const updateSelectedTaskTimer = useRef(null);
 
+    const completionTimeLookup = [
+        1, 2, 5, 10, 15, 20, 30, 45, 60, 90, 120
+    ];
 
     // useEffects //
 
@@ -188,13 +195,16 @@ const Tasks = () => {
     const handleCreateWorkLog = async (event) => {
         event.preventDefault();
         const csrftoken = getCSRFToken();
+
+        // Get completion time from the lookup table
+        const completionTime_minutes = parseInt(completionTimeLookup[completionTime]);
         // "[-]DD HH:MM:SS" and completion time is in minutes
-        const completion_time = `0 ${Math.floor(completionTime / 60)}:${completionTime % 60}:00`;
+        const completionTime_str = `0 ${Math.floor(completionTime_minutes / 60)}:${completionTime_minutes % 60}:00`;
 
         const calculate_brownie_points_url = apiUrl + "/calculate_brownie_points/";
         const payload = {
             task_id: selectedTaskId,
-            completion_time,
+            completion_time: completionTime_str,
             grossness
         };
         console.log("Payload: ", payload);
@@ -229,7 +239,7 @@ const Tasks = () => {
             const worklog = {
                 task: selectedTaskId,
                 user: completionUser,
-                completion_time,
+                completion_time: completionTime_str,
                 grossness,
                 brownie_points
             };
@@ -343,7 +353,7 @@ const Tasks = () => {
     };
 
     const popupInnerRef = useRef(null);
-    
+
     const handleCreateInputChange = (e) => {
         const { name, value } = e.target;
         setNewTask({
@@ -462,48 +472,62 @@ const Tasks = () => {
 
             {showCompleteTaskPopup ? (
                 <div className="popup" onClick={handleOverlayClick}>
-                    <div className="popup-inner" ref={popupInnerRef}>
+                    <div className="popup-inner" style={{ textAlign: "left" }} ref={popupInnerRef}>
                         <h2>Complete Task: {selectedTask && selectedTask.task_name}</h2>
                         <form onSubmit={handleCreateWorkLog}>
-                            <div>
-                                <label>Select Users:</label>
-                                {users.map(user => (
-                                    <button
-                                        type="button"
-                                        className={`button user-button ${completionUsers.includes(user.id) ? 'selected' : ''}`}
-                                        onClick={() => {
-                                            if (completionUsers.includes(user.id)) {
-                                                // Remove user from list
-                                                setCompletionUsers(completionUsers.filter(id => id !== user.id));
-                                            } else {
-                                                // Add user to list
-                                                setCompletionUsers([...completionUsers, user.id]);
-                                            }
-                                        }}
-                                    >
-                                        {user.username}
-                                    </button>
-                                ))}
+                            <div className="form-section">
+                                <div className="form-section">
+                                    <label>Select Users:</label>
+                                    <div className="user-button-container">
+                                        {users.map(user => (
+                                            <button
+                                                type="button"
+                                                className={`button user-button ${completionUsers.includes(user.id) ? 'selected' : ''}`}
+                                                onClick={() => {
+                                                    if (completionUsers.includes(user.id)) {
+                                                        // Remove user from list
+                                                        setCompletionUsers(completionUsers.filter(id => id !== user.id));
+                                                    } else {
+                                                        // Add user to list
+                                                        setCompletionUsers([...completionUsers, user.id]);
+                                                    }
+                                                }}
+                                            >
+                                                {user.username}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <label htmlFor="completionTime">Completion Time (in minutes):</label>
+                            <div className="form-section label-and-input">
+                                <label htmlFor="completionTime">Completion Time:</label>
                                 <input
                                     id="completionTime"
-                                    type="number"
+                                    type="range"
+                                    min="0"
+                                    max={completionTimeLookup.length - 1}
+                                    step="1"
                                     value={completionTime}
                                     onChange={e => setCompletionTime(e.target.value)}
                                 />
+                                <span>{completionTimeLookup[completionTime]} minutes</span>
                             </div>
-                            <div>
-                                <label htmlFor="grossness">Grossness:</label>
-                                <input
-                                    id="grossness"
-                                    type="number"
-                                    value={grossness}
-                                    onChange={e => setGrossness(e.target.value)}
-                                />
+
+                            <div className="form-section label-and-input">
+                                <label>Grossness:</label>
+                                <div className="grossness-scale">
+                                    {Array.from({ length: 5 }, (_, index) => index + 1).map(num => (
+                                        <span
+                                            key={num}
+                                            className={`poop-emoji ${grossness >= num ? 'selected' : ''}`}
+                                            onClick={() => setGrossness(grossness === num ? 0 : num)}
+                                        >
+                                            💩
+                                        </span>
+                                    ))}
+                                </div>
                             </div>
-                            <button className="button" type="submit">Submit</button>
+                            <button className="button form-section" type="submit">Submit</button>
                         </form>
                     </div>
                 </div>
@@ -549,7 +573,7 @@ const Tasks = () => {
                     <table className="user-stats-table">
                         <tbody>
                             {
-                                users.sort((a, b) => (b.brownie_point_credit - b.brownie_point_debit) - (a.brownie_point_credit - a.brownie_point_debit)).map((user, index) => {
+                                users.sort((a, b) => (b.brownie_point_credit - b.brownie_point_debit) - (a.brownie_point_credit - a.brownie_point_debit)).slice(0, 5).map((user, index) => {
                                     return (
                                         <tr key={index} className={`${userBPChanged[user.id] ? 'bounce-bp' : ''} user-row`} >
                                             <td className="user-name">{user.username}:</td>

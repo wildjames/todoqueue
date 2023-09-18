@@ -17,7 +17,7 @@ export function Navigation() {
                     {
                         isAuth ?
                             <>
-                                <Nav.Link href="/" style={{ paddingLeft: '10px', paddingRight: '10px' }}>Home</Nav.Link>
+                                <Nav.Link href="/" style={{ paddingLeft: '10px', paddingRight: '10px' }}>Tasks</Nav.Link>
                                 <Nav.Link href="/user_statistics" style={{ paddingLeft: '10px', paddingRight: '10px' }}>User Statistics</Nav.Link>
                             </> :
                             null

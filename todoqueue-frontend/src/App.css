@@ -122,7 +122,7 @@ h1 {
   background: white;
   padding: 24px;
   border-radius: 12px;
-  width: 400px;
+  width: 500px;
   text-align: center;
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);
 }
@@ -173,11 +173,29 @@ h1 {
   display: flex;
   flex-direction: column;
   margin-bottom: 1rem;
+  align-items: left;
+}
+
+.form-section {
+  margin-bottom: 1rem;
 }
 
 .form-input {
   padding: 0.5rem;
   margin-top: 0.2rem;
+}
+
+.label-and-input {
+  display: flex;
+  align-items: center;
+}
+
+.label-and-input label {
+  margin-right: 0.5rem;
+}
+
+.label-and-input span {
+  margin-left: 0.5rem;
 }
 
 .task-form {
@@ -186,16 +204,12 @@ h1 {
 }
 
 @keyframes bounce-bp {
-
-  0%,
-  100% {
-    transform: translateY(0);
-    transform: scale(1);
+  0%, 100% {
+    transform: translateY(0) scale(1);
   }
 
   50% {
-    transform: translateY(-10px);
-    transform: scale(1.1);
+    transform: translateY(-100px) scale(1.75);
   }
 }
 
@@ -259,4 +273,23 @@ h1 {
 .todoqueue-auth-form {
   max-width: 400px;
   margin: 0 auto;
+}
+
+.grossness-scale {
+  display: flex;
+  cursor: pointer;
+  /* Center the emojis */
+  justify-content: center;
+}
+
+.poop-emoji {
+  font-size: 2rem;
+  margin: 0.2rem;
+  opacity: 0.7;
+  transition: transform 0.2s ease;
+}
+
+.poop-emoji.selected {
+  opacity: 1;
+  transform: scale(1.2);
 }

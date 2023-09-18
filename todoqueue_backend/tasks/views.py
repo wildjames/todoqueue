@@ -68,7 +68,7 @@ def calculate_brownie_points(task_id, completion_time, grossness):
     # Convert completion time to a timedelta. It's a string formatted for a DurationField ("[-]DD HH:MM:SS")
     completion_time = parse_duration(completion_time)
 
-    grossness = renormalize(float(grossness), 0, 5, 0.5, 2)
+    grossness = renormalize(float(grossness), 0, 5, 1, 2)
 
     logger.debug(f"[Task {task_id}]  Completion time as timedelta: {completion_time}")
     logger.debug(f"[Task {task_id}]  Grossness: {grossness}")
