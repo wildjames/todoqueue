@@ -16,8 +16,6 @@ const Tasks = () => {
         description: ''
     });
     const [showAllTasks, setShowAllTasks] = useState(false);
-
-    // Task completion states
     const [showCompleteTaskPopup, setShowCompleteTaskPopup] = useState(false);
     const [completionUsers, setCompletionUsers] = useState([]);
     const [completionTime, setCompletionTime] = useState(0);
@@ -27,8 +25,23 @@ const Tasks = () => {
     const [userBPChanged, setUserBPChanged] = useState({});
     const updateSelectedTaskTimer = useRef(null);
 
+
     const apiUrl = process.env.REACT_APP_BACKEND_URL;
 
+
+    // useEffects //
+
+
+    // Generate a random task_id for the new task
+    useEffect(() => {
+        setNewTask({
+            ...newTask,
+            task_id: randomString()
+        });
+    }, []);
+
+
+    // Redirect to login page if not logged in
     useEffect(() => {
         if (localStorage.getItem('access_token') === null) {
             window.location.href = '/login'
@@ -53,17 +66,8 @@ const Tasks = () => {
         };
     }, []);
 
-    const getCSRFToken = () => {
-        const cookieValue = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
 
-        if (!cookieValue) {
-            console.error("CSRF token not found.");
-            throw new Error("CSRF token not found.");
-        }
-
-        return cookieValue;
-    };
-
+    // Update userBPChanged when users changes so we can bounce the table when a user's BP changes
     useEffect(() => {
         const newPrevUsersBP = {};
         const userBPChanged = {};
@@ -80,9 +84,65 @@ const Tasks = () => {
         setUserBPChanged(userBPChanged);
     }, [users]);
 
-    const toggleShowAllTasks = () => {
-        setShowAllTasks(!showAllTasks);
-    };
+
+    // Fetch users at regular intervals
+    useEffect(() => {
+        fetchUsers();
+        const interval = setInterval(() => {
+            fetchUsers();
+        }, 1000);
+        return () => clearInterval(interval);
+    }, []);
+
+
+    // Fetch tasks at regular intervals
+    useEffect(() => {
+        // run immediately, then start a timer that runs every 1000ms
+        fetchTasks();
+        const interval = setInterval(() => {
+            fetchTasks();
+        }, 1000);
+        return () => clearInterval(interval);
+    }
+        , [showAllTasks]);
+
+
+    // Fetch selected task at regular intervals
+    useEffect(() => {
+        if (showTaskPopup && selectedTaskId) {
+            const fetchSelectedTask = async () => {
+                const taskUrl = apiUrl + '/tasks/' + selectedTaskId;
+                const response = await axios.get(
+                    taskUrl,
+                    {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCSRFToken()
+                        },
+                    }
+                );
+                setSelectedTask(response.data);
+            };
+
+            // Clear previous timer if it exists
+            if (updateSelectedTaskTimer.current) {
+                clearInterval(updateSelectedTaskTimer.current);
+            }
+
+            fetchSelectedTask();
+            // Store the new timer in the ref
+            updateSelectedTaskTimer.current = setInterval(fetchSelectedTask, 1000);
+        }
+
+        return () => {
+            if (updateSelectedTaskTimer.current) {
+                clearInterval(updateSelectedTaskTimer.current);
+            }
+        };
+    }, [showTaskPopup, selectedTaskId, apiUrl]);
+
+
+    // Backend API functions //
 
     const fetchTasks = () => {
         const list_tasks_url = apiUrl + "/tasks/";
@@ -122,12 +182,6 @@ const Tasks = () => {
             .catch((error) => {
                 console.error("An error occurred while fetching data:", error);
             });
-    };
-
-    const handleOpenCompleteTaskPopup = (task) => {
-        setSelectedTask(task);
-        setSelectedTaskId(task.task_id);
-        setShowCompleteTaskPopup(true);
     };
 
     const handleCreateWorkLog = async (event) => {
@@ -205,67 +259,6 @@ const Tasks = () => {
         closeTaskPopup();
     };
 
-
-    useEffect(() => {
-        fetchUsers();
-        const interval = setInterval(() => {
-            fetchUsers();
-        }, 1000);
-        return () => clearInterval(interval);
-    }, []);
-
-    // Fetch tasks at regular intervals
-    useEffect(() => {
-        // run immediately, then start a timer that runs every 1000ms
-        fetchTasks();
-        const interval = setInterval(() => {
-            fetchTasks();
-        }, 1000);
-        return () => clearInterval(interval);
-    }
-        , [showAllTasks]);
-
-    useEffect(() => {
-        if (showTaskPopup && selectedTaskId) {
-            const fetchSelectedTask = async () => {
-                const taskUrl = apiUrl + '/tasks/' + selectedTaskId;
-                const response = await axios.get(
-                    taskUrl,
-                    {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': getCSRFToken()
-                        },
-                    }
-                );
-                setSelectedTask(response.data);
-            };
-
-            // Clear previous timer if it exists
-            if (updateSelectedTaskTimer.current) {
-                clearInterval(updateSelectedTaskTimer.current);
-            }
-
-            fetchSelectedTask();
-            // Store the new timer in the ref
-            updateSelectedTaskTimer.current = setInterval(fetchSelectedTask, 1000);
-        }
-
-        return () => {
-            if (updateSelectedTaskTimer.current) {
-                clearInterval(updateSelectedTaskTimer.current);
-            }
-        };
-    }, [showTaskPopup, selectedTaskId, apiUrl]);
-
-
-    useEffect(() => {
-        setNewTask({
-            ...newTask,
-            task_id: randomString()
-        });
-    }, []);
-
     const handleCreateTask = (event) => {
         event.preventDefault();
         const createTaskUrl = apiUrl + '/tasks/';
@@ -317,52 +310,6 @@ const Tasks = () => {
         fetchTasks();
     };
 
-    const togglePopup = () => {
-        setShowTaskPopup(!showTaskPopup);
-    };
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setNewTask({
-            ...newTask,
-            [name]: value,
-        });
-    };
-
-    const showTaskDetails = (task) => {
-        setSelectedTask(task);
-        setSelectedTaskId(task.task_id);
-        setShowTaskPopup(true);
-    };
-
-    const popupInnerRef = useRef(null);
-
-    const handleOverlayClick = (e) => {
-        if (popupInnerRef.current && !popupInnerRef.current.contains(e.target)) {
-            console.log("Clicked outside of popup");
-            closeCompleteTaskPopup();
-            closeTaskPopup();
-        }
-    };
-
-    const closeTaskPopup = () => {
-        setShowTaskPopup(false);
-        setSelectedTask(null);
-        setSelectedTaskId(null);
-        fetchTasks();
-    };
-
-    const closeCompleteTaskPopup = () => {
-        setShowCompleteTaskPopup(false);
-        setCompletionUsers([]);
-        setCompletionTime(0);
-        setGrossness(0);
-    };
-
-    const randomString = () => {
-        return Math.random().toString(36).substring(2, 15);
-    };
-
     const deleteTask = (taskId) => {
         const apiUrl = process.env.REACT_APP_BACKEND_URL;
         const deleteTaskUrl = `${apiUrl}/tasks/${taskId}/`;
@@ -386,6 +333,84 @@ const Tasks = () => {
             });
     };
 
+    // Popup functions //
+
+    const handleOpenCompleteTaskPopup = (task) => {
+        setSelectedTask(task);
+        setSelectedTaskId(task.task_id);
+        setShowCompleteTaskPopup(true);
+    };
+
+    const popupInnerRef = useRef(null);
+    
+    const handleCreateInputChange = (e) => {
+        const { name, value } = e.target;
+        setNewTask({
+            ...newTask,
+            [name]: value,
+        });
+    };
+
+    const showTaskDetails = (task) => {
+        setSelectedTask(task);
+        setSelectedTaskId(task.task_id);
+        setShowTaskPopup(true);
+    };
+
+
+    const handleOverlayClick = (e) => {
+        if (popupInnerRef.current && !popupInnerRef.current.contains(e.target)) {
+            console.log("Clicked outside of popup");
+            closeCompleteTaskPopup();
+            closeTaskPopup();
+        }
+    };
+
+    const closeTaskPopup = () => {
+        setShowTaskPopup(false);
+        setSelectedTask(null);
+        setSelectedTaskId(null);
+        fetchTasks();
+    };
+
+    const closeCompleteTaskPopup = () => {
+        setShowCompleteTaskPopup(false);
+        setCompletionUsers([]);
+        setCompletionTime(0);
+        setGrossness(0);
+    };
+
+    // Helper functions //
+
+
+    const randomString = () => {
+        return Math.random().toString(36).substring(2, 15);
+    };
+
+
+    // Misc functions //
+
+    const toggleShowAllTasks = () => {
+        setShowAllTasks(!showAllTasks);
+    };
+
+    const getCSRFToken = () => {
+        const cookieValue = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
+
+        if (!cookieValue) {
+            console.error("CSRF token not found.");
+            throw new Error("CSRF token not found.");
+        }
+
+        return cookieValue;
+    };
+
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- //
+
+
+
+
+
     return (
         <div className="Tasks">
             {showTaskPopup ? (
@@ -408,22 +433,22 @@ const Tasks = () => {
                                 <h2>Create a New Task</h2>
                                 <form className="task-form">
                                     <div className="input-group">
-                                        <input type="text" name="task_name" placeholder="Task Name" onChange={handleInputChange} />
+                                        <input type="text" name="task_name" placeholder="Task Name" onChange={handleCreateInputChange} />
                                     </div>
                                     <div className="input-group input-group-horizontal">
                                         <label>Max Interval: </label>
-                                        <input type="number" name="max_interval_days" placeholder="Days" onChange={handleInputChange} />
-                                        <input type="number" name="max_interval_hours" placeholder="Hours" onChange={handleInputChange} />
-                                        <input type="number" name="max_interval_minutes" placeholder="Minutes" onChange={handleInputChange} />
+                                        <input type="number" name="max_interval_days" placeholder="Days" onChange={handleCreateInputChange} />
+                                        <input type="number" name="max_interval_hours" placeholder="Hours" onChange={handleCreateInputChange} />
+                                        <input type="number" name="max_interval_minutes" placeholder="Minutes" onChange={handleCreateInputChange} />
                                     </div>
                                     <div className="input-group input-group-horizontal">
                                         <label>Min Interval: </label>
-                                        <input type="number" name="min_interval_days" placeholder="Days" onChange={handleInputChange} />
-                                        <input type="number" name="min_interval_hours" placeholder="Hours" onChange={handleInputChange} />
-                                        <input type="number" name="min_interval_minutes" placeholder="Minutes" onChange={handleInputChange} />
+                                        <input type="number" name="min_interval_days" placeholder="Days" onChange={handleCreateInputChange} />
+                                        <input type="number" name="min_interval_hours" placeholder="Hours" onChange={handleCreateInputChange} />
+                                        <input type="number" name="min_interval_minutes" placeholder="Minutes" onChange={handleCreateInputChange} />
                                     </div>
                                     <div className="input-group">
-                                        <input type="text" name="description" placeholder="Description" onChange={handleInputChange} />
+                                        <input type="text" name="description" placeholder="Description" onChange={handleCreateInputChange} />
                                         <button className="button create-button" onClick={handleCreateTask}>Create Task</button>
                                     </div>
                                 </form>
