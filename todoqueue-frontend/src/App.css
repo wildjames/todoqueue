@@ -204,7 +204,9 @@ h1 {
 }
 
 @keyframes bounce-bp {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0) scale(1);
   }
 
@@ -235,30 +237,34 @@ h1 {
 
 .user-stats-container {
   position: absolute;
-  bottom: 20px;
+  bottom: 80px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #f2f2f2;
+  background-color: #d1d1d1;
   border-radius: 15px;
   padding: 20px;
 }
 
-.user-stats-table {
-  width: 100%;
-  border-collapse: collapse;
+.user-stats-flex {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .user-row {
-  /* Add any row-specific styles here */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 1rem;
 }
 
-.user-name, .user-points {
-  text-align: right;
-  padding: 8px;
+.user-name {
+  font-size: 1.5rem;
+  font-weight: bold;
 }
-
 .user-points {
-  text-align: left;
+  margin: 0.2rem;
 }
 
 .navbar {

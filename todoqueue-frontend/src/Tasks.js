@@ -567,23 +567,20 @@ const Tasks = () => {
                 Create Task
             </button>
 
-
             <Link to="/user_statistics" style={{ textDecoration: 'none', color: 'inherit' }}>
                 <div className="user-stats-container">
-                    <table className="user-stats-table">
-                        <tbody>
-                            {
-                                users.sort((a, b) => (b.brownie_point_credit - b.brownie_point_debit) - (a.brownie_point_credit - a.brownie_point_debit)).slice(0, 5).map((user, index) => {
-                                    return (
-                                        <tr key={index} className={`${userBPChanged[user.id] ? 'bounce-bp' : ''} user-row`} >
-                                            <td className="user-name">{user.username}:</td>
-                                            <td className="user-points">{user.brownie_point_credit - user.brownie_point_debit} BP</td>
-                                        </tr>
-                                    );
-                                })
-                            }
-                        </tbody>
-                    </table>
+                    <div className="user-stats-flex">
+                        {
+                            users.sort((a, b) => (b.brownie_point_credit - b.brownie_point_debit) - (a.brownie_point_credit - a.brownie_point_debit)).slice(0, 5).map((user, index) => {
+                                return (
+                                    <div key={index} className={`${userBPChanged[user.id] ? 'bounce-bp' : ''} user-row`}>
+                                        <span className="user-name">{user.username}</span>
+                                        <span className="user-points">{user.brownie_point_credit - user.brownie_point_debit} BP</span>
+                                    </div>
+                                );
+                            })
+                        }
+                    </div>
                 </div>
             </Link>
 
