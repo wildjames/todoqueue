@@ -22,14 +22,16 @@ class Task(models.Model):
     @property
     def staleness(self):
         time_since_last_completed = timezone.now() - self.last_completed
-        
+
         if time_since_last_completed < self.min_interval:
             return 0
-        
+
         if time_since_last_completed > self.max_interval:
             return 1
-        
-        staleness = (time_since_last_completed.seconds - self.min_interval.seconds) / (self.max_interval - self.min_interval).seconds
+
+        staleness = (time_since_last_completed.seconds - self.min_interval.seconds) / (
+            self.max_interval - self.min_interval
+        ).seconds
         return staleness
 
     def __str__(self):
@@ -46,10 +48,14 @@ class WorkLog(models.Model):
     )
     brownie_points = models.IntegerField()
 
-    # When a work log is created, set the last_completed field of the task to now
     def save(self, *args, **kwargs):
         self.task.last_completed = timezone.now()
         self.task.save()
+
+        self.user.brownie_point_credit += self.brownie_points
+        self.user.save()
+        logger.info(f"User {self.user.username} was credited with {self.brownie_points} BP, and now has a total credit of {self.user.brownie_point_credit} BP")
+
         super(WorkLog, self).save(*args, **kwargs)
 
     def __str__(self):

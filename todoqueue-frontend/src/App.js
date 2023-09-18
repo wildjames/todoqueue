@@ -15,6 +15,7 @@ const App = () => {
     min_interval: '0:0',
     description: ''
   });
+  const [showAllTasks, setShowAllTasks] = useState(false);
 
   // Task completion states
   const [showCompleteTaskPopup, setShowCompleteTaskPopup] = useState(false);
@@ -22,10 +23,31 @@ const App = () => {
   const [completionTime, setCompletionTime] = useState(0); // time in minutes
   const [grossness, setGrossness] = useState(0);
   const [users, setUsers] = useState([]); // Assuming you will populate this with your user data
-
+  const [prevUsersBP, setPrevUsersBP] = useState({}); // to store previous brownie points
+  const [userBPChanged, setUserBPChanged] = useState({}); // to trigger bounce animation
   const updateSelectedTaskTimer = useRef(null);
 
   const apiUrl = process.env.REACT_APP_BACKEND_URL;
+
+  useEffect(() => {
+    const newPrevUsersBP = {};
+    const userBPChanged = {};
+
+    users.forEach(user => {
+      const bp = user.brownie_point_credit - user.brownie_point_debit;
+      if (prevUsersBP[user.id] !== undefined && prevUsersBP[user.id] !== bp) {
+        userBPChanged[user.id] = true;
+      }
+      newPrevUsersBP[user.id] = bp;
+    });
+
+    setPrevUsersBP(newPrevUsersBP);
+    setUserBPChanged(userBPChanged);
+  }, [users]);
+
+  const toggleShowAllTasks = () => {
+    setShowAllTasks(!showAllTasks);
+  };
 
   const fetchTasks = () => {
     // Make a GET request to the API, returns a list of tasks. Then, log the tasks to the console
@@ -33,7 +55,10 @@ const App = () => {
     fetch(list_tasks_url)
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
+        // Filter tasks by non-zero staleness
+        if (!showAllTasks) {
+          data = data.filter(task => task.staleness > 0);
+        }
         setTasks(data);
       });
   };
@@ -65,7 +90,6 @@ const App = () => {
 
   const handleCreateWorkLog = async (event) => {
     event.preventDefault();
-    console.log("Completion users is: ", completionUsers);
     const csrftoken = document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1];
     // "[-]DD HH:MM:SS" and completion time is in minutes
     const completion_time = `0 ${Math.floor(completionTime / 60)}:${completionTime % 60}:00`;
@@ -139,6 +163,7 @@ const App = () => {
 
 
   useEffect(() => {
+    fetchUsers();
     const interval = setInterval(() => {
       fetchUsers();
     }, 1000);
@@ -147,12 +172,14 @@ const App = () => {
 
   // Fetch tasks at regular intervals
   useEffect(() => {
+    // run immediately, then start a timer that runs every 1000ms
+    fetchTasks();
     const interval = setInterval(() => {
       fetchTasks();
     }, 1000);
     return () => clearInterval(interval);
   }
-    , []);
+    , [showAllTasks]);
 
   useEffect(() => {
     if (showTaskPopup && selectedTaskId) {
@@ -198,8 +225,6 @@ const App = () => {
     // Convert max_interval and min_interval to Django DurationField format "[-]DD HH:MM:SS"
     const max_interval = `${newTask.max_interval_days || 0} ${newTask.max_interval_hours || 0}:${newTask.max_interval_minutes || 0}:00`;
     const min_interval = `${newTask.min_interval_days || 0} ${newTask.min_interval_hours || 0}:${newTask.min_interval_minutes || 0}:00`;
-    console.log("max_interval: ", max_interval);
-    console.log("min_interval: ", min_interval);
 
     // Create a new object containing the formatted max_interval and min_interval
     const formattedNewTask = {
@@ -334,15 +359,14 @@ const App = () => {
                 <form className="task-form">
                   <div className="input-group">
                     <input type="text" name="task_name" placeholder="Task Name" onChange={handleInputChange} />
-                    <input type="text" name="task_id" placeholder="Task ID" value={newTask.task_id} onChange={handleInputChange} />
                   </div>
-                  <div className="input-group">
+                  <div className="input-group input-group-horizontal">
                     <label>Max Interval: </label>
                     <input type="number" name="max_interval_days" placeholder="Days" onChange={handleInputChange} />
                     <input type="number" name="max_interval_hours" placeholder="Hours" onChange={handleInputChange} />
                     <input type="number" name="max_interval_minutes" placeholder="Minutes" onChange={handleInputChange} />
                   </div>
-                  <div className="input-group">
+                  <div className="input-group input-group-horizontal">
                     <label>Min Interval: </label>
                     <input type="number" name="min_interval_days" placeholder="Days" onChange={handleInputChange} />
                     <input type="number" name="min_interval_hours" placeholder="Hours" onChange={handleInputChange} />
@@ -412,7 +436,7 @@ const App = () => {
       <div className="task-container">
         {tasks.map((task, index) => (
           <div
-            className={`task-card ${task.staleness === 1 ? 'stale' : ''}`}
+            className={`task-card ${task.staleness === 1 ? 'stale' : ''} ${task.staleness === 0 ? 'fresh' : ''}`}
             key={task.task_id}
             onClick={() => showTaskDetails(task)}
             style={{
@@ -435,14 +459,40 @@ const App = () => {
         ))}
       </div>
 
-      {/* This button needs to be left aligned on the screen */}
-      <button 
-      className="button" 
-      style={{ position: 'absolute', bottom: '20px', left: '20px' }}
-      onClick={() => { setShowTaskPopup(true); setSelectedTask(null); setSelectedTaskId(null); }}
+      <button
+        className="button"
+        style={{ position: 'absolute', bottom: '20px', left: '20px' }}
+        onClick={() => { setShowTaskPopup(true); setSelectedTask(null); setSelectedTaskId(null); }}
       >
         Create Task
       </button>
+
+
+      <div style={{ position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)' }}>
+        <table>
+          <tbody>
+            {
+              users.sort((a, b) => (b.brownie_point_credit - b.brownie_point_debit) - (a.brownie_point_credit - a.brownie_point_debit)).map((user, index) => {
+                return (
+                  <tr key={index} className={userBPChanged[user.id] ? 'bounce-bp' : ''} >
+                    <td style={{ textAlign: 'right' }}>{user.username}:</td>
+                    <td style={{ textAlign: 'left' }}>{user.brownie_point_credit - user.brownie_point_debit} BP</td>
+                  </tr>
+                );
+              })
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <button
+        className="button"
+        style={{ position: 'absolute', bottom: '20px', right: '20px' }}
+        onClick={() => { toggleShowAllTasks(); }}
+      >
+        {showAllTasks ? 'Hide All Tasks' : 'Show All Tasks'}
+      </button>
+
 
     </div >
   );
