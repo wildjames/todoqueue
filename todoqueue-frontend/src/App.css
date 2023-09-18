@@ -1,7 +1,8 @@
 .Tasks {
   text-align: center;
-  margin-top: 40px;
   font-family: 'Arial', sans-serif;
+  margin-top: 60px;
+  overflow-x: auto;
 }
 
 h1 {
@@ -216,4 +217,46 @@ h1 {
   flex: 1;
   margin: 0 5px;
   max-width: 60px;
+}
+
+.user-stats-container {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #f2f2f2;
+  border-radius: 15px;
+  padding: 20px;
+}
+
+.user-stats-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.user-row {
+  /* Add any row-specific styles here */
+}
+
+.user-name, .user-points {
+  text-align: right;
+  padding: 8px;
+}
+
+.user-points {
+  text-align: left;
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100vw;
+  z-index: 1020;
+}
+
+.todoqueue-auth-form {
+  max-width: 400px;
+  margin: 0 auto;
 }

@@ -1,5 +1,6 @@
-import axios from 'axios';  // Assuming you are using axios for HTTP requests
+import axios from 'axios';
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import './App.css';
 
 const Tasks = () => {
@@ -19,14 +20,38 @@ const Tasks = () => {
     // Task completion states
     const [showCompleteTaskPopup, setShowCompleteTaskPopup] = useState(false);
     const [completionUsers, setCompletionUsers] = useState([]);
-    const [completionTime, setCompletionTime] = useState(0); // time in minutes
+    const [completionTime, setCompletionTime] = useState(0);
     const [grossness, setGrossness] = useState(0);
-    const [users, setUsers] = useState([]); // Assuming you will populate this with your user data
-    const [prevUsersBP, setPrevUsersBP] = useState({}); // to store previous brownie points
-    const [userBPChanged, setUserBPChanged] = useState({}); // to trigger bounce animation
+    const [users, setUsers] = useState([]);
+    const [prevUsersBP, setPrevUsersBP] = useState({});
+    const [userBPChanged, setUserBPChanged] = useState({});
     const updateSelectedTaskTimer = useRef(null);
 
     const apiUrl = process.env.REACT_APP_BACKEND_URL;
+
+    useEffect(() => {
+        if (localStorage.getItem('access_token') === null) {
+            window.location.href = '/login'
+        }
+        else {
+            (
+                async () => {
+                    try {
+                        const { data } = await axios.get(
+                            apiUrl + '/auth/',
+                            {
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                }
+                            }
+                        );
+                        console.log("Logged in with message", data.message);
+                    } catch (e) {
+                        console.log('not auth')
+                    }
+                })()
+        };
+    }, []);
 
     const getCSRFToken = () => {
         const cookieValue = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
@@ -60,7 +85,6 @@ const Tasks = () => {
     };
 
     const fetchTasks = () => {
-        // Make a GET request to the API, returns a list of tasks. Then, log the tasks to the console
         const list_tasks_url = apiUrl + "/tasks/";
         axios.get(list_tasks_url, {
             headers: {
@@ -71,6 +95,9 @@ const Tasks = () => {
             .then((res) => {
                 // Filter tasks by non-zero staleness
                 let data = res.data;
+                if (!data) {
+                    return;
+                }
                 if (!showAllTasks) {
                     data = data.filter(task => task.staleness > 0);
                 }
@@ -90,7 +117,7 @@ const Tasks = () => {
             }
         })
             .then((res) => {
-                setUsers(res.data); // Axios automatically parses the JSON response
+                setUsers(res.data);
             })
             .catch((error) => {
                 console.error("An error occurred while fetching data:", error);
@@ -109,7 +136,6 @@ const Tasks = () => {
         // "[-]DD HH:MM:SS" and completion time is in minutes
         const completion_time = `0 ${Math.floor(completionTime / 60)}:${completionTime % 60}:00`;
 
-        // Fetch the brownie_points for the task from the backend, at /calculate_brownie_points/
         const calculate_brownie_points_url = apiUrl + "/calculate_brownie_points/";
         const payload = {
             task_id: selectedTaskId,
@@ -230,7 +256,7 @@ const Tasks = () => {
                 clearInterval(updateSelectedTaskTimer.current);
             }
         };
-    }, [showTaskPopup, selectedTaskId, apiUrl]); // Notice that it listens to selectedTaskId
+    }, [showTaskPopup, selectedTaskId, apiUrl]);
 
 
     useEffect(() => {
@@ -362,8 +388,6 @@ const Tasks = () => {
 
     return (
         <div className="Tasks">
-            <h1>ToDo Queue</h1>
-
             {showTaskPopup ? (
                 <div className="popup" onClick={handleOverlayClick}>
                     <div className="popup-inner" ref={popupInnerRef}>
@@ -494,22 +518,25 @@ const Tasks = () => {
             </button>
 
 
-            <div style={{ position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)' }} href="/user_statistics">
-                <table>
-                    <tbody>
-                        {
-                            users.sort((a, b) => (b.brownie_point_credit - b.brownie_point_debit) - (a.brownie_point_credit - a.brownie_point_debit)).map((user, index) => {
-                                return (
-                                    <tr key={index} className={userBPChanged[user.id] ? 'bounce-bp' : ''} >
-                                        <td style={{ textAlign: 'right' }}>{user.username}:</td>
-                                        <td style={{ textAlign: 'left' }}>{user.brownie_point_credit - user.brownie_point_debit} BP</td>
-                                    </tr>
-                                );
-                            })
-                        }
-                    </tbody>
-                </table>
-            </div>
+            <Link to="/user_statistics" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div className="user-stats-container">
+                    <table className="user-stats-table">
+                        <tbody>
+                            {
+                                users.sort((a, b) => (b.brownie_point_credit - b.brownie_point_debit) - (a.brownie_point_credit - a.brownie_point_debit)).map((user, index) => {
+                                    return (
+                                        <tr key={index} className={`${userBPChanged[user.id] ? 'bounce-bp' : ''} user-row`} >
+                                            <td className="user-name">{user.username}:</td>
+                                            <td className="user-points">{user.brownie_point_credit - user.brownie_point_debit} BP</td>
+                                        </tr>
+                                    );
+                                })
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </Link>
+
 
             <button
                 className="button"
