@@ -34,6 +34,16 @@ class Task(models.Model):
         ).seconds
         return staleness
 
+    @property
+    def mean_completion_time(self):
+        work_logs = WorkLog.objects.filter(task=self)
+        if work_logs.count() == 0:
+            return timezone.timedelta(seconds=0)
+
+        total_completion_time = sum([work_log.completion_time for work_log in work_logs], timezone.timedelta())
+        mean_completion_time = total_completion_time / work_logs.count()
+        return mean_completion_time.total_seconds()
+
     def __str__(self):
         return self.task_name
 

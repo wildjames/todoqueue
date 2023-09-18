@@ -27,14 +27,16 @@ h1 {
   overflow: visible;
   white-space: nowrap;
   flex-wrap: nowrap;
-  height: 75vh; /* 75% of the viewport height */
-  position: relative; /* Set position to relative */
+  height: 75vh;
+  /* 75% of the viewport height */
+  position: relative;
+  /* Set position to relative */
 }
 
 .task-card {
   background: #f9f9f9;
   width: 150px;
-  min-width: 150px; 
+  min-width: 150px;
   height: 100px;
   margin: 10px;
   border: 2px solid #e0e0e0;
@@ -43,8 +45,11 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  transition: bottom 0.75s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  transition:
+    bottom 0.75s cubic-bezier(0.68, -0.55, 0.27, 1.55),
+    left 0.75s cubic-bezier(0.68, -0.55, 0.27, 1.55),
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   position: absolute;
   overflow: hidden;
 
@@ -55,10 +60,13 @@ h1 {
 }
 
 @keyframes flash-stale {
-  0%, 100% {
+
+  0%,
+  100% {
     background-color: red;
     color: white;
   }
+
   50% {
     background-color: white;
     color: black;
@@ -72,7 +80,6 @@ h1 {
 }
 
 .task-card.fresh {
-  /* When we're fresh, the card should be at 50% opacity */
   opacity: 0.3;
 }
 
@@ -85,7 +92,7 @@ h1 {
 .task-text {
   display: block;
   margin-bottom: 10px;
-  /* Force the text to wrap */
+  /* Force the text to wrap??? */
   overflow-wrap: break-word;
   word-wrap: break-word;
   /* Make sure the text can actually break */
@@ -178,10 +185,13 @@ h1 {
 }
 
 @keyframes bounce-bp {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
     transform: scale(1);
   }
+
   50% {
     transform: translateY(-10px);
     transform: scale(1.1);

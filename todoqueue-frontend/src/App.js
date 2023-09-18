@@ -59,6 +59,8 @@ const App = () => {
         if (!showAllTasks) {
           data = data.filter(task => task.staleness > 0);
         }
+        // Sort by mean completion time, which is just the number of seconds
+        data.sort((a, b) => (a.mean_completion_time - b.mean_completion_time));
         setTasks(data);
       });
   };
@@ -344,7 +346,7 @@ const App = () => {
             {selectedTask ? (
               <div>
                 <h2>{selectedTask.task_name}</h2>
-                {/* <p>ID: {selectedTask.task_id}</p> */}
+                <p>Mean completion time: {selectedTask.mean_completion_time / 60} minutes</p>
                 <p>Max Interval: {selectedTask.max_interval}</p>
                 <p>Min Interval: {selectedTask.min_interval}</p>
                 <p>Last Completed: {selectedTask.last_completed}</p>
