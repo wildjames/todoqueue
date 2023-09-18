@@ -1,7 +1,11 @@
 from django.contrib import admin
-from .models import Task, WorkLog  # Import your models here
+from .models import Task, WorkLog, Household
 
-# Custom admin view for Task model
+class HouseholdAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
+    filter_horizontal = ('users', 'tasks',)
+
 class TaskAdmin(admin.ModelAdmin):
     list_display = ('task_name', 'task_id', 'last_completed', 'max_interval', 'min_interval')
     search_fields = ('task_name', 'task_id')
@@ -16,3 +20,4 @@ class WorkLogAdmin(admin.ModelAdmin):
 # Register your models here.
 admin.site.register(Task, TaskAdmin)
 admin.site.register(WorkLog, WorkLogAdmin)
+admin.site.register(Household, HouseholdAdmin)

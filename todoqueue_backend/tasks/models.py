@@ -16,6 +16,15 @@ logger = getLogger(__name__)
 usermodel = get_user_model()
 
 
+class Household(models.Model):
+    users = models.ManyToManyField(get_user_model(), related_name="households")
+    tasks = models.ManyToManyField("Task", related_name="households")
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+
 class Task(models.Model):
     task_name = models.CharField(max_length=255)
     task_id = models.CharField(max_length=255, unique=True, primary_key=True)
@@ -98,9 +107,14 @@ class WorkLog(models.Model):
             worklog.save()
 
     def __str__(self):
-        return (
-            f"{self.user.username} completed {self.task.task_name} at {self.timestamp}"
-        )
+        if self.task:
+            task_name = self.task.task_name
+        else:
+            task_name = self.task_json["task_name"]
+        return f"{self.user.username} completed {task_name} at {self.timestamp}"
+
+
+# Serializers have to live here, to avoid circular imports :(
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -147,11 +161,13 @@ class UserStatisticsSerializer(serializers.ModelSerializer):
         work_logs = WorkLog.objects.filter(
             user=obj, timestamp__gte=timezone.now() - timezone.timedelta(days=30)
         )
-        
+
         # If the task was deleted, fetch the data from the JSON field. If the task still exists, get it from the task object
         return [
             {
-                "task_name": log.task.task_name if log.task else log.task_json["task_name"],
+                "task_name": log.task.task_name
+                if log.task
+                else log.task_json["task_name"],
                 "completion_time": log.completion_time.total_seconds(),
                 "grossness": log.grossness,
                 "brownie_points": log.brownie_points,
@@ -159,4 +175,3 @@ class UserStatisticsSerializer(serializers.ModelSerializer):
             }
             for log in work_logs
         ]
-        
