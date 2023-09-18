@@ -67,7 +67,8 @@ const App = () => {
     event.preventDefault();
     console.log("Completion users is: ", completionUsers);
     const csrftoken = document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1];
-    const completion_time = `0:0:${completionTime}`;
+    // "[-]DD HH:MM:SS" and completion time is in minutes
+    const completion_time = `0 ${Math.floor(completionTime / 60)}:${completionTime % 60}:00`;
 
     // Fetch the brownie_points for the task from the backend, at /calculate_brownie_points/
     const calculate_brownie_points_url = apiUrl + "/calculate_brownie_points/";
@@ -96,6 +97,8 @@ const App = () => {
       return;
     }
 
+    // Convert brownie points from a string of a float to an integer
+    brownie_points = Math.round(parseFloat(brownie_points));
     console.log("Brownie points: ", brownie_points);
 
     // pop each user off the list of completionUsers and create a worklog for each
@@ -129,7 +132,7 @@ const App = () => {
 
     // Clear the list of completionUsers and close the popup
     completionUsers.length = 0;
-    
+
     closeCompleteTaskPopup();
     closeTaskPopup();
   };
@@ -178,6 +181,13 @@ const App = () => {
   }, [showTaskPopup, selectedTaskId, apiUrl]); // Notice that it listens to selectedTaskId
 
 
+  useEffect(() => {
+    setNewTask({
+      ...newTask,
+      task_id: randomString()
+    });
+  }, []);
+
   const handleCreateTask = (event) => {
     event.preventDefault();
     const createTaskUrl = apiUrl + '/tasks/';
@@ -185,9 +195,9 @@ const App = () => {
     // Fetch CSRF token from cookies
     const csrftoken = document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1];
 
-    // Convert max_interval and min_interval to Django DurationField format
-    const max_interval = `${newTask.max_interval_days || 0} ${newTask.max_interval_hours || 0}:${newTask.max_interval_minutes || 0}`;
-    const min_interval = `${newTask.min_interval_days || 0} ${newTask.min_interval_hours || 0}:${newTask.min_interval_minutes || 0}`;
+    // Convert max_interval and min_interval to Django DurationField format "[-]DD HH:MM:SS"
+    const max_interval = `${newTask.max_interval_days || 0} ${newTask.max_interval_hours || 0}:${newTask.max_interval_minutes || 0}:00`;
+    const min_interval = `${newTask.min_interval_days || 0} ${newTask.min_interval_hours || 0}:${newTask.min_interval_minutes || 0}:00`;
     console.log("max_interval: ", max_interval);
     console.log("min_interval: ", min_interval);
 
@@ -217,6 +227,18 @@ const App = () => {
       .catch((error) => {
         console.error('Error:', error);
       });
+
+    // Reset the newTask state
+    setNewTask({
+      task_name: '',
+      task_id: randomString(),
+      max_interval: '0:0',
+      min_interval: '0:0',
+      description: ''
+    });
+
+    // Fetch task list again
+    fetchTasks();
   };
 
   const togglePopup = () => {
@@ -261,6 +283,10 @@ const App = () => {
     setGrossness(0);
   };
 
+  const randomString = () => {
+    return Math.random().toString(36).substring(2, 15);
+  };
+
   const deleteTask = (taskId) => {
     const apiUrl = process.env.REACT_APP_BACKEND_URL;
     const deleteTaskUrl = `${apiUrl}/tasks/${taskId}/`;
@@ -285,8 +311,7 @@ const App = () => {
 
   return (
     <div className="App">
-      <h1>Task Queue</h1>
-      <button className="button" onClick={() => { setShowTaskPopup(true); setSelectedTask(null); setSelectedTaskId(null); }}>Create Task</button>
+      <h1>ToDo Queue</h1>
 
       {showTaskPopup ? (
         <div className="popup" onClick={handleOverlayClick}>
@@ -300,6 +325,7 @@ const App = () => {
                 <p>Last Completed: {selectedTask.last_completed}</p>
                 <p>Staleness: {selectedTask.staleness}</p>
                 <p>Description: {selectedTask.description}</p>
+                <button className="button complete-button" onClick={() => handleOpenCompleteTaskPopup(selectedTask)}>Complete Task</button>
                 <button className="button delete-button" onClick={() => deleteTask(selectedTask.task_id)}>Delete Task</button>
               </div>
             ) : (
@@ -308,7 +334,7 @@ const App = () => {
                 <form className="task-form">
                   <div className="input-group">
                     <input type="text" name="task_name" placeholder="Task Name" onChange={handleInputChange} />
-                    <input type="text" name="task_id" placeholder="Task ID" onChange={handleInputChange} />
+                    <input type="text" name="task_id" placeholder="Task ID" value={newTask.task_id} onChange={handleInputChange} />
                   </div>
                   <div className="input-group">
                     <label>Max Interval: </label>
@@ -384,23 +410,39 @@ const App = () => {
       ) : null}
 
       <div className="task-container">
-        {tasks.map((task) => (
+        {tasks.map((task, index) => (
           <div
-            className="task-card"
+            className={`task-card ${task.staleness === 1 ? 'stale' : ''}`}
             key={task.task_id}
             onClick={() => showTaskDetails(task)}
+            style={{
+              bottom: `calc(${(task.staleness) * 100}% - ${task.staleness * 120}px)`,
+              left: `${index * 210}px`
+            }}
           >
             <div className="task-content">
               <span className="task-text">
                 {task.task_name}
               </span>
               <span className="task-button">
-                <button className="button complete-button" onClick={() => handleOpenCompleteTaskPopup(task)}>Complete Task</button>
+                <button className="button complete-button" onClick={(e) => {
+                  e.stopPropagation();
+                  handleOpenCompleteTaskPopup(task);
+                }}>Complete Task</button>
               </span>
             </div>
           </div>
         ))}
       </div>
+
+      {/* This button needs to be left aligned on the screen */}
+      <button 
+      className="button" 
+      style={{ position: 'absolute', bottom: '20px', left: '20px' }}
+      onClick={() => { setShowTaskPopup(true); setSelectedTask(null); setSelectedTaskId(null); }}
+      >
+        Create Task
+      </button>
 
     </div >
   );

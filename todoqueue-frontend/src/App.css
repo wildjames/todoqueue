@@ -12,14 +12,20 @@ h1 {
 
 .task-container {
   display: flex;
-  justify-content: center;
-  /* Space between task cards */
+  justify-content: flex-start;
   gap: 16px;
+  overflow-x: auto;
+  overflow: visible;
+  white-space: nowrap;
+  flex-wrap: nowrap;
+  height: 75vh; /* 75% of the viewport height */
+  position: relative; /* Set position to relative */
 }
 
 .task-card {
   background: #f9f9f9;
-  width: 200px;
+  width: 150px;
+  min-width: 150px; 
   height: 100px;
   margin: 10px;
   border: 2px solid #e0e0e0;
@@ -29,7 +35,9 @@ h1 {
   justify-content: center;
   align-items: center;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  position: relative;
+  transition: bottom 0.75s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  position: absolute;
+  overflow: hidden;
 
   &:hover {
     transform: scale(1.05);
@@ -37,13 +45,38 @@ h1 {
   }
 }
 
+@keyframes flash-stale {
+  0%, 100% {
+    background-color: red;
+    color: white;
+  }
+  50% {
+    background-color: white;
+    color: black;
+  }
+}
+
+.task-card.stale {
+  background-color: red;
+  color: white;
+  animation: flash-stale 2s infinite;
+}
+
 .task-content {
   text-align: center;
+  width: 100%;
+  min-width: 0;
 }
 
 .task-text {
   display: block;
   margin-bottom: 10px;
+  /* Force the text to wrap */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  /* Make sure the text can actually break */
+  min-width: 0;
+  width: 100%;
 }
 
 .task-button {

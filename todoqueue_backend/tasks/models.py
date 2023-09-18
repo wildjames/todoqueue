@@ -3,6 +3,10 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.contrib.auth import get_user_model
 
+from logging import getLogger
+
+logger = getLogger(__name__)
+
 usermodel = get_user_model()
 
 
@@ -25,8 +29,7 @@ class Task(models.Model):
         if time_since_last_completed > self.max_interval:
             return 1
         
-        staleness = (time_since_last_completed - self.min_interval) / (self.max_interval - self.min_interval)
-        
+        staleness = (time_since_last_completed.seconds - self.min_interval.seconds) / (self.max_interval - self.min_interval).seconds
         return staleness
 
     def __str__(self):
