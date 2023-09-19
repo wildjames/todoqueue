@@ -13,9 +13,6 @@ const Tasks = ({ selectedHousehold }) => {
     const [tasks, setTasks] = useState([]);
     const [users, setUsers] = useState([]);
     const [completionUsers, setCompletionUsers] = useState([]);
-    const [prevUsersBP, setPrevUsersBP] = useState({});
-    const [userBPChanged, setUserBPChanged] = useState({});
-    const [userBPChangedTime, setUserBPChangedTime] = useState({});
 
     const [selectedTask, setSelectedTask] = useState(null);
     const [selectedTaskId, setSelectedTaskId] = useState(null);
@@ -77,35 +74,6 @@ const Tasks = ({ selectedHousehold }) => {
                 })()
         };
     }, []);
-
-
-    // Update userBPChanged when users changes so we can bounce the table when a user's BP changes
-    useEffect(() => {
-        const newPrevUsersBP = {};
-        const newUserBPChanged = {};
-        const now = new Date();
-
-        users.forEach(user => {
-            const bp = user.brownie_point_credit[selectedHousehold] - user.brownie_point_debit[selectedHousehold];
-
-            if (prevUsersBP[user.id] !== undefined && prevUsersBP[user.id] !== bp) {
-                console.log("User BP changed", user.username);
-                newUserBPChanged[user.id] = true;
-                setUserBPChangedTime(prevTime => ({ ...prevTime, [user.id]: now }));
-            }
-            else if (userBPChangedTime[user.id] && (now - new Date(userBPChangedTime[user.id])) < 1000) {
-                console.log("User still in bounce window", user.username);
-                newUserBPChanged[user.id] = true;
-            }
-            else {
-                newUserBPChanged[user.id] = false;
-            }
-            newPrevUsersBP[user.id] = bp;
-        });
-
-        setPrevUsersBP(newPrevUsersBP);
-        setUserBPChanged(newUserBPChanged);
-    }, [users]);
 
 
     // Fetch tasks, and users at regular intervals
