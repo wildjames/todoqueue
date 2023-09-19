@@ -9,6 +9,16 @@ axios.interceptors.response.use(
     if (error.response.status === 401 && !refresh) {
       refresh = true;
 
+      if (localStorage.getItem('refresh_token') === null) {
+        console.log("No refresh token found. Redirecting to login page.");
+        localStorage.clear();
+        // Dont redirect to login page if already on login page
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
+        return;
+      }
+
       console.log("Token out of date. Refreshing using token: ", localStorage.getItem('refresh_token'));
 
       const response = await axios.post(

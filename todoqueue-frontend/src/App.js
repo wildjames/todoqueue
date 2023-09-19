@@ -45,16 +45,21 @@ const App = () => {
   const getCSRFToken = () => {
     const cookieValue = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
 
-    if (!cookieValue) {
-      console.error("CSRF token not found.");
-      // throw new Error("CSRF token not found.");
-    }
+    // if (!cookieValue) {
+    //   console.error("CSRF token not found.");
+    //   // throw new Error("CSRF token not found.");
+    // }
 
     return cookieValue;
   };
 
 
   const fetchHouseholds = () => {
+    // Only do this if we are logged in
+    if (localStorage.getItem('access_token') === null) {
+      return;
+    }
+
     const list_households_url = apiUrl + "/households/";
     axios.get(list_households_url, {
       headers: {
@@ -63,7 +68,6 @@ const App = () => {
       }
     })
       .then((res) => {
-        console.log(res);
         if (res.status !== 200) {
           console.log("Failed to fetch households.");
           return;

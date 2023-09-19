@@ -167,7 +167,6 @@ const Tasks = ({ selectedHousehold }) => {
 
     const fetchTasks = () => {
         if (!selectedHousehold) {
-            console.log("No household selected");
             setTasks([]);
             return;
         }
@@ -185,10 +184,11 @@ const Tasks = ({ selectedHousehold }) => {
                     console.log("Failed to fetch tasks.");
                     return;
                 }
-                console.log("Got task list: ", res.data);
+                console.log("Fetched tasks: ", res.data);
                 // Filter tasks by non-zero staleness
                 let data = res.data;
                 if (!data) {
+                    console.log("No data fetched for tasks");
                     return;
                 }
                 if (!showAllTasks) {
@@ -206,7 +206,6 @@ const Tasks = ({ selectedHousehold }) => {
             return;
         }
         let list_users_url = apiUrl + `/households/${selectedHousehold}/users/`;
-        console.log("Fetching users for household: ", selectedHousehold);
 
         axios.get(list_users_url, {
             headers: {
@@ -220,7 +219,6 @@ const Tasks = ({ selectedHousehold }) => {
                     return;
                 }
                 setUsers(res.data);
-                console.log("Fetched userd: ", res.data);
             })
             .catch((error) => {
                 console.error("An error occurred while fetching data:", error);
@@ -333,7 +331,7 @@ const Tasks = ({ selectedHousehold }) => {
         setInputError(false);
 
         // Fetch CSRF token from cookies
-        const csrftoken = document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1];
+        const csrftoken = getCSRFToken();
 
         // Convert max_interval and min_interval to Django DurationField format "[-]DD HH:MM:SS"
         const max_interval = `${newTask.max_interval_days || 0} ${newTask.max_interval_hours || 0}:${newTask.max_interval_minutes || 0}:00`;
@@ -363,7 +361,7 @@ const Tasks = ({ selectedHousehold }) => {
                     console.log("Failed to create task.");
                     return;
                 }
-                console.log(res.data);
+                console.log("Created task. Response:", res.data);
                 fetchTasks();
                 setShowTaskPopup(false);
             })
@@ -391,7 +389,7 @@ const Tasks = ({ selectedHousehold }) => {
         console.log("taskId: ", taskId);
 
         // Fetch CSRF token from cookies
-        const csrftoken = document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1];
+        const csrftoken = getCSRFToken();
 
         axios.delete(
             deleteTaskUrl,
@@ -416,6 +414,7 @@ const Tasks = ({ selectedHousehold }) => {
     const handleOpenCompleteTaskPopup = (task) => {
         setSelectedTask(task);
         setSelectedTaskId(task.task_id);
+        setShowTaskPopup(false);
         setShowCompleteTaskPopup(true);
     };
 
@@ -424,22 +423,28 @@ const Tasks = ({ selectedHousehold }) => {
     const handleCreateInputChange = (e) => {
         const { name, value } = e.target;
 
-        setNewTask({
-            ...newTask,
-            [name]: value,
+        setNewTask((prevTask) => {
+            const updatedTask = { ...prevTask, [name]: value };
+
+            const max_interval_in_minutes =
+                (updatedTask.max_interval_days || 0) * 24 * 60 +
+                (updatedTask.max_interval_hours || 0) * 60 +
+                (updatedTask.max_interval_minutes || 0);
+
+            const min_interval_in_minutes =
+                (updatedTask.min_interval_days || 0) * 24 * 60 +
+                (updatedTask.min_interval_hours || 0) * 60 +
+                (updatedTask.min_interval_minutes || 0);
+
+            if (max_interval_in_minutes < min_interval_in_minutes) {
+                setInputError(true);
+                console.log("Max interval should be greater than or equal to Min interval");
+            } else {
+                setInputError(false);
+            }
+
+            return updatedTask;
         });
-        console.log("New task: ", newTask);
-
-        const max_interval_in_minutes = (newTask.max_interval_days || 0) * 24 * 60 + (newTask.max_interval_hours || 0) * 60 + (newTask.max_interval_minutes || 0);
-        const min_interval_in_minutes = (newTask.min_interval_days || 0) * 24 * 60 + (newTask.min_interval_hours || 0) * 60 + (newTask.min_interval_minutes || 0);
-
-        if (max_interval_in_minutes < min_interval_in_minutes) {
-            setInputError(true);
-            console.log("Max interval should be greater than or equal to Min interval");
-            return;
-        }
-
-        setInputError(false);
     };
 
     const showTaskDetails = (task) => {
@@ -516,10 +521,10 @@ const Tasks = ({ selectedHousehold }) => {
     const getCSRFToken = () => {
         const cookieValue = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
 
-        if (!cookieValue) {
-            console.error("CSRF token not found.");
-            // throw new Error("CSRF token not found.");
-        }
+        // if (!cookieValue) {
+        //     console.error("CSRF token not found.");
+        //     // throw new Error("CSRF token not found.");
+        // }
 
         return cookieValue;
     };
@@ -666,27 +671,28 @@ const Tasks = ({ selectedHousehold }) => {
                 </div>
             ) : null}
 
+
             <div className="task-container">
                 {tasks.map((task, index) => (
-                    <div
-                        className={`task-card ${task.staleness === 1 ? 'stale' : ''} ${task.staleness === 0 ? 'fresh' : ''}`}
-                        key={task.task_id}
-                        onClick={() => showTaskDetails(task)}
-                        style={{
-                            bottom: `calc(${(task.staleness) * 100}% - ${task.staleness * 120}px)`,
-                            left: `${index * 210}px`
-                        }}
-                    >
-                        <div className="task-content">
-                            <span className="task-text">
-                                {task.task_name}
-                            </span>
-                            <span className="task-button">
-                                <button className="button complete-button" onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleOpenCompleteTaskPopup(task);
-                                }}>Complete Task</button>
-                            </span>
+                    <div className="task-wrapper" key={task.task_id}>
+                        <div
+                            className={`task-card ${task.staleness === 1 ? 'stale' : ''} ${task.staleness === 0 ? 'fresh' : ''}`}
+                            onClick={() => showTaskDetails(task)}
+                            style={{
+                                bottom: `calc(${(task.staleness) * 100}% - ${task.staleness * 120}px)`
+                            }}
+                        >
+                            <div className="task-content">
+                                <span className="task-text">
+                                    {task.task_name}
+                                </span>
+                                <span className="task-button">
+                                    <button className="button complete-button" onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleOpenCompleteTaskPopup(task);
+                                    }}>Complete Task</button>
+                                </span>
+                            </div>
                         </div>
                     </div>
                 ))}
