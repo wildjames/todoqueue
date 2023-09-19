@@ -28,6 +28,7 @@ const CountdownTracker = ({ value }) => {
 
             // Set the new value to the back card which is revealed
             back.setAttribute('data-value', value);
+            back.setAttribute('data-prev', previousValue);
 
             // Listen for the end of the flip animation
             const handleAnimationEnd = () => {
