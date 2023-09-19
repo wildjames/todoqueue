@@ -347,8 +347,7 @@ h1 {
 
 .household-select {
   width: 300px;
-  padding: 10px;
-  margin: 10px 0;
+  padding: 3px;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 16px;
@@ -359,9 +358,9 @@ h1 {
   background-size: 0.65em auto;
   appearance: none;
   position: absolute;
-  bottom: 10px;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(-50%);
 }
 
 .household-select:focus {

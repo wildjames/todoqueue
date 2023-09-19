@@ -8,9 +8,7 @@ import './App.css';
 const apiUrl = process.env.REACT_APP_BACKEND_URL;
 
 
-const Tasks = () => {
-    const [households, setHouseholds] = useState([]);
-    const [selectedHousehold, setSelectedHousehold] = useState(null);
+const Tasks = ({ selectedHousehold }) => {
     const [tasks, setTasks] = useState([]);
     const [users, setUsers] = useState([]);
     const [completionUsers, setCompletionUsers] = useState([]);
@@ -109,19 +107,17 @@ const Tasks = () => {
     }, [users]);
 
 
-    // Fetch tasks at regular intervals
+    // Fetch tasks, and users at regular intervals
     useEffect(() => {
         // run immediately, then start a timer that runs every 1000ms
         try {
             fetchTasks();
-            fetchHouseholds();
             fetchUsers();
         } catch (error) {
             console.error("An error occurred while fetching data:", error);
         }
         const interval = setInterval(() => {
             fetchTasks();
-            fetchHouseholds();
             fetchUsers();
         }, 1000);
         return () => clearInterval(interval);
@@ -168,30 +164,6 @@ const Tasks = () => {
 
     // Backend API functions //
 
-    const fetchHouseholds = () => {
-        const list_households_url = apiUrl + "/households/";
-        axios.get(list_households_url, {
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCSRFToken()
-            }
-        })
-            .then((res) => {
-                console.log(res);
-                if (res.status !== 200) {
-                    console.log("Failed to fetch households.");
-                    return;
-                }
-                setHouseholds(res.data);
-                if (selectedHousehold === null && res.data.length === 1) {
-                    console.log("Setting selected household to: ", res.data[0].id);
-                    setSelectedHousehold(res.data[0].id);
-                }
-            })
-            .catch((error) => {
-                console.error("An error occurred while fetching households:", error);
-            });
-    };
 
     const fetchTasks = () => {
         if (!selectedHousehold) {
@@ -753,13 +725,6 @@ const Tasks = () => {
                     </div>
                 </Link>
             ) : null}
-
-            <select className="household-select" onChange={e => setSelectedHousehold(e.target.value === "Select a household" ? null : e.target.value)} value={selectedHousehold}>
-                <option value={null}>Select a household</option>
-                {households.map(household => (
-                    <option key={household.id} value={household.id}>{household.name}</option>
-                ))}
-            </select>
 
 
             {selectedHousehold ? (

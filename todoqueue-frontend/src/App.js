@@ -8,16 +8,98 @@ import Tasks from './Tasks';
 import { Navigation } from './navigation';
 import { Login } from './Login';
 import { Logout } from './logout';
+import axios from 'axios';
+import { Helmet } from 'react-helmet';
+
+
+const apiUrl = process.env.REACT_APP_BACKEND_URL;
 
 const App = () => {
+  const [households, setHouseholds] = useState([]);
+  const [selectedHousehold, setSelectedHousehold] = useState(null);
+
+  // Try and prevent chrom from translating the page when there are few words on screen
+  useEffect(() => {
+    document.documentElement.lang = 'en';
+    document.documentElement.setAttribute('xml:lang', 'en');
+    document.documentElement.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
+  }, []);
+  
+
+  // Fetch households at regular intervals
+  useEffect(() => {
+    // run immediately, then start a timer that runs every 1000ms
+    try {
+      fetchHouseholds();
+    } catch (error) {
+      console.error("An error occurred while fetching data:", error);
+    }
+    const interval = setInterval(() => {
+      fetchHouseholds();
+    }, 1000);
+    return () => clearInterval(interval);
+  }
+    , [selectedHousehold, apiUrl]);
+
+
+  const getCSRFToken = () => {
+    const cookieValue = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
+
+    if (!cookieValue) {
+      console.error("CSRF token not found.");
+      // throw new Error("CSRF token not found.");
+    }
+
+    return cookieValue;
+  };
+
+
+  const fetchHouseholds = () => {
+    const list_households_url = apiUrl + "/households/";
+    axios.get(list_households_url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCSRFToken()
+      }
+    })
+      .then((res) => {
+        console.log(res);
+        if (res.status !== 200) {
+          console.log("Failed to fetch households.");
+          return;
+        }
+        setHouseholds(res.data);
+        if (selectedHousehold === null && res.data.length === 1) {
+          console.log("Setting selected household to: ", res.data[0].id);
+          setSelectedHousehold(res.data[0].id);
+        }
+      })
+      .catch((error) => {
+        console.error("An error occurred while fetching households:", error);
+      });
+  };
+
+
   return (
     <BrowserRouter>
-      <Navigation></Navigation>
+      <Helmet>
+        <Helmet>
+          <meta charset="UTF-8" />
+          <meta name="google" content="notranslate" />
+          <meta http-equiv="Content-Language" content="en" />
+        </Helmet>
+      </Helmet>
+
+      <Navigation
+        households={households}
+        selectedHousehold={selectedHousehold}
+        setSelectedHousehold={setSelectedHousehold}
+      ></Navigation>
 
       <div className="App">
         <Routes>
-          <Route path="/user_statistics" element={<UserStatistics />} />
-          <Route path="/" element={<Tasks />} />
+          <Route path="/user_statistics" element={<UserStatistics selectedHousehold={selectedHousehold} />} />
+          <Route path="/" element={<Tasks selectedHousehold={selectedHousehold} />} />
           <Route path="/login" element={<Login />} />
           <Route path="/logout" element={<Logout />} />
         </Routes>
