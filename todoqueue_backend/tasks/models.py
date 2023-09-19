@@ -1,5 +1,6 @@
 import json
 from logging import getLogger
+from django.db.models.signals import m2m_changed
 
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -24,6 +25,26 @@ class Household(models.Model):
         return self.name
 
 
+@receiver(m2m_changed, sender=Household.users.through)
+def update_brownie_points(sender, instance, action, **kwargs):
+    if action == "post_add":
+        for user in instance.users.all():
+            logger.info("Setting up brownie points for users in household")
+            logger.info(f"Users in household: {instance.users.all()}")
+            for user in instance.users.all():
+                logger.info(
+                    f"Setting BP for user {user}. Current BP: {user.brownie_point_credit}"
+                )
+                if instance.id not in user.brownie_point_credit:
+                    logger.info(f"Setting BP credit for user {user}")
+                    user.brownie_point_credit[instance.id] = 0.0
+                if instance.id not in user.brownie_point_debit:
+                    logger.info(f"Setting BP debit for user {user}")
+                    user.brownie_point_debit[instance.id] = 0.0
+                logger.info("saving user")
+                user.save()
+
+
 class Task(models.Model):
     task_name = models.CharField(max_length=255)
     task_id = models.CharField(max_length=255, unique=True, primary_key=True)
@@ -31,7 +52,9 @@ class Task(models.Model):
     max_interval = models.DurationField()
     min_interval = models.DurationField()
     last_completed = models.DateTimeField(auto_now_add=True)
-    household = models.ForeignKey(Household, on_delete=models.CASCADE, related_name="tasks")
+    household = models.ForeignKey(
+        Household, on_delete=models.CASCADE, related_name="tasks"
+    )
 
     # Calculate the staleness of this task
     @property
@@ -86,7 +109,10 @@ class WorkLog(models.Model):
 
         # Only credit the user if the work log is new
         if self.pk is None:
-            self.user.brownie_point_credit += self.brownie_points
+            household = self.task.household
+            logger.info(f"Crediting user {self.user.email} in household {household.id}")
+            logger.info(f"Current BP: {self.user.brownie_point_credit}")
+            self.user.brownie_point_credit[str(household.id)] += self.brownie_points
             self.user.save()
             logger.info(
                 f"User {self.user.username} was credited with {self.brownie_points} BP, and now has a total credit of {self.user.brownie_point_credit} BP"
@@ -180,4 +206,4 @@ class UserStatisticsSerializer(serializers.ModelSerializer):
 class HouseholdSerializer(serializers.ModelSerializer):
     class Meta:
         model = Household
-        fields = '__all__'
+        fields = "__all__"

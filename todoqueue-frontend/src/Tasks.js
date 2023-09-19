@@ -236,6 +236,7 @@ const Tasks = () => {
                     return;
                 }
                 setUsers(res.data);
+                console.log("Fetched userd: ", res.data);
             })
             .catch((error) => {
                 console.error("An error occurred while fetching data:", error);
@@ -726,7 +727,7 @@ const Tasks = () => {
                                     return (
                                         <div key={index} className={`${userBPChanged[user.id] ? 'bounce-bp' : ''} user-row`}>
                                             <span className="user-name">{user.username}</span>
-                                            <span className="user-points">{user.brownie_point_credit - user.brownie_point_debit} BP</span>
+                                            <span className="user-points">{user.brownie_point_credit[selectedHousehold] - user.brownie_point_debit[selectedHousehold]} BP</span>
                                         </div>
                                     );
                                 })

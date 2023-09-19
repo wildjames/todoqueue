@@ -32,7 +32,6 @@ h1 {
   top: 55px;  /* Start from where it is initially placed */
   bottom: 190px;  /* 100px from the bottom of the viewport */
   width: 100%;
-  bottom: 100px;  /* 100px from the bottom of the viewport */
 }
 
 
