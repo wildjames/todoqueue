@@ -127,11 +127,50 @@ h1 {
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);
 }
 
+.task-popup-header {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.task-popup-description {
+  font-size: 1rem;
+  color: #666;
+  margin-top: 1rem;
+}
+
+.task-popup-text {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.task-popup-actions {
+  margin-top: 2rem;
+}
+
+.task-popup-table {
+  width: 100%;
+}
+
+.task-popup-label {
+  text-align: right;
+  padding: 5px;
+}
+
+.task-popup-content {
+  text-align: left;
+  padding: 5px;
+}
+
+.task-popup-description {
+  margin-top: 15px;
+}
 .button {
   background-color: #61dafb;
   color: white;
   padding: 0.5rem;
   margin-top: 1rem;
+  margin: 0.5rem;
   cursor: pointer;
   border: none;
   border-radius: 4px;
@@ -235,6 +274,10 @@ h1 {
   max-width: 60px;
 }
 
+.input-error {
+  box-shadow: 0px 0px 5px 2px red;
+}
+
 .user-stats-container {
   position: absolute;
   bottom: 80px;
@@ -299,4 +342,29 @@ h1 {
 .poop-emoji.selected {
   opacity: 1;
   transform: scale(1.2);
+}
+
+.household-select {
+  width: 300px;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml;charset=UTF8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23000000' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.7em top 50%;
+  background-size: 0.65em auto;
+  appearance: none;
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.household-select:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
 }

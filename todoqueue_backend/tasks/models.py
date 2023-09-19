@@ -18,7 +18,6 @@ usermodel = get_user_model()
 
 class Household(models.Model):
     users = models.ManyToManyField(get_user_model(), related_name="households")
-    tasks = models.ManyToManyField("Task", related_name="households")
     name = models.CharField(max_length=255)
 
     def __str__(self):
@@ -32,6 +31,7 @@ class Task(models.Model):
     max_interval = models.DurationField()
     min_interval = models.DurationField()
     last_completed = models.DateTimeField(auto_now_add=True)
+    household = models.ForeignKey(Household, on_delete=models.CASCADE, related_name="tasks")
 
     # Calculate the staleness of this task
     @property
@@ -175,3 +175,9 @@ class UserStatisticsSerializer(serializers.ModelSerializer):
             }
             for log in work_logs
         ]
+
+
+class HouseholdSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Household
+        fields = '__all__'

@@ -26,8 +26,8 @@ export function Navigation() {
                 <Nav>
                     {
                         isAuth ?
-                            <Nav.Link href="/logout">Logout</Nav.Link> :
-                            <Nav.Link href="/login">Login</Nav.Link>
+                            <Nav.Link href="/logout" style={{ paddingLeft: '10px', paddingRight: '10px' }}>Logout</Nav.Link> :
+                            <Nav.Link href="/login" style={{ paddingLeft: '10px', paddingRight: '10px' }}>Login</Nav.Link>
                     }
                 </Nav>
             </Navbar>

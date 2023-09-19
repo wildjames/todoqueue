@@ -1,15 +1,24 @@
 from datetime import timedelta
 from logging import INFO, basicConfig, getLogger
 
+from accounts.serializers import CustomUserSerializer
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
-from rest_framework.decorators import api_view
+from rest_framework.decorators import action, api_view
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .models import Task, WorkLog
-from .models import TaskSerializer, UserStatisticsSerializer, WorkLogSerializer
+from .models import (
+    Household,
+    HouseholdSerializer,
+    Task,
+    TaskSerializer,
+    UserStatisticsSerializer,
+    WorkLog,
+    WorkLogSerializer,
+)
 
 logger = getLogger(__name__)
 basicConfig(level=INFO)
@@ -19,6 +28,27 @@ class TaskViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = Task.objects.all().order_by("-task_name")
     serializer_class = TaskSerializer
+
+    def get_queryset(self):
+        """When a user requests a task list, only return tasks that belong to the household they are in"""
+        user = self.request.user
+        household_id = self.request.query_params.get("household", None)
+
+        logger.info(f"Getting users for household: {household_id}")
+
+        if household_id is None:
+            # Return an empty queryset if household is not provided
+            logger.info(f"No household provided")
+            return Task.objects.none()
+
+        household = get_object_or_404(Household, id=household_id)
+        logger.info("Got household")
+
+        if user in household.users.all():
+            return Task.objects.filter(household=household).order_by("-task_name")
+        else:
+            # Return an empty queryset if the user does not belong to the household
+            return Task.objects.none()
 
 
 class WorkLogViewSet(viewsets.ModelViewSet):
@@ -31,6 +61,74 @@ class UserStatisticsView(ListAPIView):
     permission_classes = (IsAuthenticated,)
     queryset = get_user_model().objects.all()
     serializer_class = UserStatisticsSerializer
+
+
+class HouseholdViewSet(viewsets.ModelViewSet):
+    serializer_class = HouseholdSerializer
+    queryset = Household.objects.all()
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        # Only return households where the user is a member
+        user = self.request.user
+        logger.info(f"Getting households for user: {user}")
+        return Household.objects.filter(users__in=[user])
+
+    def perform_create(self, serializer):
+        # Automatically add the creating user to the household
+        logger.info(f"Creating household called {serializer.validated_data['name']} for user {self.request.user}")
+        household = serializer.save()
+        household.users.add(self.request.user)
+
+    def update(self, request, *args, **kwargs):
+        # Only allow users who are members of the household to update it
+        instance = self.get_object()
+        if request.user not in instance.users.all():
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        # Only allow the user to delete a household if they are a member
+        instance = self.get_object()
+        if request.user not in instance.users.all():
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super().destroy(request, *args, **kwargs)
+
+    @action(detail=True, methods=["GET"], url_path="users")
+    def list_users(self, request, pk=None):
+        """List the users that are members of this household"""
+        # First, get the household object
+        household = self.get_object()
+
+        # Check if the requesting user is a member of the household
+        if request.user not in household.users.all():
+            return Response(
+                {"detail": "Not allowed."}, status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Serialize the users of the household
+        user_serializer = CustomUserSerializer(household.users.all(), many=True)
+
+        return Response(user_serializer.data)
+    
+    @action(detail=True, methods=["GET"], url_path="tasks")
+    def list_tasks(self, request, pk=None):
+        """List the tasks that are members of this household"""
+        # First, get the household object
+        household = self.get_object()
+        
+        # Check if the requesting user is a member of the household
+        if request.user not in household.users.all():
+            return Response(
+                {"detail": "Not allowed."}, status=status.HTTP_403_FORBIDDEN
+            )
+            
+        # Serialize the tasks of the household
+        task_serializer = TaskSerializer(household.tasks.all(), many=True)
+        
+        return Response(task_serializer.data)
 
 
 def renormalize(value, old_min, old_max, new_min, new_max):

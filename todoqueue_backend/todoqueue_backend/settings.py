@@ -18,6 +18,9 @@ import sys
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+HOSTNAME = os.environ.get("HOSTNAME", "localhost")
+PORT = os.environ.get("PORT", "8000")
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -28,8 +31,8 @@ SECRET_KEY = "django-insecure-623ov0uawpvansx0o8^7x(0v&va!7wwoi09t1qd7svjnftsi8f
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["http://localhost:3936", "http://backend:8000", "*"]
-CSRF_TRUSTED_ORIGINS = ["http://localhost:3936", "http://backend:8000"]
+ALLOWED_HOSTS = [f"http://{HOSTNAME}:{PORT}", "http://backend:8000", "*"]
+CSRF_TRUSTED_ORIGINS = [f"http://{HOSTNAME}:{PORT}", "http://backend:8000"]
 CORS_ORIGIN_ALLOW_ALL = True
 
 STATIC_URL = "/static/"

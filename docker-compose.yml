@@ -16,6 +16,8 @@ services:
       - DJANGO_DB_NAME=todoqueue
       - DJANGO_DB_USER=todoqueue
       - DJANGO_DB_PASSWORD=todoqueue
+      - HOSTNAME=localhost
+      - PORT=3936
 
   nginx:
     image: nginx:1.19-alpine
