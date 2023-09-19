@@ -16,6 +16,7 @@ const Tasks = () => {
     const [completionUsers, setCompletionUsers] = useState([]);
     const [prevUsersBP, setPrevUsersBP] = useState({});
     const [userBPChanged, setUserBPChanged] = useState({});
+    const [userBPChangedTime, setUserBPChangedTime] = useState({});
 
     const [selectedTask, setSelectedTask] = useState(null);
     const [selectedTaskId, setSelectedTaskId] = useState(null);
@@ -82,18 +83,29 @@ const Tasks = () => {
     // Update userBPChanged when users changes so we can bounce the table when a user's BP changes
     useEffect(() => {
         const newPrevUsersBP = {};
-        const userBPChanged = {};
+        const newUserBPChanged = {};
+        const now = new Date();
 
         users.forEach(user => {
-            const bp = user.brownie_point_credit - user.brownie_point_debit;
+            const bp = user.brownie_point_credit[selectedHousehold] - user.brownie_point_debit[selectedHousehold];
+
             if (prevUsersBP[user.id] !== undefined && prevUsersBP[user.id] !== bp) {
-                userBPChanged[user.id] = true;
+                console.log("User BP changed", user.username);
+                newUserBPChanged[user.id] = true;
+                setUserBPChangedTime(prevTime => ({ ...prevTime, [user.id]: now }));
+            }
+            else if (userBPChangedTime[user.id] && (now - new Date(userBPChangedTime[user.id])) < 1000) {
+                console.log("User still in bounce window", user.username);
+                newUserBPChanged[user.id] = true;
+            }
+            else {
+                newUserBPChanged[user.id] = false;
             }
             newPrevUsersBP[user.id] = bp;
         });
 
         setPrevUsersBP(newPrevUsersBP);
-        setUserBPChanged(userBPChanged);
+        setUserBPChanged(newUserBPChanged);
     }, [users]);
 
 
@@ -723,14 +735,19 @@ const Tasks = () => {
                     <div className="user-stats-container">
                         <div className="user-stats-flex">
                             {
-                                users.sort((a, b) => (b.brownie_point_credit - b.brownie_point_debit) - (a.brownie_point_credit - a.brownie_point_debit)).slice(0, 5).map((user, index) => {
-                                    return (
-                                        <div key={index} className={`${userBPChanged[user.id] ? 'bounce-bp' : ''} user-row`}>
-                                            <span className="user-name">{user.username}</span>
-                                            <span className="user-points">{user.brownie_point_credit[selectedHousehold] - user.brownie_point_debit[selectedHousehold]} BP</span>
-                                        </div>
-                                    );
-                                })
+                                users.sort((a, b) =>
+                                    (b.brownie_point_credit[selectedHousehold] - b.brownie_point_debit[selectedHousehold])
+                                    - (a.brownie_point_credit[selectedHousehold] - a.brownie_point_debit[selectedHousehold])
+                                )
+                                    .slice(0, 5)
+                                    .map((user, index) => {
+                                        return (
+                                            <div key={index} className={`${userBPChanged[user.id] ? 'bounce-bp' : ''} user-row`}>
+                                                <span className="user-name">{user.username}</span>
+                                                <span className="user-points">{user.brownie_point_credit[selectedHousehold] - user.brownie_point_debit[selectedHousehold]} BP</span>
+                                            </div>
+                                        );
+                                    })
                             }
                         </div>
                     </div>
