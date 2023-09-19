@@ -153,7 +153,6 @@ const Tasks = ({ selectedHousehold }) => {
                     console.log("Failed to fetch tasks.");
                     return;
                 }
-                console.log("Fetched tasks: ", res.data);
                 // Filter tasks by non-zero staleness
                 let data = res.data;
                 if (!data) {
