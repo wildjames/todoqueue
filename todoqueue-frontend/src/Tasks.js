@@ -3,6 +3,7 @@ import moment from 'moment';
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import './App.css';
+import { SimpleFlipper } from './flipper';
 
 
 const apiUrl = process.env.REACT_APP_BACKEND_URL;
@@ -709,27 +710,29 @@ const Tasks = ({ selectedHousehold }) => {
             ) : null}
 
             {selectedHousehold ? (
-                <Link to="/user_statistics" style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <div className="user-stats-container">
-                        <div className="user-stats-flex">
-                            {
-                                users.sort((a, b) =>
-                                    (b.brownie_point_credit[selectedHousehold] - b.brownie_point_debit[selectedHousehold])
-                                    - (a.brownie_point_credit[selectedHousehold] - a.brownie_point_debit[selectedHousehold])
-                                )
-                                    .slice(0, 5)
-                                    .map((user, index) => {
-                                        return (
-                                            <div key={index} className={`${userBPChanged[user.id] ? 'bounce-bp' : ''} user-row`}>
-                                                <span className="user-name">{user.username}</span>
-                                                <span className="user-points">{user.brownie_point_credit[selectedHousehold] - user.brownie_point_debit[selectedHousehold]} BP</span>
-                                            </div>
-                                        );
-                                    })
-                            }
-                        </div>
+                // <Link to="/user_statistics" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div className="user-stats-container">
+                    <div className="user-stats-flex">
+                        {
+                            users.sort((a, b) =>
+                                (b.brownie_point_credit[selectedHousehold] - b.brownie_point_debit[selectedHousehold])
+                                - (a.brownie_point_credit[selectedHousehold] - a.brownie_point_debit[selectedHousehold])
+                            )
+                                .slice(0, 5)
+                                .map((user, index) => {
+                                    return (
+                                        <div key={index} className="user-row">
+                                            <span className="user-name">{user.username}</span>
+                                            <SimpleFlipper
+                                                value={user.brownie_point_credit[selectedHousehold] - user.brownie_point_debit[selectedHousehold]}
+                                            />
+                                        </div>
+                                    );
+                                })
+                        }
                     </div>
-                </Link>
+                </div>
+                // </Link>
             ) : null}
 
 

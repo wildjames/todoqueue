@@ -299,12 +299,12 @@ h1 {
 
 .user-stats-container {
   position: absolute;
-  bottom: 10px;
+  bottom: 15px;
   left: 50%;
   transform: translateX(-50%);
   background-color: #d1d1d1;
   border-radius: 15px;
-  padding: 20px;
+  padding: 7px;
 }
 
 .user-stats-flex {
