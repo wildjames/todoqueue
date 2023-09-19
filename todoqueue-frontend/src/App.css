@@ -25,14 +25,16 @@ h1 {
   justify-content: flex-start;
   gap: 16px;
   overflow-x: auto;
-  overflow: visible;
+  overflow-y: visible;
   white-space: nowrap;
   flex-wrap: nowrap;
-  height: 75vh;
-  /* 75% of the viewport height */
-  position: relative;
-  /* Set position to relative */
+  position: absolute;  /* Change from relative to absolute */
+  top: 55px;  /* Start from where it is initially placed */
+  bottom: 190px;  /* 100px from the bottom of the viewport */
+  width: 100%;
+  bottom: 100px;  /* 100px from the bottom of the viewport */
 }
+
 
 .task-card {
   background: #f9f9f9;

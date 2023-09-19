@@ -439,6 +439,12 @@ const Tasks = () => {
     const handleCreateInputChange = (e) => {
         const { name, value } = e.target;
 
+        setNewTask({
+            ...newTask,
+            [name]: value,
+        });
+        console.log("New task: ", newTask);
+
         const max_interval_in_minutes = (newTask.max_interval_days || 0) * 24 * 60 + (newTask.max_interval_hours || 0) * 60 + (newTask.max_interval_minutes || 0);
         const min_interval_in_minutes = (newTask.min_interval_days || 0) * 24 * 60 + (newTask.min_interval_hours || 0) * 60 + (newTask.min_interval_minutes || 0);
 
@@ -449,11 +455,6 @@ const Tasks = () => {
         }
 
         setInputError(false);
-
-        setNewTask({
-            ...newTask,
-            [name]: value,
-        });
     };
 
     const showTaskDetails = (task) => {
@@ -749,7 +750,7 @@ const Tasks = () => {
                     style={{ position: 'absolute', bottom: '20px', right: '20px' }}
                     onClick={() => { toggleShowAllTasks(); }}
                 >
-                    {showAllTasks ? 'Hide All Tasks' : 'Show All Tasks'}
+                    {showAllTasks ? 'Hide Fresh Tasks' : 'Show All Tasks'}
                 </button>
             ) : null}
 
