@@ -3,6 +3,7 @@
   font-family: 'Arial', sans-serif;
   margin-top: 60px;
   overflow-x: auto;
+  display: flex;
 }
 
 body {
@@ -25,7 +26,13 @@ h1 {
   margin-bottom: 20px;
 }
 
+.sidebar {
+  width: 250px;
+  background-color: #727272;
+}
+
 .task-container {
+  flex: 1;
   display: flex;
   justify-content: flex-start;
   gap: 16px;
@@ -33,10 +40,14 @@ h1 {
   overflow-y: visible;
   white-space: nowrap;
   flex-wrap: nowrap;
-  position: absolute;  /* Change from relative to absolute */
-  top: 55px;  /* Start from where it is initially placed */
-  bottom: 120px;  /* 100px from the bottom of the viewport */
+  position: absolute;
+  /* Change from relative to absolute */
+  top: 55px;
+  /* Start from where it is initially placed */
+  bottom: 120px;
+  /* 100px from the bottom of the viewport */
   width: 100%;
+  transition: left 0.5s ease;
 }
 
 
@@ -107,7 +118,7 @@ h1 {
 }
 
 .task-card.fresh {
-  opacity: 0.4;
+  opacity: 0.55;
 }
 
 .task-content {
@@ -130,6 +141,49 @@ h1 {
 
 .task-button {
   display: block;
+}
+
+.task-sidebar {
+  position: fixed;
+  right: 0;
+  top: 55px;
+  bottom: 0px;
+  width: 250px;
+  overflow-y: auto;
+  background-color: #212529;
+  z-index: -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: right 0.5s ease;
+}
+
+.task-sidebar.show {
+  right: 0;
+}
+
+.task-sidebar.hide {
+  right: -250px;
+}
+
+.task-sidebar .task-card {
+  position: relative;
+  /* Switch from absolute to relative */
+  bottom: auto !important;
+  left: auto !important;
+}
+
+/* Differentiate task-wrapper in the sidebar */
+.sidebar-wrapper {
+  width: 100%;
+  /* take up the full width of the sidebar */
+  display: flex;
+  justify-content: center;
+  /* center the task card horizontally */
+}
+
+.sidebar-wrapper::after {
+  display: none;
 }
 
 .popup {
@@ -336,6 +390,7 @@ h1 {
 .user-name {
   font-size: 1.5rem;
   font-weight: bold;
+  margin-top: -0.25em
 }
 
 .user-points {

@@ -19,8 +19,8 @@ const Tasks = ({ selectedHousehold }) => {
 
     const [showTaskPopup, setShowTaskPopup] = useState(false);
     const [showCompleteTaskPopup, setShowCompleteTaskPopup] = useState(false);
-    const [showAllTasks, setShowAllTasks] = useState(false);
     const [inputError, setInputError] = useState(false);
+    const [showSidebar, setShowSidebar] = useState(false);
 
     const [grossness, setGrossness] = useState(0);
     const [completionTime, setCompletionTime] = useState(0);
@@ -94,7 +94,7 @@ const Tasks = ({ selectedHousehold }) => {
         }, 1000);
         return () => clearInterval(interval);
     }
-        , [showAllTasks, selectedHousehold, apiUrl]);
+        , [showSidebar, selectedHousehold, apiUrl]);
 
 
     // Fetch selected task at regular intervals
@@ -132,6 +132,14 @@ const Tasks = ({ selectedHousehold }) => {
             }
         };
     }, [showTaskPopup, selectedTaskId, apiUrl]);
+
+
+    // If the selectedHousehold is null, hide the sidebar
+    useEffect(() => {
+        if (!selectedHousehold) {
+            setShowSidebar(false);
+        }
+    }, [selectedHousehold]);
 
 
     // Show brownie points animation when browniePoints changes
@@ -175,9 +183,6 @@ const Tasks = ({ selectedHousehold }) => {
                 if (!data) {
                     console.log("No data fetched for tasks");
                     return;
-                }
-                if (!showAllTasks) {
-                    data = data.filter(task => task.staleness > 0);
                 }
                 // Sort by mean completion time, which is just the number of seconds
                 data.sort((a, b) => (a.mean_completion_time - b.mean_completion_time));
@@ -509,10 +514,6 @@ const Tasks = ({ selectedHousehold }) => {
     // Misc functions //
 
 
-    const toggleShowAllTasks = () => {
-        setShowAllTasks(!showAllTasks);
-    };
-
     const getCSRFToken = () => {
         const cookieValue = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
 
@@ -668,7 +669,7 @@ const Tasks = ({ selectedHousehold }) => {
                 </div>
             ) : null}
 
-            
+
             <div className={`brownie-points-popup ${showAnimation ? 'show' : ''}`} style={{ zIndex: showAnimation ? 1000 : -1 }}>
                 <div className={`brownie-points-animation ${showAnimation ? 'show' : ''}`}>
                     {`You earned ${browniePoints} brownie points!`}
@@ -676,36 +677,67 @@ const Tasks = ({ selectedHousehold }) => {
             </div>
 
 
-            <div className="task-container">
-                {tasks.map((task, index) => (
-                    <div className="task-wrapper" key={task.task_id}>
-                        <div
-                            className={`task-card ${task.staleness === 1 ? 'stale' : ''} ${task.staleness === 0 ? 'fresh' : ''}`}
-                            onClick={() => showTaskDetails(task)}
-                            style={{
-                                bottom: `calc(${(task.staleness) * 100}% - ${task.staleness * 120}px)`
-                            }}
-                        >
-                            <div className="task-content">
-                                <span className="task-text">
-                                    {task.task_name}
-                                </span>
-                                <span className="task-button">
-                                    <button className="button complete-button" onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleOpenCompleteTaskPopup(task);
-                                    }}>Complete Task</button>
-                                </span>
+            <div className="task-container ">
+                {tasks
+                    .filter(task => task.staleness !== 0)
+                    .map((task, index) => (
+                        <div className="task-wrapper" key={task.task_id}>
+                            <div
+                                className={`task-card ${task.staleness === 1 ? 'stale' : ''}`}
+                                onClick={() => showTaskDetails(task)}
+                                style={{
+                                    bottom: `calc(${(task.staleness) * 100}% - ${task.staleness * 120}px)`
+                                }}
+                            >
+                                <div className="task-content">
+                                    <span className="task-text">
+                                        {task.task_name}
+                                    </span>
+                                    <span className="task-button">
+                                        <button className="button complete-button" onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleOpenCompleteTaskPopup(task);
+                                        }}>Complete Task</button>
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
             </div>
+
+
+            <div className={`task-sidebar ${showSidebar ? 'show' : 'hide'}`}>
+                <h2>Fresh Tasks</h2>
+                {tasks
+                    .filter(task => task.staleness === 0)
+                    .sort((a, b) => (a.task_name > b.task_name) ? 1 : -1)
+                    .map((task, index) => (
+                        <div className="task-wrapper sidebar-wrapper" key={task.task_id}>
+                            <div
+                                className="task-card fresh"
+                                onClick={() => showTaskDetails(task)}
+                            >
+                                <div className="task-content">
+                                    <span className="task-text">
+                                        {task.task_name}
+                                    </span>
+                                    <span className="task-button">
+                                        <button className="button complete-button" onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleOpenCompleteTaskPopup(task);
+                                        }}>Complete Task</button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+            </div>
+
 
             {selectedHousehold ? (
                 <button
                     className="button"
-                    style={{ position: 'absolute', bottom: '20px', left: '20px' }}
+                    style={{ position: 'absolute', bottom: '20px', left: '50px' }}
                     onClick={() => { setShowTaskPopup(true); setSelectedTask(null); setSelectedTaskId(null); }}
                 >
                     Create Task
@@ -742,10 +774,10 @@ const Tasks = ({ selectedHousehold }) => {
             {selectedHousehold ? (
                 <button
                     className="button"
-                    style={{ position: 'absolute', bottom: '20px', right: '20px' }}
-                    onClick={() => { toggleShowAllTasks(); }}
+                    style={{ position: 'absolute', bottom: '20px', right: '50px' }}
+                    onClick={() => setShowSidebar(!showSidebar)}
                 >
-                    {showAllTasks ? 'Hide Fresh Tasks' : 'Show All Tasks'}
+                    Toggle Sidebar
                 </button>
             ) : null}
 
