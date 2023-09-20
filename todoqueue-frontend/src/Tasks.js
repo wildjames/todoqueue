@@ -32,6 +32,9 @@ const Tasks = ({ selectedHousehold }) => {
         description: ''
     });
 
+    const [browniePoints, setBrowniePoints] = useState(0);
+    const [showAnimation, setShowAnimation] = useState(false);
+
     const updateSelectedTaskTimer = useRef(null);
 
     const completionTimeLookup = [
@@ -129,6 +132,20 @@ const Tasks = ({ selectedHousehold }) => {
             }
         };
     }, [showTaskPopup, selectedTaskId, apiUrl]);
+
+
+    // Show brownie points animation when browniePoints changes
+    useEffect(() => {
+        if (showAnimation) {
+            // Hide popup after it has been shown for 3 seconds (1 second fade-in + 2 seconds persist)
+            const timeout = setTimeout(() => {
+                setShowAnimation(false);
+            }, 3000);
+
+            // Clean up timeout when the component is unmounted
+            return () => clearTimeout(timeout);
+        }
+    }, [showAnimation]);
 
 
     // Backend API functions //
@@ -240,6 +257,9 @@ const Tasks = ({ selectedHousehold }) => {
         // Convert brownie points from a string of a float to an integer
         brownie_points = Math.round(parseFloat(brownie_points));
         console.log("Brownie points: ", brownie_points);
+
+        setBrowniePoints(brownie_points);
+        setShowAnimation(true);
 
         // pop each user off the list of completionUsers and create a worklog for each
         for (const completionUser of completionUsers) {
@@ -415,6 +435,13 @@ const Tasks = ({ selectedHousehold }) => {
         });
     };
 
+
+    const handleShowPopup = () => {
+        // Show the popup
+        setShowAnimation(true);
+    };
+
+
     const showTaskDetails = (task) => {
         setSelectedTask(task);
         setSelectedTaskId(task.task_id);
@@ -585,23 +612,25 @@ const Tasks = ({ selectedHousehold }) => {
                                 <div className="form-section">
                                     <label>Select Users:</label>
                                     <div className="user-button-container">
-                                        {users.map(user => (
-                                            <button
-                                                type="button"
-                                                className={`button user-button ${completionUsers.includes(user.id) ? 'selected' : ''}`}
-                                                onClick={() => {
-                                                    if (completionUsers.includes(user.id)) {
-                                                        // Remove user from list
-                                                        setCompletionUsers(completionUsers.filter(id => id !== user.id));
-                                                    } else {
-                                                        // Add user to list
-                                                        setCompletionUsers([...completionUsers, user.id]);
-                                                    }
-                                                }}
-                                            >
-                                                {user.username}
-                                            </button>
-                                        ))}
+                                        {users
+                                            .sort((a, b) => a.username.localeCompare(b.username))
+                                            .map(user => (
+                                                <button
+                                                    type="button"
+                                                    className={`button user-button ${completionUsers.includes(user.id) ? 'selected' : ''}`}
+                                                    onClick={() => {
+                                                        if (completionUsers.includes(user.id)) {
+                                                            // Remove user from list
+                                                            setCompletionUsers(completionUsers.filter(id => id !== user.id));
+                                                        } else {
+                                                            // Add user to list
+                                                            setCompletionUsers([...completionUsers, user.id]);
+                                                        }
+                                                    }}
+                                                >
+                                                    {user.username}
+                                                </button>
+                                            ))}
                                     </div>
                                 </div>
                             </div>
@@ -638,6 +667,13 @@ const Tasks = ({ selectedHousehold }) => {
                     </div>
                 </div>
             ) : null}
+
+            
+            <div className={`brownie-points-popup ${showAnimation ? 'show' : ''}`} style={{ zIndex: showAnimation ? 1000 : -1 }}>
+                <div className={`brownie-points-animation ${showAnimation ? 'show' : ''}`}>
+                    {`You earned ${browniePoints} brownie points!`}
+                </div>
+            </div>
 
 
             <div className="task-container">
