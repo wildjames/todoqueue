@@ -542,12 +542,51 @@ const Tasks = ({ selectedHousehold }) => {
     };
 
 
+    const getTimeSince = (timestamp) => {
+        const now = moment();
+        const then = moment(timestamp);
+        const duration = moment.duration(now.diff(then));
+
+        // If the duration is less than a minute, return "Just now"
+        if (duration.asMinutes() < 1) {
+            return "Just now";
+        }
+
+        const days = duration.days();
+        const hours = duration.hours();
+        const minutes = duration.minutes();
+
+        let output = ''
+        if (days !== 0) {
+            output += days === "1" ? "1 day" : `${days} days`;
+        }
+        if (hours !== 0) {
+            output += hours === 1 ? " 1 hour" : ` ${hours} hours`;
+        }
+        if (minutes !== 0) {
+            output += minutes === 1 ? " 1 minute" : ` ${minutes} minutes`;
+        }
+
+        if (output === '') {
+            return "Just now";
+        }
+
+        // If there's a trailing or leading space, remove it
+        output = output.trim();
+
+        output += " ago";
+
+        return output;
+    };
+
+
     // Misc functions //
 
 
     const getCSRFToken = () => {
         const cookieValue = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
 
+        // Can throw an error, but don't bother. Just return null.
         // if (!cookieValue) {
         //     console.error("CSRF token not found.");
         //     // throw new Error("CSRF token not found.");
@@ -565,6 +604,12 @@ const Tasks = ({ selectedHousehold }) => {
 
     return (
         <div className="Tasks">
+
+            <div className={`empty-state ${selectedHousehold ? 'hide' : 'show'}`}>
+                <div className="arrow-up"></div>
+                <div className="text">Select a household</div>
+            </div>
+
             {showTaskPopup ? (
                 <div className="popup" onClick={handleOverlayClick}>
                     <div className="popup-inner" ref={popupInnerRef}>
@@ -587,7 +632,7 @@ const Tasks = ({ selectedHousehold }) => {
                                         </tr>
                                         <tr>
                                             <td className="task-popup-label">Last Completed:</td>
-                                            <td className="task-popup-content">{formatTimestamp(selectedTask.last_completed)}</td>
+                                            <td className="task-popup-content">{getTimeSince(selectedTask.last_completed)}</td>
                                         </tr>
                                         <tr>
                                             <td className="task-popup-label">Staleness:</td>

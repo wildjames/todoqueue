@@ -26,6 +26,42 @@ h1 {
   margin-bottom: 20px;
 }
 
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  left: 50%;
+  position: absolute;
+  transform: translateX(-50%);
+  top: 100px;
+  transition: top 0.5s ease;
+}
+
+.arrow-up {
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-bottom: 40px solid #b0b0b0;
+  /* Change the color to your preference */
+}
+
+.text {
+  font-size: 1.2em;
+  margin-top: 10px;
+  /* Change the color to your preference */
+}
+
+.empty-state.hide {
+  top: -100px;
+}
+
+.empty-state.show {
+  top: 100px;
+}
+
 .sidebar {
   width: 250px;
   background-color: #727272;
