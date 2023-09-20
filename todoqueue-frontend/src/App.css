@@ -44,14 +44,12 @@ h1 {
   height: 0;
   border-left: 20px solid transparent;
   border-right: 20px solid transparent;
-  border-bottom: 40px solid #b0b0b0;
-  /* Change the color to your preference */
+  border-bottom: 50px solid #b0b0b0;
 }
 
 .text {
   font-size: 1.2em;
   margin-top: 10px;
-  /* Change the color to your preference */
 }
 
 .empty-state.hide {
