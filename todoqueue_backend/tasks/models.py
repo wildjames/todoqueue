@@ -55,18 +55,19 @@ class Task(models.Model):
     household = models.ForeignKey(
         Household, on_delete=models.CASCADE, related_name="tasks"
     )
+    frozen = models.BooleanField(default=False)
 
     # Calculate the staleness of this task
     @property
     def staleness(self):
+        if self.frozen:
+            return 0
+        
         time_since_last_completed = timezone.now() - self.last_completed
-
         if time_since_last_completed < self.min_interval:
             return 0
-
         if time_since_last_completed > self.max_interval:
             return 1
-
         staleness = (time_since_last_completed.seconds - self.min_interval.seconds) / (
             self.max_interval - self.min_interval
         ).seconds

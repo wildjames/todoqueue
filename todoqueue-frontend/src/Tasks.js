@@ -402,7 +402,38 @@ const Tasks = ({ selectedHousehold }) => {
             });
     };
 
+
+    const freezeTask = (taskId) => {
+        const apiUrl = process.env.REACT_APP_BACKEND_URL;
+        const freezeTaskUrl = `${apiUrl}/tasks/${taskId}/toggle_frozen/`;
+        console.log("freezeTaskUrl: ", freezeTaskUrl);
+        console.log("taskId: ", taskId);
+
+        // Fetch CSRF token from cookies
+        const csrftoken = getCSRFToken();
+
+        axios.post(
+            freezeTaskUrl,
+            {},
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+            })
+            .then((res) => {
+                if (res.status !== 200) {
+                    console.log("Failed to freeze task.");
+                    return;
+                }
+                console.log("Freezed task with ID: ", taskId);
+                closeTaskPopup();
+            });
+    }
+
+
     // Popup functions //
+
 
     const handleOpenCompleteTaskPopup = (task) => {
         setSelectedTask(task);
@@ -544,7 +575,7 @@ const Tasks = ({ selectedHousehold }) => {
                                     <tbody>
                                         <tr>
                                             <td className="task-popup-label">Mean completion time:</td>
-                                            <td className="task-popup-content">{selectedTask.mean_completion_time / 60} minutes</td>
+                                            <td className="task-popup-content">{(selectedTask.mean_completion_time / 60).toFixed(1)} minutes</td>
                                         </tr>
                                         <tr>
                                             <td className="task-popup-label">Max Interval:</td>
@@ -560,15 +591,19 @@ const Tasks = ({ selectedHousehold }) => {
                                         </tr>
                                         <tr>
                                             <td className="task-popup-label">Staleness:</td>
-                                            <td className="task-popup-content">{selectedTask.staleness}</td>
+                                            <td className="task-popup-content">{parseFloat(selectedTask.staleness).toFixed(2)}</td>
                                         </tr>
                                     </tbody>
                                 </table>
                                 <div className="task-popup-description">
                                     <p><strong>Description:</strong> {selectedTask.description}</p>
+                                    {selectedTask.frozen ? (
+                                        <p style={{ color: "black" }}><strong>Task is frozen, and won't ever appear on the queue</strong></p>
+                                    ) : null}
                                 </div>
                                 <div className="task-popup-actions">
                                     <button className="button complete-button" onClick={() => handleOpenCompleteTaskPopup(selectedTask)}>Complete Task</button>
+                                    <button className="button freeze-button" onClick={() => freezeTask(selectedTask.task_id)}>{selectedTask.frozen ? "Unfreeze Task" : "Freeze Task"}</button>
                                     <button className="button delete-button" onClick={() => deleteTask(selectedTask.task_id)}>Delete Task</button>
                                 </div>
                             </div>
@@ -607,7 +642,7 @@ const Tasks = ({ selectedHousehold }) => {
             {showCompleteTaskPopup ? (
                 <div className="popup" onClick={handleOverlayClick}>
                     <div className="popup-inner" style={{ textAlign: "left" }} ref={popupInnerRef}>
-                        <h2>Complete Task: {selectedTask && selectedTask.task_name}</h2>
+                        <h2 style={{ color: "black" }} >Complete Task: {selectedTask && selectedTask.task_name}</h2>
                         <form onSubmit={handleCreateWorkLog}>
                             <div className="form-section">
                                 <div className="form-section">
@@ -710,11 +745,18 @@ const Tasks = ({ selectedHousehold }) => {
                 <h2>Fresh Tasks</h2>
                 {tasks
                     .filter(task => task.staleness === 0)
-                    .sort((a, b) => (a.task_name > b.task_name) ? 1 : -1)
+                    .sort((a, b) => {
+                        // Sort by 'frozen' in ascending order
+                        if (b.frozen !== a.frozen) {
+                            return a.frozen - b.frozen;
+                        }
+                        // If 'frozen' is equal, sort by 'task_name' in ascending order
+                        return a.task_name.localeCompare(b.task_name);
+                    })
                     .map((task, index) => (
                         <div className="task-wrapper sidebar-wrapper" key={task.task_id}>
                             <div
-                                className="task-card fresh"
+                                className={`task-card fresh ${task.frozen ? 'frozen' : ''}`}
                                 onClick={() => showTaskDetails(task)}
                             >
                                 <div className="task-content">

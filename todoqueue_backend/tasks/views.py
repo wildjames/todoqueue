@@ -49,6 +49,13 @@ class TaskViewSet(viewsets.ModelViewSet):
         else:
             # Return an empty queryset if the user does not belong to the household
             return Task.objects.none()
+        
+    @action(detail=True, methods=["POST"], url_path="toggle_frozen")
+    def toggle_frozen(self, request, pk=None):
+        task = Task.objects.get(pk=pk)
+        task.frozen = not task.frozen
+        task.save(update_fields=["frozen"])
+        return Response({"frozen": task.frozen}, status=status.HTTP_200_OK)
 
 
 class WorkLogViewSet(viewsets.ModelViewSet):
