@@ -46,7 +46,6 @@ def update_brownie_points(sender, instance, action, **kwargs):
 
 class Task(models.Model):
     task_name = models.CharField(max_length=255)
-    task_id = models.CharField(max_length=255, unique=True, primary_key=True)
     description = models.TextField()
     max_interval = models.DurationField()
     min_interval = models.DurationField()

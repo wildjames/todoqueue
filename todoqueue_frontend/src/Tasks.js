@@ -23,7 +23,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     const [completionTime, setCompletionTime] = useState(0);
     const [newTask, setNewTask] = useState({
         task_name: '',
-        task_id: '',
         max_interval: '0:0',
         min_interval: '0:0',
         description: ''
@@ -43,15 +42,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
     useEffect(() => {
         setShowHouseholdSelector(true);
-    }, []);
-
-
-    // Generate a random task_id for the new task
-    useEffect(() => {
-        setNewTask({
-            ...newTask,
-            task_id: randomString()
-        });
     }, []);
 
 
@@ -103,9 +93,8 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     useEffect(() => {
         if (showTaskPopup && selectedTaskId) {
             const fetchSelectedTask = async () => {
-                let list_tasks_url = '/api/tasks/' + selectedTaskId;
-                list_tasks_url += `?household=${selectedHousehold}`;
-
+                const list_tasks_url = `/api/tasks/${selectedTaskId}?household=${selectedHousehold}`;
+                console.log("Fetching task from url: ", list_tasks_url);
                 const response = await axios.get(
                     list_tasks_url,
                     {
@@ -114,6 +103,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                         },
                     }
                 );
+                console.log("Setting selected task data: ", response);
                 setSelectedTask(response.data);
             };
 
@@ -184,6 +174,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                     console.log("No data fetched for tasks");
                     return;
                 }
+                console.log("Fetched tasks:", data)
                 // Sort by mean completion time, which is just the number of seconds
                 data.sort((a, b) => (a.mean_completion_time - b.mean_completion_time));
                 setTasks(data);
@@ -207,6 +198,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                     console.log("Failed to fetch users.");
                     return;
                 }
+                console.log("Setting users: ", res.data);
                 setUsers(res.data);
             })
             .catch((error) => {
@@ -229,7 +221,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
         const calculate_brownie_points_url = "/api/calculate_brownie_points/";
         const payload = {
-            task_id: selectedTaskId,
+            id: selectedTaskId,
             completion_time: completionTime_str,
             grossness
         };
@@ -356,7 +348,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         // Reset the newTask state
         setNewTask({
             task_name: '',
-            task_id: randomString(),
             max_interval: '0:0',
             min_interval: '0:0',
             description: ''
@@ -418,7 +409,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
     const handleOpenCompleteTaskPopup = (task) => {
         setSelectedTask(task);
-        setSelectedTaskId(task.task_id);
+        setSelectedTaskId(task.id);
         setShowTaskPopup(false);
         setShowCompleteTaskPopup(true);
     };
@@ -460,8 +451,9 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
 
     const showTaskDetails = (task) => {
+        console.log("Setting selected task: ", task);
         setSelectedTask(task);
-        setSelectedTaskId(task.task_id);
+        setSelectedTaskId(task.id);
         setShowTaskPopup(true);
     };
 
@@ -496,6 +488,12 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     };
 
     const formatDuration = (duration) => {
+        console.log("SelectedTask: ", selectedTask);
+        console.log("Formatting duration: ", duration);
+        if (!duration) {
+            return "Never";
+        }
+
         // The day number may or may not exist, so handle that
         let days = "0";
         let time = duration;
@@ -613,8 +611,8 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                                 </div>
                                 <div className="task-popup-actions">
                                     <button className="button complete-button" onClick={() => handleOpenCompleteTaskPopup(selectedTask)}>Complete Task</button>
-                                    <button className="button freeze-button" onClick={() => freezeTask(selectedTask.task_id)}>{selectedTask.frozen ? "Unfreeze Task" : "Freeze Task"}</button>
-                                    <button className="button delete-button" onClick={() => deleteTask(selectedTask.task_id)}>Delete Task</button>
+                                    <button className="button freeze-button" onClick={() => freezeTask(selectedTask.id)}>{selectedTask.frozen ? "Unfreeze Task" : "Freeze Task"}</button>
+                                    <button className="button delete-button" onClick={() => deleteTask(selectedTask.id)}>Delete Task</button>
                                 </div>
                             </div>
 
@@ -726,7 +724,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                 {tasks
                     .filter(task => task.staleness !== 0)
                     .map((task, index) => (
-                        <div className="task-wrapper" key={task.task_id}>
+                        <div className="task-wrapper" key={task.id}>
                             <div
                                 className={`task-card ${task.staleness === 1 ? 'stale' : ''}`}
                                 onClick={() => showTaskDetails(task)}
@@ -764,7 +762,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                         return a.task_name.localeCompare(b.task_name);
                     })
                     .map((task, index) => (
-                        <div className="task-wrapper sidebar-wrapper" key={task.task_id}>
+                        <div className="task-wrapper sidebar-wrapper" key={task.id}>
                             <div
                                 className={`task-card fresh ${task.frozen ? 'frozen' : ''}`}
                                 onClick={() => showTaskDetails(task)}

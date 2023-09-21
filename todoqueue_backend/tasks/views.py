@@ -33,6 +33,7 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """When a user requests a task list, only return tasks that belong to the household they are in"""
+        logger.info(f"Getting tasks for user: {self.request.user}")
         user = self.request.user
         household_id = self.request.query_params.get("household", None)
 
@@ -178,7 +179,7 @@ def parse_duration(duration_str):
 
 
 def calculate_brownie_points(task_id, completion_time, grossness):
-    task = Task.objects.get(task_id=task_id)
+    task = Task.objects.get(id=task_id)
     if task is None:
         logger.error("No task found with ID: {task_id}")
         return None

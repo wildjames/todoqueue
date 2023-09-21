@@ -11,12 +11,11 @@ class HouseholdAdmin(admin.ModelAdmin):
 class TaskAdmin(admin.ModelAdmin):
     list_display = (
         "task_name",
-        "task_id",
         "last_completed",
         "max_interval",
         "min_interval",
     )
-    search_fields = ("task_name", "task_id")
+    search_fields = ("task_name",)
     list_filter = ("last_completed",)
 
 

@@ -9,6 +9,7 @@ router.register(r"households", views.HouseholdViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
+    path('tasks/<slug:pk>/', views.TaskViewSet.as_view({'get': 'retrieve'})),
     path(
         "calculate_brownie_points/",
         views.calculate_brownie_points_view,
