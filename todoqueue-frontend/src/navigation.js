@@ -20,6 +20,7 @@ export function Navigation({ households, selectedHousehold, setSelectedHousehold
                             <>
                                 <Nav.Link href="/" style={{ paddingLeft: '10px', paddingRight: '10px' }}>Tasks</Nav.Link>
                                 <Nav.Link href="/user_statistics" style={{ paddingLeft: '10px', paddingRight: '10px' }}>User Statistics</Nav.Link>
+                                <Nav.Link href="/manage_households" style={{ paddingLeft: '10px', paddingRight: '10px' }}>Manage Households</Nav.Link>
                             </>
                         </Nav>
                         : null

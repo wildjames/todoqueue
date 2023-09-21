@@ -1,16 +1,15 @@
 import json
 from logging import getLogger
-from django.db.models.signals import m2m_changed
 
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models.signals import pre_delete
+from django.db.models.signals import m2m_changed, pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.renderers import JSONRenderer
-
+from rest_framework.validators import UniqueValidator
 
 logger = getLogger(__name__)
 
@@ -68,12 +67,12 @@ class Task(models.Model):
             return 0
         if time_since_last_completed > self.max_interval:
             return 1
-        
+
         # Calculate how many intervals have passed since the task was last completed
         staleness = (time_since_last_completed - self.min_interval) / (
             self.max_interval - self.min_interval
         )
-        
+
         return staleness
 
     @property
@@ -211,3 +210,17 @@ class HouseholdSerializer(serializers.ModelSerializer):
     class Meta:
         model = Household
         fields = "__all__"
+
+
+class CreateHouseholdSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(
+        max_length=255, validators=[UniqueValidator(queryset=Household.objects.all())]
+    )
+
+    class Meta:
+        model = Household
+        fields = ("name",)
+
+    def create(self, validated_data):
+        logger.info(f"Creating household with name: {validated_data['name']}")
+        return Household.objects.create(name=validated_data["name"])

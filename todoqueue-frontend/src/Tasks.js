@@ -750,7 +750,7 @@ const Tasks = ({ selectedHousehold }) => {
             ) : null}
 
 
-            <div className={`brownie-points-popup ${showAnimation ? 'show' : ''}`} style={{ zIndex: showAnimation ? 1000 : -1 }}>
+            <div className={`brownie-points-popup ${showAnimation ? 'show' : ''}`}>
                 <div className={`brownie-points-animation ${showAnimation ? 'show' : ''}`}>
                     {`You earned ${browniePoints} brownie points!`}
                 </div>

@@ -16,7 +16,7 @@ import { Logout } from './logout';
 import { SignUp } from './signup';
 import { ForgotPassword } from './forgotPassword';
 import { ResetPassword } from './resetPassword';
-
+import { ManageHouseholds } from './households';
 
 const apiUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -115,6 +115,7 @@ const App = () => {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/forgot_password" element={<ForgotPassword />} />
           <Route path="/reset_password/:uid/:token" element={<ResetPassword />} />
+          <Route path="/manage_households" element={<ManageHouseholds households={households} />} />
         </Routes>
       </div>
     </BrowserRouter>

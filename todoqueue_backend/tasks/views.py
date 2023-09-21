@@ -9,10 +9,12 @@ from rest_framework.decorators import action, api_view
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .models import (
     Household,
     HouseholdSerializer,
+    CreateHouseholdSerializer,
     Task,
     TaskSerializer,
     UserStatisticsSerializer,
@@ -46,7 +48,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         else:
             # Return an empty queryset if the user does not belong to the household
             return Task.objects.none()
-        
+
     @action(detail=True, methods=["POST"], url_path="toggle_frozen")
     def toggle_frozen(self, request, pk=None):
         task = Task.objects.get(pk=pk)
@@ -80,7 +82,9 @@ class HouseholdViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         # Automatically add the creating user to the household
-        logger.info(f"Creating household called {serializer.validated_data['name']} for user {self.request.user}")
+        logger.info(
+            f"Creating household called {serializer.validated_data['name']} for user {self.request.user}"
+        )
         household = serializer.save()
         household.users.add(self.request.user)
 
@@ -116,23 +120,37 @@ class HouseholdViewSet(viewsets.ModelViewSet):
         user_serializer = CustomUserSerializer(household.users.all(), many=True)
 
         return Response(user_serializer.data)
-    
+
     @action(detail=True, methods=["GET"], url_path="tasks")
     def list_tasks(self, request, pk=None):
         """List the tasks that are members of this household"""
         # First, get the household object
         household = self.get_object()
-        
+
         # Check if the requesting user is a member of the household
         if request.user not in household.users.all():
             return Response(
                 {"detail": "Not allowed."}, status=status.HTTP_403_FORBIDDEN
             )
-            
+
         # Serialize the tasks of the household
         task_serializer = TaskSerializer(household.tasks.all(), many=True)
-        
+
         return Response(task_serializer.data)
+
+
+class CreateHouseholdView(APIView):
+    def post(self, request):
+        logger.info(f"Creating a household: {request.data}")
+        serializer = CreateHouseholdSerializer(
+            data=request.data
+        )
+
+        if serializer.is_valid(raise_exception=True):
+            household = serializer.save()
+            logger.info(f"Household created: {household}")
+            household.users.add(self.request.user)
+            household.save()
 
 
 def renormalize(value, old_min, old_max, new_min, new_max):

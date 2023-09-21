@@ -17,4 +17,9 @@ urlpatterns = [
     path(
         "user_statistics/", views.UserStatisticsView.as_view(), name="user_statistics"
     ),
+    path(
+        "create_household/",
+        views.CreateHouseholdView.as_view(),
+        name="create_household",
+    ),
 ]
