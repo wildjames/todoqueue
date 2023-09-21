@@ -93,8 +93,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     useEffect(() => {
         if (showTaskPopup && selectedTaskId) {
             const fetchSelectedTask = async () => {
-                const list_tasks_url = `/api/tasks/${selectedTaskId}?household=${selectedHousehold}`;
-                console.log("Fetching task from url: ", list_tasks_url);
+                const list_tasks_url = `/api/tasks/${selectedTaskId}/?household=${selectedHousehold}`;
                 const response = await axios.get(
                     list_tasks_url,
                     {
@@ -155,14 +154,15 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
             setTasks([]);
             return;
         }
-        let list_tasks_url = "/api/tasks/";
-        list_tasks_url += `?household=${selectedHousehold}`;
+        const list_tasks_url = `/api/tasks/?household=${selectedHousehold}`;
 
-        axios.get(list_tasks_url, {
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
+        axios.get(
+            list_tasks_url,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
             .then((res) => {
                 if (res.status !== 200) {
                     console.log("Failed to fetch tasks.");
@@ -188,11 +188,13 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         }
         let list_users_url = `/api/households/${selectedHousehold}/users/`;
 
-        axios.get(list_users_url, {
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
+        axios.get(
+            list_users_url,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
             .then((res) => {
                 if (res.status !== 200) {
                     console.log("Failed to fetch users.");
@@ -221,7 +223,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
         const calculate_brownie_points_url = "/api/calculate_brownie_points/";
         const payload = {
-            id: selectedTaskId,
+            task_id: selectedTaskId,
             completion_time: completionTime_str,
             grossness
         };
@@ -358,7 +360,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     };
 
     const deleteTask = (taskId) => {
-        const deleteTaskUrl = `/api/tasks/${taskId}?household=${selectedHousehold}`;
+        const deleteTaskUrl = `/api/tasks/${taskId}/?household=${selectedHousehold}`;
         console.log("deleteTaskUrl: ", deleteTaskUrl);
         console.log("taskId: ", taskId);
 
@@ -514,10 +516,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         const minutesStr = minutes === 1 ? "1 minute" : `${minutes} minutes`;
 
         return `${daysStr} ${hoursStr} ${minutesStr}`;
-    };
-
-    const formatTimestamp = (timestamp) => {
-        return moment(timestamp).format("MMM Do YYYY, h:mm:ss a");
     };
 
 
