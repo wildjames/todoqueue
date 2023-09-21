@@ -34,15 +34,32 @@ SECRET_KEY = "django-insecure-623ov0uawpvansx0o8^7x(0v&va!7wwoi09t1qd7svjnftsi8f
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [f"http://{HOSTNAME}:{PORT}", "http://backend:8000", "*"]
-CSRF_TRUSTED_ORIGINS = [f"http://{HOSTNAME}:{PORT}", "http://backend:8000"]
+ALLOWED_HOSTS = [f"http://{HOSTNAME}:{PORT}", "*"]
+CSRF_TRUSTED_ORIGINS = [f"http://{HOSTNAME}:{PORT}"]
 CORS_ORIGIN_ALLOW_ALL = True
 
+# Static files configurations
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "../todoqueue_frontend/build/static/")]
+
+
+# email settings
+
+# Load email configurations from .env file
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+EMAIL_HOST = config("EMAIL_HOST", default="localhost")
+EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+
+SITE_DOMAIN = f"{HOSTNAME}:{PORT}"
+
 
 # Application definition
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -70,10 +87,13 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "todoqueue_backend.urls"
 
+# React build files
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [
+            os.path.join(BASE_DIR, "../todoqueue_frontend/build/")
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -103,19 +123,6 @@ DATABASES = {
     }
 }
 
-if "test" in sys.argv:
-    DATABASES["default"] = {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "test_todoqueue",
-        "TEST": {
-            "NAME": "test_todoqueue",
-        },
-        "USER": "todoqueue",
-        "PASSWORD": "todoqueue",
-        "HOST": "db",
-        "PORT": "3306",
-    }
-
 
 AUTH_USER_MODEL = "accounts.CustomUser"
 
@@ -138,16 +145,16 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 REST_FRAMEWORK = {
-     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-      ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
 }
 
 SIMPLE_JWT = {
-     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=2),
-     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-     'ROTATE_REFRESH_TOKENS': True,
-     'BLACKLIST_AFTER_ROTATION': True
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=2),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
 }
 
 # Internationalization
@@ -162,26 +169,8 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
-STATIC_URL = "static/"
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# email settings
-
-# Load email configurations from .env file
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-
-EMAIL_HOST = config('EMAIL_HOST', default='localhost')
-EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-
-SITE_DOMAIN = f"{HOSTNAME}:{PORT}"

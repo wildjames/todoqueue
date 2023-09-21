@@ -16,9 +16,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import TemplateView
+from django.urls import re_path
+from django.contrib.staticfiles.views import serve
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include('tasks.urls')),
-    path('api/', include('accounts.urls')),
+    # Backend routes
+    path("admin/", admin.site.urls),
+    path("api/", include("tasks.urls")),
+    path("api/", include("accounts.urls")),
+    
+    # Serve the built React app
+    re_path(r'^static/(?P<path>.*)$', serve),
+    # Catch-all route to serve the React SPA
+    re_path(r'^.*$', TemplateView.as_view(template_name='index.html')),
 ]
