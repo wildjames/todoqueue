@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState, useEffect } from "react"; // Define the Login function.
 
 
-export const Login = ({ apiUrl, setShowHouseholdSelector }) => {
+export const Login = ({ setShowHouseholdSelector }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loginError, setLoginError] = useState(false);
@@ -24,7 +24,7 @@ export const Login = ({ apiUrl, setShowHouseholdSelector }) => {
 
         // Create the POST requuest
         const res = await axios.post(
-            apiUrl + '/token/',
+            '/api/token/',
             user,
             {
                 headers:

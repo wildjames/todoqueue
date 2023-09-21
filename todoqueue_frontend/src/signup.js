@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 
 
-export const SignUp = ({ apiUrl, setShowHouseholdSelector }) => {
+export const SignUp = ({ setShowHouseholdSelector }) => {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -27,7 +27,7 @@ export const SignUp = ({ apiUrl, setShowHouseholdSelector }) => {
 
         try {
             const res = await axios.post(
-                apiUrl + '/register/',
+                '/api/register/',
                 newUser,
                 {
                     headers:

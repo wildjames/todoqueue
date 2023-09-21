@@ -6,7 +6,7 @@ import './App.css';
 import { SimpleFlipper } from './flipper';
 
 
-const Tasks = ({ apiUrl, selectedHousehold, setShowHouseholdSelector, getCSRFToken }) => {
+const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     const [tasks, setTasks] = useState([]);
     const [users, setUsers] = useState([]);
     const [completionUsers, setCompletionUsers] = useState([]);
@@ -65,7 +65,7 @@ const Tasks = ({ apiUrl, selectedHousehold, setShowHouseholdSelector, getCSRFTok
                 async () => {
                     try {
                         const { data } = await axios.get(
-                            apiUrl + '/auth/',
+                            '/api/auth/',
                             {
                                 headers: {
                                     'Content-Type': 'application/json'
@@ -96,14 +96,14 @@ const Tasks = ({ apiUrl, selectedHousehold, setShowHouseholdSelector, getCSRFTok
         }, 1000);
         return () => clearInterval(interval);
     }
-        , [showSidebar, selectedHousehold, apiUrl]);
+        , [showSidebar, selectedHousehold]);
 
 
     // Fetch selected task at regular intervals
     useEffect(() => {
         if (showTaskPopup && selectedTaskId) {
             const fetchSelectedTask = async () => {
-                let list_tasks_url = apiUrl + '/tasks/' + selectedTaskId;
+                let list_tasks_url = '/api/tasks/' + selectedTaskId;
                 list_tasks_url += `?household=${selectedHousehold}`;
 
                 const response = await axios.get(
@@ -111,7 +111,6 @@ const Tasks = ({ apiUrl, selectedHousehold, setShowHouseholdSelector, getCSRFTok
                     {
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRFToken': getCSRFToken()
                         },
                     }
                 );
@@ -133,7 +132,7 @@ const Tasks = ({ apiUrl, selectedHousehold, setShowHouseholdSelector, getCSRFTok
                 clearInterval(updateSelectedTaskTimer.current);
             }
         };
-    }, [showTaskPopup, selectedTaskId, apiUrl]);
+    }, [showTaskPopup, selectedTaskId]);
 
 
     // If the selectedHousehold is null, hide the sidebar
@@ -166,13 +165,12 @@ const Tasks = ({ apiUrl, selectedHousehold, setShowHouseholdSelector, getCSRFTok
             setTasks([]);
             return;
         }
-        let list_tasks_url = apiUrl + "/tasks/";
+        let list_tasks_url = "/api/tasks/";
         list_tasks_url += `?household=${selectedHousehold}`;
 
         axios.get(list_tasks_url, {
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCSRFToken()
             }
         })
             .then((res) => {
@@ -197,12 +195,11 @@ const Tasks = ({ apiUrl, selectedHousehold, setShowHouseholdSelector, getCSRFTok
             console.log("No household selected");
             return;
         }
-        let list_users_url = apiUrl + `/households/${selectedHousehold}/users/`;
+        let list_users_url = `/api/households/${selectedHousehold}/users/`;
 
         axios.get(list_users_url, {
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCSRFToken()
             }
         })
             .then((res) => {
@@ -225,14 +222,12 @@ const Tasks = ({ apiUrl, selectedHousehold, setShowHouseholdSelector, getCSRFTok
             return;
         }
 
-        const csrftoken = getCSRFToken();
-
         // Get completion time from the lookup table
         const completionTime_minutes = parseInt(completionTimeLookup[completionTime]);
         // "[-]DD HH:MM:SS" and completion time is in minutes
         const completionTime_str = `0 ${Math.floor(completionTime_minutes / 60)}:${completionTime_minutes % 60}:00`;
 
-        const calculate_brownie_points_url = apiUrl + "/calculate_brownie_points/";
+        const calculate_brownie_points_url = "/api/calculate_brownie_points/";
         const payload = {
             task_id: selectedTaskId,
             completion_time: completionTime_str,
@@ -249,7 +244,6 @@ const Tasks = ({ apiUrl, selectedHousehold, setShowHouseholdSelector, getCSRFTok
                 {
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRFToken': csrftoken
                     }
                 }
             );
@@ -283,12 +277,11 @@ const Tasks = ({ apiUrl, selectedHousehold, setShowHouseholdSelector, getCSRFTok
             // Make a POST request to create a new WorkLog entry
             try {
                 const response = await axios.post(
-                    apiUrl + '/worklogs/',
+                    '/api/worklogs/',
                     JSON.stringify(worklog),
                     {
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRFToken': csrftoken
                         },
                     });
                 if (response.status !== 201) {
@@ -310,7 +303,7 @@ const Tasks = ({ apiUrl, selectedHousehold, setShowHouseholdSelector, getCSRFTok
 
     const handleCreateTask = (event) => {
         event.preventDefault();
-        const createTaskUrl = `${apiUrl}/tasks/`;
+        const createTaskUrl = `/api/tasks/`;
 
         const max_interval_in_minutes = (newTask.max_interval_days || 0) * 24 * 60 + (newTask.max_interval_hours || 0) * 60 + (newTask.max_interval_minutes || 0);
         const min_interval_in_minutes = (newTask.min_interval_days || 0) * 24 * 60 + (newTask.min_interval_hours || 0) * 60 + (newTask.min_interval_minutes || 0);
@@ -324,9 +317,6 @@ const Tasks = ({ apiUrl, selectedHousehold, setShowHouseholdSelector, getCSRFTok
         }
 
         setInputError(false);
-
-        // Fetch CSRF token from cookies
-        const csrftoken = getCSRFToken();
 
         // Convert max_interval and min_interval to Django DurationField format "[-]DD HH:MM:SS"
         const max_interval = `${newTask.max_interval_days || 0} ${newTask.max_interval_hours || 0}:${newTask.max_interval_minutes || 0}:00`;
@@ -348,7 +338,6 @@ const Tasks = ({ apiUrl, selectedHousehold, setShowHouseholdSelector, getCSRFTok
             {
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken
                 },
             })
             .then(res => {
@@ -378,20 +367,15 @@ const Tasks = ({ apiUrl, selectedHousehold, setShowHouseholdSelector, getCSRFTok
     };
 
     const deleteTask = (taskId) => {
-        const apiUrl = process.env.REACT_APP_BACKEND_URL;
-        const deleteTaskUrl = `${apiUrl}/tasks/${taskId}?household=${selectedHousehold}`;
+        const deleteTaskUrl = `/api/tasks/${taskId}?household=${selectedHousehold}`;
         console.log("deleteTaskUrl: ", deleteTaskUrl);
         console.log("taskId: ", taskId);
-
-        // Fetch CSRF token from cookies
-        const csrftoken = getCSRFToken();
 
         axios.delete(
             deleteTaskUrl,
             {
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken
                 },
             })
             .then((res) => {
@@ -406,13 +390,9 @@ const Tasks = ({ apiUrl, selectedHousehold, setShowHouseholdSelector, getCSRFTok
 
 
     const freezeTask = (taskId) => {
-        const apiUrl = process.env.REACT_APP_BACKEND_URL;
-        const freezeTaskUrl = `${apiUrl}/tasks/${taskId}/toggle_frozen/`;
+        const freezeTaskUrl = `/api/tasks/${taskId}/toggle_frozen/`;
         console.log("freezeTaskUrl: ", freezeTaskUrl);
         console.log("taskId: ", taskId);
-
-        // Fetch CSRF token from cookies
-        const csrftoken = getCSRFToken();
 
         axios.post(
             freezeTaskUrl,
@@ -420,7 +400,6 @@ const Tasks = ({ apiUrl, selectedHousehold, setShowHouseholdSelector, getCSRFTok
             {
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken
                 },
             })
             .then((res) => {

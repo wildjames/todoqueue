@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 
-export const ResetPassword = ({ apiUrl, setShowHouseholdSelector }) => {
+export const ResetPassword = ({ setShowHouseholdSelector }) => {
     const { uid, token } = useParams();
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -34,7 +34,7 @@ export const ResetPassword = ({ apiUrl, setShowHouseholdSelector }) => {
 
         try {
             const res = await axios.post(
-                `${apiUrl}/complete_forgot_password/${uid}/${token}/`,
+                `/api/complete_forgot_password/${uid}/${token}/`,
                 payload,
                 {
                     headers:

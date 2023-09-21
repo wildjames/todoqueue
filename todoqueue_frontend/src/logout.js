@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 
-export const Logout = ({ apiUrl, setShowHouseholdSelector }) => {
+export const Logout = ({ setShowHouseholdSelector }) => {
 
   useEffect(() => {
     setShowHouseholdSelector(false);
@@ -13,7 +13,7 @@ export const Logout = ({ apiUrl, setShowHouseholdSelector }) => {
     (async () => {
       try {
         const { data } = await axios.post(
-          apiUrl + '/logout/',
+          '/api/logout/',
           {
             refresh_token: localStorage.getItem('refresh_token')
           },

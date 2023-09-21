@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 
 
-export const ForgotPassword = ({ apiUrl, setShowHouseholdSelector }) => {
+export const ForgotPassword = ({ setShowHouseholdSelector }) => {
     const [email, setEmail] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
@@ -23,7 +23,7 @@ export const ForgotPassword = ({ apiUrl, setShowHouseholdSelector }) => {
 
         try {
             const res = await axios.post(
-                apiUrl + '/forgot_password/',
+                '/api/forgot_password/',
                 payload,
                 {
                     headers:

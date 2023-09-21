@@ -2,7 +2,7 @@ import axios from "axios";
 import { useEffect, useState, useRef } from "react";
 
 
-export const ManageHouseholds = ({ apiUrl, households, setShowHouseholdSelector, getCSRFToken }) => {
+export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
     const [users, setUsers] = useState([]);
     const [name, setName] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -30,7 +30,7 @@ export const ManageHouseholds = ({ apiUrl, households, setShowHouseholdSelector,
         }, 1000);
         return () => clearInterval(interval);
     }
-        , [selectedHousehold, apiUrl]);
+        , [selectedHousehold]);
 
 
     const handleOpenUsersPopup = (household) => {
@@ -56,14 +56,13 @@ export const ManageHouseholds = ({ apiUrl, households, setShowHouseholdSelector,
             console.log("No household selected");
             return;
         }
-        let list_users_url = apiUrl + `/households/${selectedHousehold.id}/users/`;
 
-        axios.get(list_users_url, {
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCSRFToken()
-            }
-        })
+        axios.get(`/api/households/${selectedHousehold.id}/users/`,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
             .then((res) => {
                 if (res.status !== 200) {
                     console.log("Failed to fetch users.");
@@ -80,7 +79,7 @@ export const ManageHouseholds = ({ apiUrl, households, setShowHouseholdSelector,
     const handleCreate = async () => {
         try {
             // Get the logged in user
-            const res = await axios.post(apiUrl + "/create_household/",
+            const res = await axios.post("/api/create_household/",
                 {
                     name: name
                 },
@@ -101,7 +100,7 @@ export const ManageHouseholds = ({ apiUrl, households, setShowHouseholdSelector,
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(apiUrl + "/households/" + id + "/", {
+            await axios.delete("/api/households/" + id + "/", {
                 withCredentials: true
             });
 

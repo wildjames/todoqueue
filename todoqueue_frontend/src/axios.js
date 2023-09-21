@@ -2,6 +2,32 @@ import axios from "axios";
 
 let refresh = false;
 
+
+const getCookie = (name) => {
+  let value = "; " + document.cookie;
+  let parts = value.split("; " + name + "=");
+  if (parts.length === 2) return parts.pop().split(";").shift();
+};
+
+
+const getCSRFToken = () => {
+  return getCookie("csrftoken");
+};
+
+
+axios.interceptors.request.use(
+  config => {
+    const csrfToken = getCSRFToken();
+    if (csrfToken) {
+      console.log("Setting CSRF token: ", csrfToken);
+      config.headers['X-CSRFToken'] = csrfToken;
+    }
+    return config;
+  },
+  error => Promise.reject(error)
+);
+
+
 axios.interceptors.response.use(
   (resp) => resp,
   async (error) => {
@@ -26,7 +52,10 @@ axios.interceptors.response.use(
           refresh: localStorage.getItem('refresh_token')
         },
         {
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+          },
           withCredentials: true
         }
       );

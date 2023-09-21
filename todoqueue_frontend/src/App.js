@@ -19,9 +19,6 @@ import { ResetPassword } from './resetPassword';
 import { ManageHouseholds } from './households';
 
 
-const apiUrl = "/api/";
-
-
 const App = () => {
   const [households, setHouseholds] = useState([]);
   const [selectedHousehold, setSelectedHousehold] = useState(null);
@@ -48,19 +45,8 @@ const App = () => {
     }, 1000);
     return () => clearInterval(interval);
   }
-    , [selectedHousehold, apiUrl]);
+    , [selectedHousehold]);
 
-
-  const getCSRFToken = () => {
-    const cookieValue = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
-
-    // if (!cookieValue) {
-    //   console.error("CSRF token not found.");
-    //   // throw new Error("CSRF token not found.");
-    // }
-
-    return cookieValue;
-  };
 
 
   const fetchHouseholds = () => {
@@ -69,11 +55,10 @@ const App = () => {
       return;
     }
 
-    const list_households_url = apiUrl + "/households/";
+    const list_households_url = "/api/households/";
     axios.get(list_households_url, {
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': getCSRFToken()
       }
     })
       .then((res) => {
@@ -112,14 +97,14 @@ const App = () => {
 
       <div className="App">
         <Routes>
-          <Route path="/user_statistics" element={<UserStatistics apiUrl={apiUrl} selectedHousehold={selectedHousehold} setShowHouseholdSelector={setShowHouseholdSelector} />} />
-          <Route path="/" element={<Tasks apiUrl={apiUrl} selectedHousehold={selectedHousehold} setShowHouseholdSelector={setShowHouseholdSelector} getCSRFToken={getCSRFToken}  />} />
-          <Route path="/login" element={<Login apiUrl={apiUrl} setShowHouseholdSelector={setShowHouseholdSelector} />} />
-          <Route path="/logout" element={<Logout apiUrl={apiUrl} setShowHouseholdSelector={setShowHouseholdSelector} />} />
-          <Route path="/signup" element={<SignUp apiUrl={apiUrl} setShowHouseholdSelector={setShowHouseholdSelector} />} />
-          <Route path="/forgot_password" element={<ForgotPassword apiUrl={apiUrl} setShowHouseholdSelector={setShowHouseholdSelector} />} />
-          <Route path="/reset_password/:uid/:token" element={<ResetPassword apiUrl={apiUrl} setShowHouseholdSelector={setShowHouseholdSelector} />} />
-          <Route path="/manage_households" element={<ManageHouseholds apiUrl={apiUrl} households={households} setShowHouseholdSelector={setShowHouseholdSelector} getCSRFToken={getCSRFToken} />} />
+          <Route path="/user_statistics" element={<UserStatistics selectedHousehold={selectedHousehold} setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/" element={<Tasks selectedHousehold={selectedHousehold} setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/login" element={<Login setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/logout" element={<Logout setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/signup" element={<SignUp setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/forgot_password" element={<ForgotPassword setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/reset_password/:uid/:token" element={<ResetPassword setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/manage_households" element={<ManageHouseholds households={households} setShowHouseholdSelector={setShowHouseholdSelector} />} />
         </Routes>
       </div>
     </BrowserRouter>

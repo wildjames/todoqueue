@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';  // Assuming you are using axios for HTTP requests
 
 
-const UserStatistics = ({ apiUrl, selectedHousehold, setShowHouseholdSelector }) => {
+const UserStatistics = ({ selectedHousehold, setShowHouseholdSelector }) => {
   const [statistics, setStatistics] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -14,7 +14,7 @@ const UserStatistics = ({ apiUrl, selectedHousehold, setShowHouseholdSelector })
 
   useEffect(() => {
     // Replace with your API endpoint URL
-    axios.get(apiUrl + '/user_statistics/')
+    axios.get('/api/user_statistics/')
       .then(res => {
         setStatistics(res.data);
         setIsLoading(false);
