@@ -1,9 +1,8 @@
 import axios from "axios";
 import { useEffect, useState, useRef } from "react";
 
-const apiUrl = process.env.REACT_APP_BACKEND_URL;
 
-export const ManageHouseholds = ({ households, setShowHouseholdSelector, getCSRFToken }) => {
+export const ManageHouseholds = ({ apiUrl, households, setShowHouseholdSelector, getCSRFToken }) => {
     const [users, setUsers] = useState([]);
     const [name, setName] = useState("");
     const [errorMessage, setErrorMessage] = useState("");

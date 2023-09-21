@@ -2,9 +2,8 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
-const apiUrl = process.env.REACT_APP_BACKEND_URL;
 
-export const ResetPassword = ({setShowHouseholdSelector}) => {
+export const ResetPassword = ({ apiUrl, setShowHouseholdSelector }) => {
     const { uid, token } = useParams();
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');

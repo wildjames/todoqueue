@@ -1,7 +1,6 @@
 import axios from "axios";
 
 let refresh = false;
-const apiUrl = process.env.REACT_APP_BACKEND_URL;
 
 axios.interceptors.response.use(
   (resp) => resp,
@@ -22,7 +21,7 @@ axios.interceptors.response.use(
       console.log("Token out of date. Refreshing using token: ", localStorage.getItem('refresh_token'));
 
       const response = await axios.post(
-        apiUrl + '/token/refresh/',
+        '/api/token/refresh/',
         {
           refresh: localStorage.getItem('refresh_token')
         },

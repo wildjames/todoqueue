@@ -2,10 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';  // Assuming you are using axios for HTTP requests
 
 
-const apiUrl = process.env.REACT_APP_BACKEND_URL;
-
-
-const UserStatistics = ({ selectedHousehold, setShowHouseholdSelector }) => {
+const UserStatistics = ({ apiUrl, selectedHousehold, setShowHouseholdSelector }) => {
   const [statistics, setStatistics] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 

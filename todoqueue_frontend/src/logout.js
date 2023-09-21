@@ -2,10 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 
-const apiUrl = process.env.REACT_APP_BACKEND_URL;
-
-
-export const Logout = ({ setShowHouseholdSelector }) => {
+export const Logout = ({ apiUrl, setShowHouseholdSelector }) => {
 
   useEffect(() => {
     setShowHouseholdSelector(false);

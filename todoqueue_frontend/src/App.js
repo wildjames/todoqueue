@@ -18,7 +18,9 @@ import { ForgotPassword } from './forgotPassword';
 import { ResetPassword } from './resetPassword';
 import { ManageHouseholds } from './households';
 
-const apiUrl = process.env.REACT_APP_BACKEND_URL;
+
+const apiUrl = "/api/";
+
 
 const App = () => {
   const [households, setHouseholds] = useState([]);
@@ -110,14 +112,14 @@ const App = () => {
 
       <div className="App">
         <Routes>
-          <Route path="/user_statistics" element={<UserStatistics selectedHousehold={selectedHousehold} setShowHouseholdSelector={setShowHouseholdSelector} />} />
-          <Route path="/" element={<Tasks selectedHousehold={selectedHousehold} setShowHouseholdSelector={setShowHouseholdSelector} getCSRFToken={getCSRFToken}  />} />
-          <Route path="/login" element={<Login setShowHouseholdSelector={setShowHouseholdSelector} />} />
-          <Route path="/logout" element={<Logout setShowHouseholdSelector={setShowHouseholdSelector} />} />
-          <Route path="/signup" element={<SignUp setShowHouseholdSelector={setShowHouseholdSelector} />} />
-          <Route path="/forgot_password" element={<ForgotPassword setShowHouseholdSelector={setShowHouseholdSelector} />} />
-          <Route path="/reset_password/:uid/:token" element={<ResetPassword setShowHouseholdSelector={setShowHouseholdSelector} />} />
-          <Route path="/manage_households" element={<ManageHouseholds households={households} setShowHouseholdSelector={setShowHouseholdSelector} getCSRFToken={getCSRFToken} />} />
+          <Route path="/user_statistics" element={<UserStatistics apiUrl={apiUrl} selectedHousehold={selectedHousehold} setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/" element={<Tasks apiUrl={apiUrl} selectedHousehold={selectedHousehold} setShowHouseholdSelector={setShowHouseholdSelector} getCSRFToken={getCSRFToken}  />} />
+          <Route path="/login" element={<Login apiUrl={apiUrl} setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/logout" element={<Logout apiUrl={apiUrl} setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/signup" element={<SignUp apiUrl={apiUrl} setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/forgot_password" element={<ForgotPassword apiUrl={apiUrl} setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/reset_password/:uid/:token" element={<ResetPassword apiUrl={apiUrl} setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/manage_households" element={<ManageHouseholds apiUrl={apiUrl} households={households} setShowHouseholdSelector={setShowHouseholdSelector} getCSRFToken={getCSRFToken} />} />
         </Routes>
       </div>
     </BrowserRouter>

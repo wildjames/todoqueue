@@ -1,9 +1,8 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 
-const apiUrl = process.env.REACT_APP_BACKEND_URL;
 
-export const ForgotPassword = ({setShowHouseholdSelector}) => {
+export const ForgotPassword = ({ apiUrl, setShowHouseholdSelector }) => {
     const [email, setEmail] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 

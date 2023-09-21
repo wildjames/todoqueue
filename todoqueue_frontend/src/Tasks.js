@@ -6,10 +6,7 @@ import './App.css';
 import { SimpleFlipper } from './flipper';
 
 
-const apiUrl = process.env.REACT_APP_BACKEND_URL;
-
-
-const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) => {
+const Tasks = ({ apiUrl, selectedHousehold, setShowHouseholdSelector, getCSRFToken }) => {
     const [tasks, setTasks] = useState([]);
     const [users, setUsers] = useState([]);
     const [completionUsers, setCompletionUsers] = useState([]);

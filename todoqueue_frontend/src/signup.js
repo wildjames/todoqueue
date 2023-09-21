@@ -1,9 +1,8 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 
-const apiUrl = process.env.REACT_APP_BACKEND_URL;
 
-export const SignUp = ({setShowHouseholdSelector}) => {
+export const SignUp = ({ apiUrl, setShowHouseholdSelector }) => {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');

@@ -2,10 +2,7 @@ import axios from "axios";
 import { useState, useEffect } from "react"; // Define the Login function.
 
 
-const apiUrl = process.env.REACT_APP_BACKEND_URL;
-
-
-export const Login = ({ setShowHouseholdSelector }) => {
+export const Login = ({ apiUrl, setShowHouseholdSelector }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loginError, setLoginError] = useState(false);
