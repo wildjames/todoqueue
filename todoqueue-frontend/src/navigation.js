@@ -14,19 +14,19 @@ export function Navigation({ households, selectedHousehold, setSelectedHousehold
         <div>
             <Navbar className="navbar" bg="dark" variant="dark" sticky="left">
                 <Navbar.Brand href="/" style={{ paddingRight: '20px', paddingLeft: '20px' }}>ToDo Queue</Navbar.Brand>
-                <Nav className="me-auto">
-                    {
-                        isAuth ?
+                {
+                    isAuth ?
+                        <Nav className="me-auto">
                             <>
                                 <Nav.Link href="/" style={{ paddingLeft: '10px', paddingRight: '10px' }}>Tasks</Nav.Link>
                                 <Nav.Link href="/user_statistics" style={{ paddingLeft: '10px', paddingRight: '10px' }}>User Statistics</Nav.Link>
-                            </> :
-                            null
-                    }
-                </Nav>
-                <Nav className="me-auto">
-                    {
-                        isAuth ?
+                            </>
+                        </Nav>
+                        : null
+                }
+                {
+                    isAuth ?
+                        <Nav className="mx-auto">
                             <>
                                 <select className="household-select" onChange={e => setSelectedHousehold(e.target.value === "Select a household" ? null : e.target.value)} value={selectedHousehold}>
                                     <option value={null}>Select a household</option>
@@ -34,11 +34,18 @@ export function Navigation({ households, selectedHousehold, setSelectedHousehold
                                         <option key={household.id} value={household.id}>{household.name}</option>
                                     ))}
                                 </select>
-                            </> :
-                            null
-                    }
-                </Nav>
-                <Nav>
+                            </>
+                        </Nav>
+                        : null
+                }
+                {
+                    !isAuth ?
+                        <Nav className="me-right">
+                            <Nav.Link href="/signup" style={{ paddingLeft: '10px', paddingRight: '10px' }}>Sign Up</Nav.Link>
+                        </Nav>
+                        : null
+                }
+                <Nav className="me-right">
                     {
                         isAuth ?
                             <Nav.Link href="/logout" style={{ paddingLeft: '10px', paddingRight: '10px' }}>Logout</Nav.Link> :
@@ -47,6 +54,5 @@ export function Navigation({ households, selectedHousehold, setSelectedHousehold
                 </Nav>
             </Navbar>
         </div>
-
     );
 }

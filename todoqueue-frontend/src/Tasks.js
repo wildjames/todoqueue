@@ -606,7 +606,7 @@ const Tasks = ({ selectedHousehold }) => {
         <div className="Tasks">
 
             <div className={`empty-state ${selectedHousehold ? 'hide' : 'show'}`}>
-                <div className="arrow-up"></div>
+                <div className={`arrow-up ${selectedHousehold ? '' : 'bounce'}`}></div>
                 <div className="text">Select a household</div>
             </div>
 
@@ -619,19 +619,19 @@ const Tasks = ({ selectedHousehold }) => {
                                 <table className="task-popup-table">
                                     <tbody>
                                         <tr>
-                                            <td className="task-popup-label">Mean completion time:</td>
+                                            <td className="task-popup-label">This takes on average:</td>
                                             <td className="task-popup-content">{(selectedTask.mean_completion_time / 60).toFixed(1)} minutes</td>
                                         </tr>
                                         <tr>
-                                            <td className="task-popup-label">Max Interval:</td>
+                                            <td className="task-popup-label">Do this at most every:</td>
                                             <td className="task-popup-content">{formatDuration(selectedTask.max_interval)}</td>
                                         </tr>
                                         <tr>
-                                            <td className="task-popup-label">Min Interval:</td>
+                                            <td className="task-popup-label">and at least every:</td>
                                             <td className="task-popup-content">{formatDuration(selectedTask.min_interval)}</td>
                                         </tr>
                                         <tr>
-                                            <td className="task-popup-label">Last Completed:</td>
+                                            <td className="task-popup-label">Last done:</td>
                                             <td className="task-popup-content">{getTimeSince(selectedTask.last_completed)}</td>
                                         </tr>
                                         <tr>

@@ -8,6 +8,7 @@ const apiUrl = process.env.REACT_APP_BACKEND_URL;
 export const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loginError, setLoginError] = useState(false);
 
     // Create the submit method.
     const submit = async e => {
@@ -32,15 +33,26 @@ export const Login = () => {
                 withCredentials: true
             },
         );
-        console.log(res.data);
+        setLoginError(true);
+        if (res.status !== 200) {
+            console.log("Error during login:", res);
+            return;
+        }
+        setLoginError(false);
+        console.log(res);
 
-        // Initialize the access & refresh token in localstorage.      
-        localStorage.clear();
-        localStorage.setItem('access_token', res.data.access);
-        localStorage.setItem('refresh_token', res.data.refresh);
+        try {
+            // Initialize the access & refresh token in localstorage.      
+            localStorage.clear();
+            localStorage.setItem('access_token', res.data.access);
+            localStorage.setItem('refresh_token', res.data.refresh);
 
-        axios.defaults.headers.common['Authorization'] = `Bearer ${res.data['access']}`;
-        window.location.href = '/'
+            axios.defaults.headers.common['Authorization'] = `Bearer ${res.data['access']}`;
+            window.location.href = '/'
+        } catch (error) {
+            console.log("Error during login:", error);
+            setLoginError(true);
+        }
     }
 
     return (
@@ -48,6 +60,9 @@ export const Login = () => {
             <form className="Auth-form" onSubmit={submit}>
                 <div className="Auth-form-content">
                     <h3 className="Auth-form-title">Sign In</h3>
+
+                    {loginError && <div className="alert alert-danger" role="alert">Login failed. Please check your credentials.</div>}
+
                     <div className="form-group mt-3">
                         <label>Email</label>
                         <input className="form-control mt-1"
@@ -57,6 +72,7 @@ export const Login = () => {
                             required
                             onChange={e => setEmail(e.target.value)} />
                     </div>
+
                     <div className="form-group mt-3">
                         <label>Password</label>
                         <input name='password'
@@ -67,9 +83,14 @@ export const Login = () => {
                             required
                             onChange={e => setPassword(e.target.value)} />
                     </div>
+
                     <div className="d-grid gap-2 mt-3">
                         <button type="submit"
                             className="btn btn-primary">Submit</button>
+                    </div>
+                    
+                    <div className="d-grid gap-3 mt-3">
+                        <a href="/signup" className="btn btn-secondary">Sign Up</a>
                     </div>
                 </div>
             </form>

@@ -1,4 +1,5 @@
 asgiref==3.7.2
+python-decouple==3.8
 distlib==0.3.5
 Django==4.2.5
 django-cors-headers==4.2.0

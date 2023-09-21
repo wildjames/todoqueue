@@ -26,7 +26,6 @@ h1 {
   margin-bottom: 20px;
 }
 
-
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -49,7 +48,7 @@ h1 {
 
 .text {
   font-size: 1.2em;
-  margin-top: 10px;
+  margin-top: 20px;
 }
 
 .empty-state.hide {
@@ -58,6 +57,23 @@ h1 {
 
 .empty-state.show {
   top: 100px;
+}
+
+@keyframes bounce-select-prompt {
+
+  0%,
+  20%,
+  100% {
+    transform: translateY(0);
+  }
+
+  10% {
+    transform: translateY(-10px);
+  }
+}
+
+.arrow-up.bounce {
+  animation: bounce-select-prompt 4s ease-in-out infinite;
 }
 
 .sidebar {
@@ -456,7 +472,7 @@ h1 {
 
 .todoqueue-auth-form {
   max-width: 400px;
-  margin: 0 auto;
+  margin: 10% auto;
 }
 
 .grossness-scale {

@@ -12,10 +12,10 @@ axios.interceptors.response.use(
       if (localStorage.getItem('refresh_token') === null) {
         console.log("No refresh token found. Redirecting to login page.");
         localStorage.clear();
-        // Dont redirect to login page if already on login page
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login';
-        }
+        // // Dont redirect to login page if already on login page
+        // if (window.location.pathname !== '/login') {
+        //   window.location.href = '/login';
+        // }
         return;
       }
 

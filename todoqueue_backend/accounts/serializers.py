@@ -1,6 +1,9 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
+from logging import getLogger
+logger = getLogger(__name__)
 
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -13,3 +16,26 @@ class CustomUserSerializer(serializers.ModelSerializer):
             "brownie_point_credit",
             "brownie_point_debit",
         )
+
+
+class CustomUserRegistrationSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+        validators=[UniqueValidator(queryset=get_user_model().objects.all())]
+    )
+    username = serializers.CharField(
+        validators=[UniqueValidator(queryset=get_user_model().objects.all())]
+    )
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = get_user_model()
+        fields = ("email", "username", "password")
+
+    def create(self, validated_data):
+        logger.info(f"Creating user with email: {validated_data['email']}")
+        user = get_user_model().objects.create_user(
+            email=validated_data["email"],
+            username=validated_data["username"],
+            password=validated_data["password"],
+        )
+        return user

@@ -34,15 +34,12 @@ class TaskViewSet(viewsets.ModelViewSet):
         user = self.request.user
         household_id = self.request.query_params.get("household", None)
 
-        logger.info(f"Getting users for household: {household_id}")
-
         if household_id is None:
             # Return an empty queryset if household is not provided
             logger.info(f"No household provided")
             return Task.objects.none()
 
         household = get_object_or_404(Household, id=household_id)
-        logger.info("Got household")
 
         if user in household.users.all():
             return Task.objects.filter(household=household).order_by("-task_name")

@@ -8,6 +8,7 @@ import Tasks from './Tasks';
 import { Navigation } from './navigation';
 import { Login } from './Login';
 import { Logout } from './logout';
+import { SignUp } from './signup';
 import axios from 'axios';
 import { Helmet } from 'react-helmet';
 
@@ -106,6 +107,7 @@ const App = () => {
           <Route path="/" element={<Tasks selectedHousehold={selectedHousehold} />} />
           <Route path="/login" element={<Login />} />
           <Route path="/logout" element={<Logout />} />
+          <Route path="/signup" element={<SignUp />} />
         </Routes>
       </div>
     </BrowserRouter>

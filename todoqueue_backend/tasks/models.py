@@ -35,12 +35,12 @@ def update_brownie_points(sender, instance, action, **kwargs):
                 logger.info(
                     f"Setting BP for user {user}. Current BP: {user.brownie_point_credit}"
                 )
-                if instance.id not in user.brownie_point_credit:
+                if str(instance.id) not in user.brownie_point_credit:
                     logger.info(f"Setting BP credit for user {user}")
-                    user.brownie_point_credit[instance.id] = 0.0
-                if instance.id not in user.brownie_point_debit:
+                    user.brownie_point_credit[str(instance.id)] = 0.0
+                if str(instance.id) not in user.brownie_point_debit:
                     logger.info(f"Setting BP debit for user {user}")
-                    user.brownie_point_debit[instance.id] = 0.0
+                    user.brownie_point_debit[str(instance.id)] = 0.0
                 logger.info("saving user")
                 user.save()
 
@@ -62,15 +62,18 @@ class Task(models.Model):
     def staleness(self):
         if self.frozen:
             return 0
-        
+
         time_since_last_completed = timezone.now() - self.last_completed
         if time_since_last_completed < self.min_interval:
             return 0
         if time_since_last_completed > self.max_interval:
             return 1
-        staleness = (time_since_last_completed.seconds - self.min_interval.seconds) / (
+        
+        # Calculate how many intervals have passed since the task was last completed
+        staleness = (time_since_last_completed - self.min_interval) / (
             self.max_interval - self.min_interval
-        ).seconds
+        )
+        
         return staleness
 
     @property
