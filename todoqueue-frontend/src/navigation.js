@@ -3,7 +3,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
-export function Navigation({ households, selectedHousehold, setSelectedHousehold }) {
+export function Navigation({ households, selectedHousehold, setSelectedHousehold, showHouseholdSelector }) {
     const [isAuth, setIsAuth] = useState(false); useEffect(() => {
         if (localStorage.getItem('access_token') !== null) {
             setIsAuth(true);
@@ -26,7 +26,7 @@ export function Navigation({ households, selectedHousehold, setSelectedHousehold
                         : null
                 }
                 {
-                    isAuth ?
+                    isAuth & showHouseholdSelector ?
                         <Nav className="mx-auto">
                             <>
                                 <select className="household-select" onChange={e => setSelectedHousehold(e.target.value === "Select a household" ? null : e.target.value)} value={selectedHousehold}>

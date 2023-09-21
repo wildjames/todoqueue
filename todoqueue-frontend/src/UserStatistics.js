@@ -5,9 +5,15 @@ import axios from 'axios';  // Assuming you are using axios for HTTP requests
 const apiUrl = process.env.REACT_APP_BACKEND_URL;
 
 
-const UserStatistics = ({ selectedHousehold }) => {
+const UserStatistics = ({ selectedHousehold, setShowHouseholdSelector }) => {
   const [statistics, setStatistics] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+
+  useEffect(() => {
+    setShowHouseholdSelector(true);
+  }, []);
+
 
   useEffect(() => {
     // Replace with your API endpoint URL

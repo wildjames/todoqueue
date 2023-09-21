@@ -23,6 +23,7 @@ const apiUrl = process.env.REACT_APP_BACKEND_URL;
 const App = () => {
   const [households, setHouseholds] = useState([]);
   const [selectedHousehold, setSelectedHousehold] = useState(null);
+  const [showHouseholdSelector, setShowHouseholdSelector] = useState(false);
 
   // Try and prevent chrom from translating the page when there are few words on screen
   useEffect(() => {
@@ -104,18 +105,19 @@ const App = () => {
         households={households}
         selectedHousehold={selectedHousehold}
         setSelectedHousehold={setSelectedHousehold}
+        showHouseholdSelector={showHouseholdSelector}
       ></Navigation>
 
       <div className="App">
         <Routes>
-          <Route path="/user_statistics" element={<UserStatistics selectedHousehold={selectedHousehold} />} />
-          <Route path="/" element={<Tasks selectedHousehold={selectedHousehold} />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/logout" element={<Logout />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/forgot_password" element={<ForgotPassword />} />
-          <Route path="/reset_password/:uid/:token" element={<ResetPassword />} />
-          <Route path="/manage_households" element={<ManageHouseholds households={households} />} />
+          <Route path="/user_statistics" element={<UserStatistics selectedHousehold={selectedHousehold} setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/" element={<Tasks selectedHousehold={selectedHousehold} setShowHouseholdSelector={setShowHouseholdSelector} getCSRFToken={getCSRFToken}  />} />
+          <Route path="/login" element={<Login setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/logout" element={<Logout setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/signup" element={<SignUp setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/forgot_password" element={<ForgotPassword setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/reset_password/:uid/:token" element={<ResetPassword setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/manage_households" element={<ManageHouseholds households={households} setShowHouseholdSelector={setShowHouseholdSelector} getCSRFToken={getCSRFToken} />} />
         </Routes>
       </div>
     </BrowserRouter>

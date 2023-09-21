@@ -9,7 +9,7 @@ import { SimpleFlipper } from './flipper';
 const apiUrl = process.env.REACT_APP_BACKEND_URL;
 
 
-const Tasks = ({ selectedHousehold }) => {
+const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) => {
     const [tasks, setTasks] = useState([]);
     const [users, setUsers] = useState([]);
     const [completionUsers, setCompletionUsers] = useState([]);
@@ -42,6 +42,11 @@ const Tasks = ({ selectedHousehold }) => {
     ];
 
     // useEffects //
+
+
+    useEffect(() => {
+        setShowHouseholdSelector(true);
+    }, []);
 
 
     // Generate a random task_id for the new task
@@ -580,22 +585,6 @@ const Tasks = ({ selectedHousehold }) => {
     };
 
 
-    // Misc functions //
-
-
-    const getCSRFToken = () => {
-        const cookieValue = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
-
-        // Can throw an error, but don't bother. Just return null.
-        // if (!cookieValue) {
-        //     console.error("CSRF token not found.");
-        //     // throw new Error("CSRF token not found.");
-        // }
-
-        return cookieValue;
-    };
-
-
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- //
 
 
@@ -787,7 +776,7 @@ const Tasks = ({ selectedHousehold }) => {
 
 
             <div className={`task-sidebar ${showSidebar ? 'show' : 'hide'}`}>
-                <h2>Fresh Tasks</h2>
+                <h2 style={{ marginTop: ".5em" }}>Fresh Tasks</h2>
                 {tasks
                     .filter(task => task.staleness === 0)
                     .sort((a, b) => {

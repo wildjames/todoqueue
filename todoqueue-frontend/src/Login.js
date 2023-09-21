@@ -1,14 +1,18 @@
 import axios from "axios";
-import { useState } from "react"; // Define the Login function.
+import { useState, useEffect } from "react"; // Define the Login function.
 
 
 const apiUrl = process.env.REACT_APP_BACKEND_URL;
 
 
-export const Login = () => {
+export const Login = ({ setShowHouseholdSelector }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loginError, setLoginError] = useState(false);
+
+    useEffect(() => {
+        setShowHouseholdSelector(false);
+    }, []);
 
     // Create the submit method.
     const submit = async e => {

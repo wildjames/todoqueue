@@ -1,11 +1,15 @@
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const apiUrl = process.env.REACT_APP_BACKEND_URL;
 
-export const ForgotPassword = () => {
+export const ForgotPassword = ({setShowHouseholdSelector}) => {
     const [email, setEmail] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+
+    useEffect(() => {
+        setShowHouseholdSelector(false);
+    }, []);
 
     const submit = async e => {
         e.preventDefault();

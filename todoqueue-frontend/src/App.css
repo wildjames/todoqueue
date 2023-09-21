@@ -356,6 +356,34 @@ h1 {
   color: white;
 }
 
+.users-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.remove-user-button {
+  background-color: #f44336;
+  color: white;
+  margin-left: 10px;
+}
+
+.add-user-button {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.manage-users-button {
+  background-color: #2196F3;
+  color: white;
+  margin-left: 10px;
+}
+
+.input-field {
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
 .input-group {
   display: flex;
   flex-direction: column;
@@ -388,6 +416,11 @@ h1 {
 .task-form {
   display: flex;
   flex-direction: column;
+}
+
+.error-message {
+  color: red;
+  margin-top: 20px;
 }
 
 @keyframes bounce-bp {
@@ -492,6 +525,33 @@ h1 {
 .poop-emoji.selected {
   opacity: 1;
   transform: scale(1.2);
+}
+
+.Households {
+  text-align: center;
+  font-family: 'Arial', sans-serif;
+  margin-top: 0px;
+  display: flex;
+}
+
+
+.household-container {
+  left: 50%;
+  transform: translateX(-50%);
+  position: absolute;
+  top: calc(50px + 2.5em);
+  width: 400px;
+  font-family: 'Arial', sans-serif;
+}
+
+.household-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+  margin-top: 10px;
 }
 
 .household-select {
