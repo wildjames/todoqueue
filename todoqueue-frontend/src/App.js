@@ -1,16 +1,21 @@
 import logo from './logo.svg';
-import React, { useState, useEffect, useRef } from 'react';
-import { BrowserRouter as Router, Route, Routes, BrowserRouter } from 'react-router-dom';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+
+import React, { useState, useEffect, useRef } from 'react';
+import { BrowserRouter as Router, Route, Routes, BrowserRouter } from 'react-router-dom';
+
+import axios from 'axios';
+import { Helmet } from 'react-helmet';
+
 import UserStatistics from './UserStatistics';
 import Tasks from './Tasks';
 import { Navigation } from './navigation';
 import { Login } from './Login';
 import { Logout } from './logout';
 import { SignUp } from './signup';
-import axios from 'axios';
-import { Helmet } from 'react-helmet';
+import { ForgotPassword } from './forgotPassword';
+import { ResetPassword } from './resetPassword';
 
 
 const apiUrl = process.env.REACT_APP_BACKEND_URL;
@@ -25,7 +30,7 @@ const App = () => {
     document.documentElement.setAttribute('xml:lang', 'en');
     document.documentElement.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
   }, []);
-  
+
 
   // Fetch households at regular intervals
   useEffect(() => {
@@ -108,6 +113,8 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/logout" element={<Logout />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/forgot_password" element={<ForgotPassword />} />
+          <Route path="/reset_password/:uid/:token" element={<ResetPassword />} />
         </Routes>
       </div>
     </BrowserRouter>

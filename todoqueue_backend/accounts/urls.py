@@ -6,6 +6,8 @@ from .views import (
     LogoutView,
     RegisterView,
     ConfirmRegistrationView,
+    ForgotPasswordView,
+    CompleteForgotPasswordView,
 )
 from rest_framework_simplejwt import views as jwt_views
 
@@ -21,5 +23,11 @@ urlpatterns = [
     path("register/", RegisterView.as_view(), name="register"),
     path(
         "activate/<uidb64>/<token>/", ConfirmRegistrationView.as_view(), name="activate"
+    ),
+    path("forgot_password/", ForgotPasswordView.as_view(), name="forgot_password"),
+    path(
+        "complete_forgot_password/<uidb64>/<token>/",
+        CompleteForgotPasswordView.as_view(),
+        name="complete_forgot_password",
     ),
 ]

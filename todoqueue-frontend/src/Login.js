@@ -88,9 +88,13 @@ export const Login = () => {
                         <button type="submit"
                             className="btn btn-primary">Submit</button>
                     </div>
-                    
+
                     <div className="d-grid gap-3 mt-3">
                         <a href="/signup" className="btn btn-secondary">Sign Up</a>
+                    </div>
+
+                    <div className="mt-3">
+                        <a href="/forgot_password">Forgot your password?</a>
                     </div>
                 </div>
             </form>
