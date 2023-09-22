@@ -6,10 +6,7 @@ import './App.css';
 import { SimpleFlipper } from './flipper';
 
 
-const apiUrl = process.env.REACT_APP_BACKEND_URL;
-
-
-const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) => {
+const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     const [tasks, setTasks] = useState([]);
     const [users, setUsers] = useState([]);
     const [completionUsers, setCompletionUsers] = useState([]);
@@ -26,7 +23,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
     const [completionTime, setCompletionTime] = useState(0);
     const [newTask, setNewTask] = useState({
         task_name: '',
-        task_id: '',
         max_interval: '0:0',
         min_interval: '0:0',
         description: ''
@@ -49,15 +45,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
     }, []);
 
 
-    // Generate a random task_id for the new task
-    useEffect(() => {
-        setNewTask({
-            ...newTask,
-            task_id: randomString()
-        });
-    }, []);
-
-
     // Redirect to login page if not logged in
     useEffect(() => {
         if (localStorage.getItem('access_token') === null) {
@@ -68,7 +55,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
                 async () => {
                     try {
                         const { data } = await axios.get(
-                            apiUrl + '/auth/',
+                            '/api/auth/',
                             {
                                 headers: {
                                     'Content-Type': 'application/json'
@@ -99,25 +86,23 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
         }, 1000);
         return () => clearInterval(interval);
     }
-        , [showSidebar, selectedHousehold, apiUrl]);
+        , [showSidebar, selectedHousehold]);
 
 
     // Fetch selected task at regular intervals
     useEffect(() => {
         if (showTaskPopup && selectedTaskId) {
             const fetchSelectedTask = async () => {
-                let list_tasks_url = apiUrl + '/tasks/' + selectedTaskId;
-                list_tasks_url += `?household=${selectedHousehold}`;
-
+                const list_tasks_url = `/api/tasks/${selectedTaskId}/?household=${selectedHousehold}`;
                 const response = await axios.get(
                     list_tasks_url,
                     {
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRFToken': getCSRFToken()
                         },
                     }
                 );
+                console.log("Setting selected task data: ", response);
                 setSelectedTask(response.data);
             };
 
@@ -136,7 +121,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
                 clearInterval(updateSelectedTaskTimer.current);
             }
         };
-    }, [showTaskPopup, selectedTaskId, apiUrl]);
+    }, [showTaskPopup, selectedTaskId]);
 
 
     // If the selectedHousehold is null, hide the sidebar
@@ -169,15 +154,15 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
             setTasks([]);
             return;
         }
-        let list_tasks_url = apiUrl + "/tasks/";
-        list_tasks_url += `?household=${selectedHousehold}`;
+        const list_tasks_url = `/api/tasks/?household=${selectedHousehold}`;
 
-        axios.get(list_tasks_url, {
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCSRFToken()
-            }
-        })
+        axios.get(
+            list_tasks_url,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
             .then((res) => {
                 if (res.status !== 200) {
                     console.log("Failed to fetch tasks.");
@@ -189,6 +174,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
                     console.log("No data fetched for tasks");
                     return;
                 }
+                console.log("Fetched tasks:", data)
                 // Sort by mean completion time, which is just the number of seconds
                 data.sort((a, b) => (a.mean_completion_time - b.mean_completion_time));
                 setTasks(data);
@@ -200,19 +186,21 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
             console.log("No household selected");
             return;
         }
-        let list_users_url = apiUrl + `/households/${selectedHousehold}/users/`;
+        let list_users_url = `/api/households/${selectedHousehold}/users/`;
 
-        axios.get(list_users_url, {
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCSRFToken()
-            }
-        })
+        axios.get(
+            list_users_url,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
             .then((res) => {
                 if (res.status !== 200) {
                     console.log("Failed to fetch users.");
                     return;
                 }
+                console.log("Setting users: ", res.data);
                 setUsers(res.data);
             })
             .catch((error) => {
@@ -228,14 +216,12 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
             return;
         }
 
-        const csrftoken = getCSRFToken();
-
         // Get completion time from the lookup table
         const completionTime_minutes = parseInt(completionTimeLookup[completionTime]);
         // "[-]DD HH:MM:SS" and completion time is in minutes
         const completionTime_str = `0 ${Math.floor(completionTime_minutes / 60)}:${completionTime_minutes % 60}:00`;
 
-        const calculate_brownie_points_url = apiUrl + "/calculate_brownie_points/";
+        const calculate_brownie_points_url = "/api/calculate_brownie_points/";
         const payload = {
             task_id: selectedTaskId,
             completion_time: completionTime_str,
@@ -252,7 +238,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
                 {
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRFToken': csrftoken
                     }
                 }
             );
@@ -286,12 +271,11 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
             // Make a POST request to create a new WorkLog entry
             try {
                 const response = await axios.post(
-                    apiUrl + '/worklogs/',
+                    '/api/worklogs/',
                     JSON.stringify(worklog),
                     {
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRFToken': csrftoken
                         },
                     });
                 if (response.status !== 201) {
@@ -313,7 +297,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
 
     const handleCreateTask = (event) => {
         event.preventDefault();
-        const createTaskUrl = `${apiUrl}/tasks/`;
+        const createTaskUrl = `/api/tasks/`;
 
         const max_interval_in_minutes = (newTask.max_interval_days || 0) * 24 * 60 + (newTask.max_interval_hours || 0) * 60 + (newTask.max_interval_minutes || 0);
         const min_interval_in_minutes = (newTask.min_interval_days || 0) * 24 * 60 + (newTask.min_interval_hours || 0) * 60 + (newTask.min_interval_minutes || 0);
@@ -327,9 +311,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
         }
 
         setInputError(false);
-
-        // Fetch CSRF token from cookies
-        const csrftoken = getCSRFToken();
 
         // Convert max_interval and min_interval to Django DurationField format "[-]DD HH:MM:SS"
         const max_interval = `${newTask.max_interval_days || 0} ${newTask.max_interval_hours || 0}:${newTask.max_interval_minutes || 0}:00`;
@@ -351,7 +332,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
             {
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken
                 },
             })
             .then(res => {
@@ -370,7 +350,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
         // Reset the newTask state
         setNewTask({
             task_name: '',
-            task_id: randomString(),
             max_interval: '0:0',
             min_interval: '0:0',
             description: ''
@@ -381,20 +360,15 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
     };
 
     const deleteTask = (taskId) => {
-        const apiUrl = process.env.REACT_APP_BACKEND_URL;
-        const deleteTaskUrl = `${apiUrl}/tasks/${taskId}?household=${selectedHousehold}`;
+        const deleteTaskUrl = `/api/tasks/${taskId}/?household=${selectedHousehold}`;
         console.log("deleteTaskUrl: ", deleteTaskUrl);
         console.log("taskId: ", taskId);
-
-        // Fetch CSRF token from cookies
-        const csrftoken = getCSRFToken();
 
         axios.delete(
             deleteTaskUrl,
             {
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken
                 },
             })
             .then((res) => {
@@ -409,13 +383,9 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
 
 
     const freezeTask = (taskId) => {
-        const apiUrl = process.env.REACT_APP_BACKEND_URL;
-        const freezeTaskUrl = `${apiUrl}/tasks/${taskId}/toggle_frozen/`;
+        const freezeTaskUrl = `/api/tasks/${taskId}/toggle_frozen/`;
         console.log("freezeTaskUrl: ", freezeTaskUrl);
         console.log("taskId: ", taskId);
-
-        // Fetch CSRF token from cookies
-        const csrftoken = getCSRFToken();
 
         axios.post(
             freezeTaskUrl,
@@ -423,7 +393,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
             {
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken
                 },
             })
             .then((res) => {
@@ -442,7 +411,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
 
     const handleOpenCompleteTaskPopup = (task) => {
         setSelectedTask(task);
-        setSelectedTaskId(task.task_id);
+        setSelectedTaskId(task.id);
         setShowTaskPopup(false);
         setShowCompleteTaskPopup(true);
     };
@@ -484,8 +453,9 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
 
 
     const showTaskDetails = (task) => {
+        console.log("Setting selected task: ", task);
         setSelectedTask(task);
-        setSelectedTaskId(task.task_id);
+        setSelectedTaskId(task.id);
         setShowTaskPopup(true);
     };
 
@@ -520,6 +490,12 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
     };
 
     const formatDuration = (duration) => {
+        console.log("SelectedTask: ", selectedTask);
+        console.log("Formatting duration: ", duration);
+        if (!duration) {
+            return "Never";
+        }
+
         // The day number may or may not exist, so handle that
         let days = "0";
         let time = duration;
@@ -540,10 +516,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
         const minutesStr = minutes === 1 ? "1 minute" : `${minutes} minutes`;
 
         return `${daysStr} ${hoursStr} ${minutesStr}`;
-    };
-
-    const formatTimestamp = (timestamp) => {
-        return moment(timestamp).format("MMM Do YYYY, h:mm:ss a");
     };
 
 
@@ -637,8 +609,8 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
                                 </div>
                                 <div className="task-popup-actions">
                                     <button className="button complete-button" onClick={() => handleOpenCompleteTaskPopup(selectedTask)}>Complete Task</button>
-                                    <button className="button freeze-button" onClick={() => freezeTask(selectedTask.task_id)}>{selectedTask.frozen ? "Unfreeze Task" : "Freeze Task"}</button>
-                                    <button className="button delete-button" onClick={() => deleteTask(selectedTask.task_id)}>Delete Task</button>
+                                    <button className="button freeze-button" onClick={() => freezeTask(selectedTask.id)}>{selectedTask.frozen ? "Unfreeze Task" : "Freeze Task"}</button>
+                                    <button className="button delete-button" onClick={() => deleteTask(selectedTask.id)}>Delete Task</button>
                                 </div>
                             </div>
 
@@ -750,7 +722,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
                 {tasks
                     .filter(task => task.staleness !== 0)
                     .map((task, index) => (
-                        <div className="task-wrapper" key={task.task_id}>
+                        <div className="task-wrapper" key={task.id}>
                             <div
                                 className={`task-card ${task.staleness === 1 ? 'stale' : ''}`}
                                 onClick={() => showTaskDetails(task)}
@@ -788,7 +760,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector, getCSRFToken }) =>
                         return a.task_name.localeCompare(b.task_name);
                     })
                     .map((task, index) => (
-                        <div className="task-wrapper sidebar-wrapper" key={task.task_id}>
+                        <div className="task-wrapper sidebar-wrapper" key={task.id}>
                             <div
                                 className={`task-card fresh ${task.frozen ? 'frozen' : ''}`}
                                 onClick={() => showTaskDetails(task)}
