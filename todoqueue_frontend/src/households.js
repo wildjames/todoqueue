@@ -30,16 +30,16 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
         }, 1000);
         return () => clearInterval(interval);
     }
-        , [selectedHousehold]);
-
-
+    , [selectedHousehold]);
+    
+    
     const handleOpenUsersPopup = (household) => {
         console.log("Opening users popup for household:", household);
         setSelectedHousehold(household);
         setShowUsersPopup(true);
     };
-
-
+    
+    
     const handleOverlayClick = (e) => {
         if (popupInnerRef.current && !popupInnerRef.current.contains(e.target)) {
             console.log("Clicked outside of popup");
@@ -49,8 +49,9 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
         }
         console.log("Clicked inside of popup");
     };
-
-
+    
+    
+    // TODO: Fetch users from the App component and pass them down as props
     const fetchUsers = () => {
         if (!selectedHousehold) {
             console.log("No household selected");
@@ -111,6 +112,7 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
     };
 
 
+    // TODO: Fill in this request logic
     const handleAddUser = () => {
         // Logic to add user based on userEmail to selectedHousehold
         console.log("Adding user:", userEmail);
@@ -118,6 +120,7 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
     };
 
 
+    // TODO: Fill in this request logic
     const handleRemoveUser = (userId) => {
         // Logic to remove user with userId from selectedHousehold
         console.log("Removing user:", userId);
