@@ -187,6 +187,9 @@ class RemoveUserFromHouseholdView(APIView):
         logger.info("Got user")
         household.users.remove(user)
         
+        if household.users.count() == 0:
+            household.delete()
+        
         user.save()
         household.save()
         
