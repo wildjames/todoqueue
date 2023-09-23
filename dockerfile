@@ -3,7 +3,13 @@ FROM python:3.11-slim
 
 # Install system dependencies
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc libpq-dev python3-dev default-libmysqlclient-dev pkg-config npm \
+    && apt-get install -y --no-install-recommends \
+        gcc \
+        libpq-dev \
+        python3-dev \
+        default-libmysqlclient-dev \
+        pkg-config \
+        npm \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
