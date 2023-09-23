@@ -27,4 +27,9 @@ urlpatterns = [
         views.AddUserToHouseholdView.as_view(),
         name="add_user_to_household",
     ),
+    path(
+        "households/<pk>/remove_user/",
+        views.RemoveUserFromHouseholdView.as_view(),
+        name="remove_user_from_household",
+    ),
 ]

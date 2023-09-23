@@ -129,7 +129,8 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
                 }
             );
             console.log(response);
-        } catch (error) {
+        } 
+        catch (error) {
             console.log("Failed to add user to household");
             console.log(error);
         }
@@ -138,10 +139,27 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
     };
 
 
-    // TODO: Fill in this request logic
-    const handleRemoveUser = (userId) => {
+    const handleRemoveUser = async (email) => {
         // Logic to remove user with userId from selectedHousehold
-        console.log("Removing user:", userId);
+        console.log("Removing user:", email);
+
+        try {
+            let response = await axios.post(
+                `/api/households/${selectedHousehold.id}/remove_user/`,
+                {
+                    email: email
+                },
+                {
+                    headers: { "Content-Type": "application/json" },
+                    withCredentials: true
+                }
+            );
+            console.log(response);
+        }
+        catch (error) {
+            console.log("Failed to remove user from household");
+            console.log(error);
+        }
     };
 
 

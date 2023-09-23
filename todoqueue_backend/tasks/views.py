@@ -155,7 +155,6 @@ class CreateHouseholdView(APIView):
 
 class AddUserToHouseholdView(APIView):
     def post(self, request, pk):
-        # TODO: unfinished
         logger.info(f"Adding user to household")
         household = Household.objects.get(pk=pk)
         
@@ -172,6 +171,27 @@ class AddUserToHouseholdView(APIView):
         household.save()
         
         return Response("OK", 200)
+
+
+class RemoveUserFromHouseholdView(APIView):
+    def post(self, request, pk):
+        logger.info(f"Removing user from household")
+        household = Household.objects.get(pk=pk)
+        
+        logger.info(f"Removing a user from the household: {household}")
+        logger.info(f"Request: {request}")
+        
+        email = request.data["email"]
+        
+        user = get_user_model().objects.get(email=email)
+        logger.info("Got user")
+        household.users.remove(user)
+        
+        user.save()
+        household.save()
+        
+        return Response("OK", 200)
+
 
 def renormalize(value, old_range, new_range):
     old_range_width = old_range[1] - old_range[0]
