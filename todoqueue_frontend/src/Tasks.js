@@ -618,7 +618,9 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                                     </tbody>
                                 </table>
                                 <div className="task-popup-description">
-                                    <p><strong>Description:</strong> {selectedTask.description}</p>
+                                    {selectedTask.description == "" ? "" :
+                                        <p><strong>Description:</strong> {selectedTask.description}</p>
+                                    }
                                     {selectedTask.frozen ? (
                                         <p style={{ color: "black" }}><strong>Task is frozen, and won't ever appear on the queue</strong></p>
                                     ) : null}
@@ -830,7 +832,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                     .sort((a, b) => {
                         // Sort by 'frozen' in ascending order
                         if (b.frozen !== a.frozen) {
-                            return a.frozen - b.frozen;
+                            return b.frozen - a.frozen;
                         }
                         // If 'frozen' is equal, sort by 'task_name' in ascending order
                         return a.task_name.localeCompare(b.task_name);
