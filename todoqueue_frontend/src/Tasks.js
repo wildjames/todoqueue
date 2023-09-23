@@ -35,7 +35,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     const updateSelectedTaskTimer = useRef(null);
 
     const completionTimeLookup = [
-        1, 2, 5, 10, 15, 20, 30, 45, 60, 90, 120
+        0, 1, 2, 5, 10, 15, 20, 30, 45, 60, 90, 120
     ];
 
     const popupInnerRef = useRef(null);
@@ -97,6 +97,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         if (showTaskPopup && selectedTaskId) {
             const fetchSelectedTask = async () => {
                 const list_tasks_url = `/api/tasks/${selectedTaskId}/?household=${selectedHousehold}`;
+                console.log("Fetching selected task...");
                 const response = await axios.get(
                     list_tasks_url,
                     {
@@ -160,6 +161,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         }
         const list_tasks_url = `/api/tasks/?household=${selectedHousehold}`;
 
+        console.log("Fetching Tasks...");
         axios.get(
             list_tasks_url,
             {
@@ -194,6 +196,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         }
         let list_users_url = `/api/households/${selectedHousehold}/users/`;
 
+        console.log("Fetching household users");
         axios.get(
             list_users_url,
             {
@@ -234,6 +237,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
             completion_time: completionTime_str,
             grossness
         };
+        console.log("Creating work log");
         console.log("Payload: ", payload);
 
         // Get the value of this tasks' brownie_points from the server
@@ -303,12 +307,18 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     };
 
 
-    const handleCreateTask = (event) => {
+    const handleCreateTask = async (event) => {
         event.preventDefault();
         const createTaskUrl = `/api/tasks/`;
 
         const max_interval_in_minutes = (newTask.max_interval_days || 0) * 24 * 60 + (newTask.max_interval_hours || 0) * 60 + (newTask.max_interval_minutes || 0);
         const min_interval_in_minutes = (newTask.min_interval_days || 0) * 24 * 60 + (newTask.min_interval_hours || 0) * 60 + (newTask.min_interval_minutes || 0);
+
+        if (newTask.task_name === "") {
+            setInputError(true);
+            console.log("Task name may not be blank");
+            return;
+        }
 
         if (max_interval_in_minutes < min_interval_in_minutes) {
             setInputError(true);
@@ -332,9 +342,10 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
             min_interval
         };
 
+        console.log("Creating a new task");
         console.log("formattedNewTask: ", formattedNewTask);
 
-        axios.post(
+        await axios.post(
             createTaskUrl,
             JSON.stringify(formattedNewTask),
             {
@@ -370,6 +381,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
     const deleteTask = (taskId) => {
         const deleteTaskUrl = `/api/tasks/${taskId}/?household=${selectedHousehold}`;
+        console.log("Deleting task");
         console.log("deleteTaskUrl: ", deleteTaskUrl);
         console.log("taskId: ", taskId);
 
@@ -393,6 +405,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
     const freezeTask = (taskId) => {
         const freezeTaskUrl = `/api/tasks/${taskId}/toggle_frozen/`;
+        console.log("Freezing task");
         console.log("freezeTaskUrl: ", freezeTaskUrl);
         console.log("taskId: ", taskId);
 
@@ -573,6 +586,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                 <div className="text">Select a household</div>
             </div>
 
+            {/* // TODO: Separate these two popups */}
             {showTaskPopup ? (
                 <div className="popup" onClick={handleOverlayClick}>
                     <div className="popup-inner" ref={popupInnerRef}>
@@ -625,19 +639,71 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                                     </div>
                                     <div className="input-group input-group-horizontal">
                                         <label>Max Interval: </label>
-                                        <input className={inputError ? "input-error" : ""} type="number" name="max_interval_days" placeholder="Days" onChange={handleCreateInputChange} />
-                                        <input className={inputError ? "input-error" : ""} type="number" name="max_interval_hours" placeholder="Hours" onChange={handleCreateInputChange} />
-                                        <input className={inputError ? "input-error" : ""} type="number" name="max_interval_minutes" placeholder="Minutes" onChange={handleCreateInputChange} />
+                                        <input
+                                            className={inputError ? "input-error" : ""}
+                                            type="number"
+                                            min="0"
+                                            name="max_interval_days"
+                                            placeholder="Days"
+                                            onChange={handleCreateInputChange}
+                                        />
+                                        <input
+                                            className={inputError ? "input-error" : ""}
+                                            type="number"
+                                            min="0"
+                                            name="max_interval_hours"
+                                            placeholder="Hours"
+                                            onChange={handleCreateInputChange}
+                                        />
+                                        <input
+                                            className={inputError ? "input-error" : ""}
+                                            type="number"
+                                            min="0"
+                                            name="max_interval_minutes"
+                                            placeholder="Minutes"
+                                            onChange={handleCreateInputChange}
+                                        />
                                     </div>
                                     <div className="input-group input-group-horizontal">
                                         <label>Min Interval: </label>
-                                        <input className={inputError ? "input-error" : ""} type="number" name="min_interval_days" placeholder="Days" onChange={handleCreateInputChange} />
-                                        <input className={inputError ? "input-error" : ""} type="number" name="min_interval_hours" placeholder="Hours" onChange={handleCreateInputChange} />
-                                        <input className={inputError ? "input-error" : ""} type="number" name="min_interval_minutes" placeholder="Minutes" onChange={handleCreateInputChange} />
+                                        <input
+                                            className={inputError ? "input-error" : ""}
+                                            type="number"
+                                            min="0"
+                                            name="min_interval_days"
+                                            placeholder="Days"
+                                            onChange={handleCreateInputChange}
+                                        />
+                                        <input
+                                            className={inputError ? "input-error" : ""}
+                                            type="number"
+                                            min="0"
+                                            name="min_interval_hours"
+                                            placeholder="Hours"
+                                            onChange={handleCreateInputChange}
+                                        />
+                                        <input
+                                            className={inputError ? "input-error" : ""}
+                                            type="number"
+                                            min="0"
+                                            name="min_interval_minutes"
+                                            placeholder="Minutes"
+                                            onChange={handleCreateInputChange}
+                                        />
                                     </div>
                                     <div className="input-group">
-                                        <input type="text" name="description" placeholder="Description" onChange={handleCreateInputChange} />
-                                        <button className="button create-button" onClick={handleCreateTask}>Create Task</button>
+                                        <input
+                                            type="text"
+                                            name="description"
+                                            placeholder="Description"
+                                            onChange={handleCreateInputChange}
+                                        />
+                                        <button
+                                            className={`button create-button ${inputError ? "disabled" : "enabled"}`}
+                                            onClick={handleCreateTask}
+                                        >
+                                            Create Task
+                                        </button>
                                     </div>
                                 </form>
                             </div>
@@ -649,7 +715,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
             {showCompleteTaskPopup ? (
                 <div className="popup" onClick={handleOverlayClick}>
-                    <div className="popup-inner" style={{ textAlign: "left" }} ref={popupInnerRef}>
+                    <div className="popup-inner" style={{ textAlign: "center" }} ref={popupInnerRef}>
                         <h2 style={{ color: "black" }} >Complete Task: {selectedTask && selectedTask.task_name}</h2>
                         <form onSubmit={handleCreateWorkLog}>
                             <div className="form-section">
@@ -661,7 +727,9 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                                             .map(user => (
                                                 <button
                                                     type="button"
-                                                    className={`button user-button ${completionUsers.includes(user.id) ? 'selected' : ''}`}
+                                                    // If no users are selected, add a red shadow to indicate that someone needs to be selected.
+                                                    // If this user is selected, make their name button green
+                                                    className={`button user-button ${completionUsers.length === 0 ? "input-error" : ""} ${completionUsers.includes(user.id) ? 'selected' : ''}`}
                                                     onClick={() => {
                                                         if (completionUsers.includes(user.id)) {
                                                             // Remove user from list
@@ -678,7 +746,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="form-section label-and-input">
+                            <div className={`form-section time-slider label-and-input ${completionTime == 0 ? "input-error" : ""}`}>
                                 <label htmlFor="completionTime">Completion Time:</label>
                                 <input
                                     id="completionTime"
@@ -689,10 +757,10 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                                     value={completionTime}
                                     onChange={e => setCompletionTime(e.target.value)}
                                 />
-                                <span>{completionTimeLookup[completionTime]} minutes</span>
+                                <span>{completionTimeLookup[completionTime]} minute{completionTimeLookup[completionTime] == 1 ? "" : "s"}</span>
                             </div>
 
-                            <div className="form-section label-and-input">
+                            <div className="form-section label-and-input" style={{ display: "block" }}>
                                 <label>Grossness:</label>
                                 <div className="grossness-scale">
                                     {Array.from({ length: 5 }, (_, index) => index + 1).map(num => (
@@ -706,7 +774,13 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                                     ))}
                                 </div>
                             </div>
-                            <button className="button form-section" type="submit">Submit</button>
+                            <button
+                                className={`button form-section ${completionUsers.length > 0 ? "enabled" : "disabled"}`}
+                                type="submit"
+                                disabled={completionUsers.length === 0}
+                            >
+                                Submit
+                            </button>
                         </form>
                     </div>
                 </div>

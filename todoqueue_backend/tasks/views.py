@@ -143,9 +143,7 @@ class HouseholdViewSet(viewsets.ModelViewSet):
 class CreateHouseholdView(APIView):
     def post(self, request):
         logger.info(f"Creating a household: {request.data}")
-        serializer = CreateHouseholdSerializer(
-            data=request.data
-        )
+        serializer = CreateHouseholdSerializer(data=request.data)
 
         if serializer.is_valid(raise_exception=True):
             household = serializer.save()
@@ -154,10 +152,10 @@ class CreateHouseholdView(APIView):
             household.save()
 
 
-def renormalize(value, old_min, old_max, new_min, new_max):
-    old_range = old_max - old_min
-    new_range = new_max - new_min
-    new_value = (((value - old_min) * new_range) / old_range) + new_min
+def renormalize(value, old_range, new_range):
+    old_range_width = old_range[1] - old_range[0]
+    new_range_width = new_range[1] - new_range[0]
+    new_value = (((value - old_range[0]) * new_range_width) / old_range_width) + new_range[0]
     return new_value
 
 
@@ -179,26 +177,31 @@ def parse_duration(duration_str):
 
 
 def calculate_brownie_points(task_id, completion_time, grossness):
+    user_gross_scale_range = [0, 5]
+    output_gross_scale_range = [1, 2]
+
     task = Task.objects.get(id=task_id)
     if task is None:
         logger.error("No task found with ID: {task_id}")
         return None
 
-    logger.debug(f"[Task {task_id}]  Completion time: {completion_time}")
+    logger.info(f"[Task {task_id}]  Completion time: {completion_time}")
 
     # Convert completion time to a timedelta. It's a string formatted for a DurationField ("[-]DD HH:MM:SS")
     completion_time = parse_duration(completion_time)
 
-    grossness = renormalize(float(grossness), 0, 5, 1, 2)
+    grossness = renormalize(
+        float(grossness), user_gross_scale_range, output_gross_scale_range
+    )
 
-    logger.debug(f"[Task {task_id}]  Completion time as timedelta: {completion_time}")
-    logger.debug(f"[Task {task_id}]  Grossness: {grossness}")
-    logger.debug(f"[Task {task_id}]  Task max interval: {task.max_interval}")
+    logger.info(f"[Task {task_id}]  Completion time as timedelta: {completion_time}")
+    logger.info(f"[Task {task_id}]  Grossness: {grossness}")
+    logger.info(f"[Task {task_id}]  Task max interval: {task.max_interval}")
 
     # Get all the work logs associated with this task
     work_logs = WorkLog.objects.filter(task=task)
     if work_logs is None or len(work_logs) == 0:
-        logger.debug(
+        logger.info(
             f"[Task {task_id}]  No work logs for this task. Using this work log as the first."
         )
         average_grossness = grossness
@@ -209,30 +212,42 @@ def calculate_brownie_points(task_id, completion_time, grossness):
         total_completion_time = timedelta(seconds=0)
         for work_log in work_logs:
             total_completion_time += work_log.completion_time
-        logger.debug(f"[Task {task_id}]  Work logs have {len(work_logs)} entries")
+        logger.info(f"[Task {task_id}]  Work logs have {len(work_logs)} entries")
         average_completion_time = total_completion_time / len(work_logs)
 
         # Calculate the average grossness.
-        # Grossness as rated ranges from 1 to 5, but we need to map these values to the range 0.5 to 2
+        # Grossness as rated ranges from 0 to 5, but we need to map these values to the range 1 to 2
         total_grossness = 0
         for work_log in work_logs:
-            total_grossness += renormalize(work_log.grossness, 1, 5, 0.5, 2)
+            total_grossness += renormalize(
+                work_log.grossness, user_gross_scale_range, output_gross_scale_range
+            )
         average_grossness = total_grossness / len(work_logs)
 
     completion_time_minutes = completion_time.seconds / 60
     average_completion_time_minutes = average_completion_time.seconds / 60
 
-    # Calculate the brownie points
-    brownie_points = (
-        (grossness * completion_time_minutes)
-        / (average_grossness * average_completion_time_minutes)
-    ) * (average_completion_time_minutes * grossness)
+    # Compute the bonus scale factor. If something took longer, or was more gross than usual, the user
+    # gets a bonus for that. They don't get penalised for being quick, though.
+    if (average_grossness * average_completion_time_minutes == 0):
+        # Catch div 0 error
+        bonus_scale_factor = 1
+    else:
+        bonus_scale_factor = (grossness * completion_time_minutes) / (
+            average_grossness * average_completion_time_minutes
+        )
+    if bonus_scale_factor < 1:
+        bonus_scale_factor = 1.0
 
-    logger.debug(
+    # Calculate the brownie points
+    brownie_points = bonus_scale_factor * completion_time_minutes * grossness
+
+    logger.info(
         f"[Task {task_id}]  Average completion time (minutes): {average_completion_time_minutes}"
     )
-    logger.debug(f"[Task {task_id}]  Average grossness: {average_grossness}")
-    logger.debug(f"[Task {task_id}]  Brownie points: {brownie_points}")
+    logger.info(f"[Task {task_id}]  Average grossness: {average_grossness}")
+    logger.info(f"[Task {task_id}]  Bonus factor: {bonus_scale_factor}")
+    logger.info(f"[Task {task_id}]  Brownie points: {brownie_points}")
 
     return brownie_points
 
@@ -249,10 +264,11 @@ def calculate_brownie_points_view(request):
                 {"error": "Missing parameters"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Call your calculation function
-        brownie_points = calculate_brownie_points(task_id, completion_time, grossness)
-
-        if not brownie_points:
+        brownie_points = None
+        try:
+            brownie_points = calculate_brownie_points(task_id, completion_time, grossness)
+        except Exception as e:
+            logger.info(f"Failed to calcualte brownie points. Error: {e}")
             return Response(
                 {"error": "Could not calculate brownie points"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,

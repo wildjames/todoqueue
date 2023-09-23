@@ -46,9 +46,9 @@ def update_brownie_points(sender, instance, action, **kwargs):
 
 class Task(models.Model):
     task_name = models.CharField(max_length=255)
-    description = models.TextField()
-    max_interval = models.DurationField()
-    min_interval = models.DurationField()
+    description = models.TextField(default="")
+    max_interval = models.DurationField(default="0:0")
+    min_interval = models.DurationField(default="0:0")
     last_completed = models.DateTimeField(auto_now_add=True)
     household = models.ForeignKey(
         Household, on_delete=models.CASCADE, related_name="tasks"
@@ -148,6 +148,7 @@ class WorkLog(models.Model):
 class TaskSerializer(serializers.ModelSerializer):
     staleness = serializers.SerializerMethodField()
     mean_completion_time = serializers.SerializerMethodField()
+    description = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = Task
