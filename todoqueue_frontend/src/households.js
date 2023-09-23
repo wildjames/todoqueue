@@ -30,16 +30,16 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
         }, 1000);
         return () => clearInterval(interval);
     }
-    , [selectedHousehold]);
-    
-    
+        , [selectedHousehold]);
+
+
     const handleOpenUsersPopup = (household) => {
         console.log("Opening users popup for household:", household);
         setSelectedHousehold(household);
         setShowUsersPopup(true);
     };
-    
-    
+
+
     const handleOverlayClick = (e) => {
         if (popupInnerRef.current && !popupInnerRef.current.contains(e.target)) {
             console.log("Clicked outside of popup");
@@ -49,8 +49,8 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
         }
         console.log("Clicked inside of popup");
     };
-    
-    
+
+
     // TODO: Fetch users from the App component and pass them down as props
     const fetchUsers = () => {
         if (!selectedHousehold) {
@@ -113,9 +113,27 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
 
 
     // TODO: Fill in this request logic
-    const handleAddUser = () => {
+    const handleAddUser = async () => {
         // Logic to add user based on userEmail to selectedHousehold
         console.log("Adding user:", userEmail);
+
+        try {
+            let response = await axios.post(
+                `/api/households/${selectedHousehold}/add_user/`,
+                {
+                    email: userEmail
+                },
+                {
+                    headers: { "Content-Type": "application/json" },
+                    withCredentials: true
+                }
+            );
+            console.log(response);
+        } catch (error) {
+            console.log("Failed to add user to household");
+            console.log(error);
+        }
+
         setUserEmail('');
     };
 
@@ -151,8 +169,10 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
                             <span className="household-name">
                                 {household.name}
                             </span>
-                            <button className="button delete-button" onClick={() => handleDelete(household.id)}>Delete</button>
-                            <button className="button manage-users-button" onClick={() => handleOpenUsersPopup(household)}>Manage Users</button>
+                            <div>
+                                <button className="button delete-button" onClick={() => handleDelete(household.id)}>Delete</button>
+                                <button className="button manage-users-button" onClick={() => handleOpenUsersPopup(household)}>Manage Users</button>
+                            </div>
                         </div>
                     ))}
                 </div>

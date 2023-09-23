@@ -68,7 +68,6 @@ class RegisterView(APIView):
                 uid = urlsafe_base64_encode(force_bytes(user.pk))
 
                 # Create activation link
-                current_site = get_current_site(request)
                 mail_subject = "Activate your account"
                 message = render_to_string(
                     "accounts/activation_email.html",

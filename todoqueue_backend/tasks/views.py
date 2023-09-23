@@ -152,6 +152,22 @@ class CreateHouseholdView(APIView):
             household.save()
 
 
+class AddUserToHouseholdView(APIView):
+    def post(self, request, pk):
+        # TODO: unfinished
+        logger.info(f"Adding user to household")
+        household = Household.objects.get(pk=pk)
+        
+        logger.info(f"Adding a user to the household: {household}")
+        logger.info(f"Request: {request}")
+        
+        email = request.data["email"]
+        
+        user = get_user_model().objects.get(email=email)
+        logger.info("Got user")
+        household.users.add(user)
+        pass
+
 def renormalize(value, old_range, new_range):
     old_range_width = old_range[1] - old_range[0]
     new_range_width = new_range[1] - new_range[0]
