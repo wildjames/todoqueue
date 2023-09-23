@@ -10,6 +10,7 @@ from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.renderers import JSONRenderer
 from rest_framework.validators import UniqueValidator
+from rest_framework.response import Response
 
 logger = getLogger(__name__)
 
@@ -22,6 +23,21 @@ class Household(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def save(self, *args, **kwargs):
+        super(Household, self).save(*args, **kwargs)
+        for user in self.users.all():
+            logger.info(
+                f"Setting BP for user {user}. Current BP: {user.brownie_point_credit}"
+            )
+            if str(self.id) not in user.brownie_point_credit:
+                logger.info(f"Setting BP credit for user {user}")
+                user.brownie_point_credit[str(self.id)] = 0.0
+            if str(self.id) not in user.brownie_point_debit:
+                logger.info(f"Setting BP debit for user {user}")
+                user.brownie_point_debit[str(self.id)] = 0.0
+            logger.info("saving user")
+            user.save()
 
 
 @receiver(m2m_changed, sender=Household.users.through)
@@ -42,7 +58,10 @@ def update_brownie_points(sender, instance, action, **kwargs):
                     user.brownie_point_debit[str(instance.id)] = 0.0
                 logger.info("saving user")
                 user.save()
-
+        
+        logger.info("OK")
+        
+        return Response("OK", 200)
 
 class Task(models.Model):
     task_name = models.CharField(max_length=255)

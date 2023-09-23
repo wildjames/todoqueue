@@ -119,7 +119,7 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
 
         try {
             let response = await axios.post(
-                `/api/households/${selectedHousehold}/add_user/`,
+                `/api/households/${selectedHousehold.id}/add_user/`,
                 {
                     email: userEmail
                 },

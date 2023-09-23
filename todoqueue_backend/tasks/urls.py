@@ -23,7 +23,7 @@ urlpatterns = [
         name="create_household",
     ),
     path(
-        "households/add_user_to_household/<pk>/",
+        "households/<pk>/add_user/",
         views.AddUserToHouseholdView.as_view(),
         name="add_user_to_household",
     ),
