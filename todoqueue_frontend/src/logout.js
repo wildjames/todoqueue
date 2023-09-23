@@ -23,8 +23,11 @@ export const Logout = ({ setShowHouseholdSelector }) => {
           }
         );
 
+        console.log("Clearing local storage");
         localStorage.clear();
         axios.defaults.headers.common['Authorization'] = null;
+
+        console.log("Redirecting to login page");
         window.location.href = '/login';
       } catch (e) {
         console.log('logout not working', e);
