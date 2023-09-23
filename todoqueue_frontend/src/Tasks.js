@@ -320,6 +320,19 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
             return;
         }
 
+        // integers only
+        if (max_interval_in_minutes % 1 !== 0 || min_interval_in_minutes % 1 !== 0) {
+            setInputError(true);
+            console.log("Max and Min intervals must be integers");
+            return;
+        }
+
+        if (max_interval_in_minutes < 0 || min_interval_in_minutes < 0) {
+            setInputError(true);
+            console.log("Max and Min intervals must be positive");
+            return;
+        }
+
         if (max_interval_in_minutes < min_interval_in_minutes) {
             setInputError(true);
             console.log("Max interval should be greater than or equal to Min interval");
@@ -361,21 +374,22 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                 console.log("Created task. Response:", res.data);
                 fetchTasks();
                 setShowTaskPopup(false);
+        
+                // Reset the newTask state
+                console.log("Resetting task")
+                setNewTask({
+                    task_name: '',
+                    max_interval: '0:0',
+                    min_interval: '0:0',
+                    description: ''
+                });
+        
+                // Fetch task list again
+                fetchTasks();
             })
             .catch((error) => {
                 console.error('Error:', error);
             });
-
-        // Reset the newTask state
-        setNewTask({
-            task_name: '',
-            max_interval: '0:0',
-            min_interval: '0:0',
-            description: ''
-        });
-
-        // Fetch task list again
-        fetchTasks();
     };
 
 
@@ -442,6 +456,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     const handleCreateInputChange = (e) => {
         const { name, value } = e.target;
 
+        console.log("Setting new task in handleCreateInputChange");
         setNewTask((prevTask) => {
             const updatedTask = { ...prevTask, [name]: value };
 
