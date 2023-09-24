@@ -7,17 +7,17 @@ if [ ! -f "./manage.py" ]; then
 fi
 
 # Collect static files
-echo "Collecting static files..."
-python manage.py collectstatic --noinput
+echo "Collecting static files..." && \
+python manage.py collectstatic --noinput && \
 
 # Run database migrations
-echo "Running database migrations..."
-python manage.py makemigrations tasks accounts
-python manage.py migrate
+echo "Running database migrations..." && \
+python manage.py makemigrations tasks accounts && \
+python manage.py migrate && \
 
 # Create a superuser from environment variables
 python manage.py createsuperuser --noinput
 
 # Start the Django server
-echo "Starting the Django server..."
+echo "Starting the Django server..." && \
 gunicorn todoqueue_backend.wsgi:application --bind 0.0.0.0:$PORT
