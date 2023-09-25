@@ -4,6 +4,7 @@ import '../App.css';
 import { SimpleFlipper } from './flipper';
 import ShowTaskPopup from './ShowTaskPopup';
 import CompleteTaskPopup from './CompleteTaskPopup';
+import CreateTaskPopup from './CreateTaskPopup';
 import { fetchTasks, fetchSelectedTask, createWorkLog, createTask, deleteTask, freezeTask } from '../api/tasks';
 import { fetchUsers } from '../api/users';
 import useAuthCheck from '../hooks/authCheck';
@@ -19,17 +20,11 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
     const [showTaskPopup, setShowTaskPopup] = useState(false);
     const [showCompleteTaskPopup, setShowCompleteTaskPopup] = useState(false);
-    const [inputError, setInputError] = useState(false);
+    const [showCreateTaskPopup, setShowCreateTaskPopup] = useState(false);
     const [showSidebar, setShowSidebar] = useState(false);
 
     const [grossness, setGrossness] = useState(0);
     const [completionTime, setCompletionTime] = useState(0);
-    const [newTask, setNewTask] = useState({
-        task_name: '',
-        max_interval: '0:0',
-        min_interval: '0:0',
-        description: ''
-    });
 
     const [browniePoints, setBrowniePoints] = useState(0);
     const [showFlipAnimation, setShowFlipAnimation] = useState(false);
@@ -174,77 +169,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     };
 
 
-    const handleCreateTask = async (event) => {
-        event.preventDefault();
-
-        // Convert max_interval and min_interval to minutes
-        const max_interval_in_minutes =
-            (newTask.max_interval_days || 0) * 24 * 60 +
-            (newTask.max_interval_hours || 0) * 60 +
-            (newTask.max_interval_minutes || 0);
-
-        const min_interval_in_minutes =
-            (newTask.min_interval_days || 0) * 24 * 60 +
-            (newTask.min_interval_hours || 0) * 60 +
-            (newTask.min_interval_minutes || 0);
-
-        // Check for invalid inputs
-        if (newTask.task_name === "") {
-            setInputError(true);
-            console.log("Task name may not be blank");
-            return;
-        }
-
-        // integers only
-        if (max_interval_in_minutes % 1 !== 0 || min_interval_in_minutes % 1 !== 0) {
-            setInputError(true);
-            console.log("Max and Min intervals must be integers");
-            return;
-        }
-
-        if (max_interval_in_minutes < 0 || min_interval_in_minutes < 0) {
-            setInputError(true);
-            console.log("Max and Min intervals must be positive");
-            return;
-        }
-
-        if (max_interval_in_minutes < min_interval_in_minutes) {
-            setInputError(true);
-            console.log("Max interval should be greater than or equal to Min interval");
-            console.log("Max interval: ", max_interval_in_minutes);
-            console.log("Min interval: ", min_interval_in_minutes);
-            return;
-        }
-
-        setInputError(false);
-
-        // Convert max_interval and min_interval to Django DurationField format "[-]DD HH:MM:SS"
-        const max_interval = `${newTask.max_interval_days || 0} ${newTask.max_interval_hours || 0}:${newTask.max_interval_minutes || 0}:00`;
-        const min_interval = `${newTask.min_interval_days || 0} ${newTask.min_interval_hours || 0}:${newTask.min_interval_minutes || 0}:00`;
-
-        const response_data = await createTask(
-            newTask.task_name,
-            selectedHousehold,
-            max_interval,
-            min_interval,
-            newTask.description,
-        );
-
-        console.log("Created task. Response:", response_data);
-        await fetchSetTasks();
-        setShowTaskPopup(false);
-
-        // Reset the newTask state
-        console.log("Resetting task")
-        setNewTask({
-            task_name: '',
-            max_interval: '0:0',
-            min_interval: '0:0',
-            description: ''
-        });
-    };
-
-
     const handleDeleteTask = async (taskId) => {
         const succeeded = await deleteTask(taskId, selectedHousehold);
         if (succeeded) {
@@ -265,7 +189,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     }
 
 
-    // Popup functions //
+    // Popup functions (TODO: Clean up the logic here) //
 
 
     const handleOpenCompleteTaskPopup = (task) => {
@@ -276,40 +200,19 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     };
 
 
-    const handleCreateInputChange = (e) => {
-        const { name, value } = e.target;
-
-        console.log("Setting new task in handleCreateInputChange");
-        setNewTask((prevTask) => {
-            const updatedTask = { ...prevTask, [name]: value };
-
-            const max_interval_in_minutes =
-                (updatedTask.max_interval_days || 0) * 24 * 60 +
-                (updatedTask.max_interval_hours || 0) * 60 +
-                (updatedTask.max_interval_minutes || 0);
-
-            const min_interval_in_minutes =
-                (updatedTask.min_interval_days || 0) * 24 * 60 +
-                (updatedTask.min_interval_hours || 0) * 60 +
-                (updatedTask.min_interval_minutes || 0);
-
-            if (max_interval_in_minutes < min_interval_in_minutes) {
-                setInputError(true);
-                console.log("Max interval should be greater than or equal to Min interval");
-            } else {
-                setInputError(false);
-            }
-
-            return updatedTask;
-        });
-    };
-
 
     const showTaskDetails = (task) => {
-        console.log("Setting selected task: ", task);
         setSelectedTask(task);
         setSelectedTaskId(task.id);
         setShowTaskPopup(true);
+    };
+
+
+    const handleOpenCreateTaskPopup = () => {
+        setShowTaskPopup(false);
+        setSelectedTask(null);
+        setSelectedTaskId(null);
+        setShowCreateTaskPopup(true);
     };
 
 
@@ -319,6 +222,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
             console.log("Clicked outside of popup");
             closeCompleteTaskPopup();
             closeTaskPopup();
+            closeCreateTaskPopup();
         }
     };
 
@@ -334,6 +238,10 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         setCompletionUsers([]);
         setCompletionTime(0);
         setGrossness(0);
+    };
+
+    const closeCreateTaskPopup = () => {
+        setShowCreateTaskPopup(false);
     };
 
 
@@ -364,6 +272,14 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     };
 
 
+    const propsForCreateTask = {
+        handleOverlayClick: handleOverlayClick,
+        selectedHousehold: selectedHousehold,
+        setShowCreateTaskPopup: setShowCreateTaskPopup,
+        fetchSetTasks: fetchSetTasks,
+    };
+
+
     return (
         <div className="Tasks">
 
@@ -381,6 +297,12 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
             {
                 showCompleteTaskPopup ? (
                     <CompleteTaskPopup ref={popupInnerRef} {...propsForCompleteTask} />
+                ) : null
+            }
+
+            {
+                showCreateTaskPopup ? (
+                    <CreateTaskPopup ref={popupInnerRef} {...propsForCreateTask} />
                 ) : null
             }
 
@@ -460,7 +382,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                 <button
                     className="button"
                     style={{ position: 'absolute', bottom: '20px', left: '50px' }}
-                    onClick={() => { setShowTaskPopup(true); setSelectedTask(null); setSelectedTaskId(null); }}
+                    onClick={() => { handleOpenCreateTaskPopup(); }}
                 >
                     Create Task
                 </button>
