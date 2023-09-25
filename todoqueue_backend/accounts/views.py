@@ -13,7 +13,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.http import HttpResponseRedirect
-from django.conf import settings
 from .serializers import (
     CustomUserSerializer,
     CustomUserRegistrationSerializer,
@@ -67,13 +66,16 @@ class RegisterView(APIView):
                 token = default_token_generator.make_token(user)
                 uid = urlsafe_base64_encode(force_bytes(user.pk))
 
+                # Get the current site from the request
+                current_site = get_current_site(request)
+
                 # Create activation link
                 mail_subject = "Activate your account"
                 message = render_to_string(
                     "accounts/activation_email.html",
                     {
                         "user": user,
-                        "domain": settings.SITE_DOMAIN,
+                        "domain": current_site.domain,
                         "uid": uid,
                         "token": token,
                     },
@@ -124,13 +126,15 @@ class ConfirmRegistrationView(APIView):
             user.is_active = True
             user.save()
             logger.info(f"User activated: {user}")
+            
+            site = get_current_site(request).domain
 
             # Redirect the user to the login page on frontend
-            return HttpResponseRedirect(f"http://{settings.SITE_DOMAIN}/login")
+            return HttpResponseRedirect(f"{site}/login")
 
         else:
             logger.info(f"Activation failed")
-            return HttpResponseRedirect(f"http://{settings.SITE_DOMAIN}/signup")
+            return HttpResponseRedirect(f"{site}/signup")
 
 
 class ForgotPasswordView(APIView):
@@ -160,7 +164,7 @@ class ForgotPasswordView(APIView):
                 "accounts/password_reset_email.html",  # Update the path based on where you place the email template
                 {
                     "user": user,
-                    "domain": settings.SITE_DOMAIN,
+                    "domain": current_site.domain,
                     "uid": uid,
                     "token": token,
                 },
