@@ -81,11 +81,9 @@ const App = () => {
   return (
     <BrowserRouter>
       <Helmet>
-        <Helmet>
-          <meta charset="UTF-8" />
-          <meta name="google" content="notranslate" />
-          <meta http-equiv="Content-Language" content="en" />
-        </Helmet>
+        <meta charset="UTF-8" />
+        <meta name="google" content="notranslate" />
+        <meta http-equiv="Content-Language" content="en" />
       </Helmet>
 
       <Navigation

@@ -1,7 +1,7 @@
 import axios from "axios";
+import jwtDecode from 'jwt-decode';
 
 let refresh = false;
-
 
 const getCookie = (name) => {
   let value = "; " + document.cookie;
@@ -9,11 +9,9 @@ const getCookie = (name) => {
   if (parts.length === 2) return parts.pop().split(";").shift();
 };
 
-
 const getCSRFToken = () => {
   return getCookie("csrftoken");
 };
-
 
 axios.interceptors.request.use(
   config => {
@@ -27,20 +25,25 @@ axios.interceptors.request.use(
   error => Promise.reject(error)
 );
 
-
 axios.interceptors.response.use(
   (resp) => resp,
   async (error) => {
     if (error.response.status === 401 && !refresh) {
       refresh = true;
 
-      if (localStorage.getItem('refresh_token') === null) {
-        console.log("No refresh token found. Redirecting to login page.");
-        localStorage.clear();
-        // Dont redirect to login page if already on login page
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login';
+      const token = localStorage.getItem('access_token');
+      if (token) {
+        const decodedToken = jwtDecode(token);
+        const currentTime = Date.now() / 1000; // Convert to seconds
+
+        if (decodedToken.exp < currentTime) {
+          handleLogout();
+          return;
         }
+      }
+
+      if (localStorage.getItem('refresh_token') === null) {
+        handleLogout();
         return;
       }
 
@@ -60,9 +63,6 @@ axios.interceptors.response.use(
         }
       );
 
-      console.log("Refresh response: ", response);
-
-      // if refresh token is valid, update tokens and retry request. Otherwise, redirect to login page.
       if (response.status === 200) {
         axios.defaults.headers.common['Authorization'] = `Bearer ${response.data['access']}`;
         localStorage.setItem('access_token', response.data.access);
@@ -70,19 +70,20 @@ axios.interceptors.response.use(
 
         return axios(error.config);
       } else {
-        // redirect to login page
-        console.log("Token refresh failed. Redirecting to login page.");
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('username');
-        localStorage.removeItem('user_id');
-        // window.location.href = '/login';
+        handleLogout();
       }
     }
 
     refresh = false;
-    return error;
+    return Promise.reject(error);
   }
 );
+
+const handleLogout = () => {
+  localStorage.clear();
+  if (window.location.pathname !== '/login') {
+    window.location.href = '/login';
+  }
+};
 
 export default axios;

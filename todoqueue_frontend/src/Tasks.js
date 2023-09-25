@@ -1,10 +1,11 @@
-import axios from 'axios';
-import moment from 'moment';
 import React, { useState, useEffect, useRef } from 'react';
 // import { Link } from 'react-router-dom';
 import './App.css';
 import { SimpleFlipper } from './flipper';
 import { fetchTasks, fetchSelectedTask, createWorkLog, createTask, deleteTask, freezeTask } from './api/tasks';
+import { fetchUsers } from './api/users';
+import { formatDuration, getTimeSince } from './utils';
+import useAuthCheck from './hooks/authCheck';
 
 
 const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
@@ -30,58 +31,33 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     });
 
     const [browniePoints, setBrowniePoints] = useState(0);
-    const [showAnimation, setShowAnimation] = useState(false);
+    const [showFlipAnimation, setShowFlipAnimation] = useState(false);
 
     const updateSelectedTaskTimer = useRef(null);
 
     const popupInnerRef = useRef(null);
 
-    // useEffects //
+    // Redirect to the login page if not logged in
+    useAuthCheck();
 
+    // useEffects //
 
     useEffect(() => {
         setShowHouseholdSelector(true);
     }, []);
-
-
-    // Redirect to login page if not logged in
-    useEffect(() => {
-        if (localStorage.getItem('access_token') === null) {
-            window.location.href = '/login'
-        }
-        else {
-            (
-                async () => {
-                    try {
-                        const { data } = await axios.get(
-                            '/api/auth/',
-                            {
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                }
-                            }
-                        );
-                        console.log("Logged in with message", data.message);
-                    } catch (e) {
-                        console.log('not auth')
-                    }
-                })()
-        };
-    }, []);
-
 
     // Fetch tasks, and users at regular intervals
     useEffect(() => {
         // run immediately, then start a timer that runs every 1000ms
         try {
             fetchSetTasks();
-            fetchUsers();
+            fetchSetUsers();
         } catch (error) {
             console.error("An error occurred while fetching data:", error);
         }
         const interval = setInterval(() => {
             fetchSetTasks();
-            fetchUsers();
+            fetchSetUsers();
         }, 1000);
         return () => clearInterval(interval);
     }
@@ -124,16 +100,16 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
     // Show brownie points animation when browniePoints changes
     useEffect(() => {
-        if (showAnimation) {
+        if (showFlipAnimation) {
             // Hide popup after it has been shown for 3 seconds (1 second fade-in + 2 seconds persist)
             const timeout = setTimeout(() => {
-                setShowAnimation(false);
+                setShowFlipAnimation(false);
             }, 3000);
 
             // Clean up timeout when the component is unmounted
             return () => clearTimeout(timeout);
         }
-    }, [showAnimation]);
+    }, [showFlipAnimation]);
 
 
     // Backend API functions //
@@ -151,32 +127,14 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
 
     // TODO: Fetch users in the App component, and pass them down as props
-    const fetchUsers = () => {
-        if (!selectedHousehold) {
-            console.log("No household selected");
+    const fetchSetUsers = async () => {
+        const data = await fetchUsers(selectedHousehold);
+        if (data === null) {
+            setUsers([]);
             return;
         }
-        let list_users_url = `/api/households/${selectedHousehold}/users/`;
-
-        console.log("Fetching household users");
-        axios.get(
-            list_users_url,
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
-            .then((res) => {
-                if (res.status !== 200) {
-                    console.log("Failed to fetch users.");
-                    return;
-                }
-                console.log("Setting users: ", res.data);
-                setUsers(res.data);
-            })
-            .catch((error) => {
-                console.error("An error occurred while fetching data:", error);
-            });
+        console.log("Setting users: ", users);
+        setUsers(data);
     };
 
 
@@ -208,7 +166,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         }
 
         setBrowniePoints(browniePoints);
-        setShowAnimation(true);
+        setShowFlipAnimation(true);
 
         closeCompleteTaskPopup();
         closeTaskPopup();
@@ -219,15 +177,15 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         event.preventDefault();
 
         // Convert max_interval and min_interval to minutes
-        const max_interval_in_minutes = 
-        (newTask.max_interval_days || 0) * 24 * 60 + 
-        (newTask.max_interval_hours || 0) * 60 + 
-        (newTask.max_interval_minutes || 0);
+        const max_interval_in_minutes =
+            (newTask.max_interval_days || 0) * 24 * 60 +
+            (newTask.max_interval_hours || 0) * 60 +
+            (newTask.max_interval_minutes || 0);
 
-        const min_interval_in_minutes = 
-        (newTask.min_interval_days || 0) * 24 * 60 + 
-        (newTask.min_interval_hours || 0) * 60 + 
-        (newTask.min_interval_minutes || 0);
+        const min_interval_in_minutes =
+            (newTask.min_interval_days || 0) * 24 * 60 +
+            (newTask.min_interval_hours || 0) * 60 +
+            (newTask.min_interval_minutes || 0);
 
         // Check for invalid inputs
         if (newTask.task_name === "") {
@@ -375,80 +333,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         setCompletionTime(0);
         setGrossness(0);
     };
-
-
-    // Helper functions //
-
-
-    const formatDuration = (duration) => {
-        console.log("SelectedTask: ", selectedTask);
-        console.log("Formatting duration: ", duration);
-        if (!duration) {
-            return "Never";
-        }
-
-        // The day number may or may not exist, so handle that
-        let days = "0";
-        let time = duration;
-
-        // Check if duration contains day information
-        if (duration.includes(" ")) {
-            const parts = duration.split(" ");
-            days = parts[0];
-            time = parts[1];
-        }
-
-        // Extract hours, minutes, and seconds
-        const [hours, minutes, seconds] = time.split(":").map(Number);
-
-        // Construct human-readable string
-        const daysStr = days === "1" ? "1 day" : `${days} days`;
-        const hoursStr = hours === 1 ? "1 hour" : `${hours} hours`;
-        const minutesStr = minutes === 1 ? "1 minute" : `${minutes} minutes`;
-
-        return `${daysStr} ${hoursStr} ${minutesStr}`;
-    };
-
-
-    const getTimeSince = (timestamp) => {
-        const now = moment();
-        const then = moment(timestamp);
-        const duration = moment.duration(now.diff(then));
-
-        // If the duration is less than a minute, return "Just now"
-        if (duration.asMinutes() < 1) {
-            return "Just now";
-        }
-
-        const days = duration.days();
-        const hours = duration.hours();
-        const minutes = duration.minutes();
-
-        let output = ''
-        if (days !== 0) {
-            output += days === "1" ? "1 day" : `${days} days`;
-        }
-        if (hours !== 0) {
-            output += hours === 1 ? " 1 hour" : ` ${hours} hours`;
-        }
-        if (minutes !== 0) {
-            output += minutes === 1 ? " 1 minute" : ` ${minutes} minutes`;
-        }
-
-        if (output === '') {
-            return "Just now";
-        }
-
-        // If there's a trailing or leading space, remove it
-        output = output.trim();
-
-        output += " ago";
-
-        return output;
-    };
-
-
-
 
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- //
@@ -668,8 +552,8 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
             ) : null}
 
 
-            <div className={`brownie-points-popup ${showAnimation ? 'show' : ''}`}>
-                <div className={`brownie-points-animation ${showAnimation ? 'show' : ''}`}>
+            <div className={`brownie-points-popup ${showFlipAnimation ? 'show' : ''}`}>
+                <div className={`brownie-points-animation ${showFlipAnimation ? 'show' : ''}`}>
                     {`You earned ${browniePoints} brownie points!`}
                 </div>
             </div>
