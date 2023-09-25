@@ -35,9 +35,11 @@ SECRET_KEY = config("DJANGO_SECRET", default=os.urandom(32))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+web_port = config("DJANGO_HOST_PORT", default=8000, cast=int)
+logger.info("Whilelisting host for CSRF: {}".format(config("FRONTEND_URL", default=None)))
+
 ALLOWED_HOSTS = ["*"]
-logger.info("Whilelisting host for CSRF: ", config("FRONTEND_URL", default=None))
-ALLOWED_CSRF_ORIGINS = [config("FRONTEND_URL", default=None), "192.168.1.186:3836"]
+ALLOWED_CSRF_ORIGINS = [config("FRONTEND_URL", default=None), f"192.168.1.186:{web_port}", f"localhost:{web_port}"]
 CORS_ORIGIN_ALLOW_ALL = True
 
 # Static files configurations
