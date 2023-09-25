@@ -1,10 +1,11 @@
-import axios from 'axios';
-import moment from 'moment';
 import React, { useState, useEffect, useRef } from 'react';
 // import { Link } from 'react-router-dom';
 import './App.css';
 import { SimpleFlipper } from './flipper';
-
+import { fetchTasks, fetchSelectedTask, createWorkLog, createTask, deleteTask, freezeTask } from './api/tasks';
+import { fetchUsers } from './api/users';
+import { formatDuration, getTimeSince } from './utils';
+import useAuthCheck from './hooks/authCheck';
 
 
 const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
@@ -30,62 +31,33 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     });
 
     const [browniePoints, setBrowniePoints] = useState(0);
-    const [showAnimation, setShowAnimation] = useState(false);
+    const [showFlipAnimation, setShowFlipAnimation] = useState(false);
 
     const updateSelectedTaskTimer = useRef(null);
 
-    const completionTimeLookup = [
-        0, 1, 2, 5, 10, 15, 20, 30, 45, 60, 90, 120
-    ];
-
     const popupInnerRef = useRef(null);
 
-    // useEffects //
+    // Redirect to the login page if not logged in
+    useAuthCheck();
 
+    // useEffects //
 
     useEffect(() => {
         setShowHouseholdSelector(true);
     }, []);
 
-
-    // Redirect to login page if not logged in
-    useEffect(() => {
-        if (localStorage.getItem('access_token') === null) {
-            window.location.href = '/login'
-        }
-        else {
-            (
-                async () => {
-                    try {
-                        const { data } = await axios.get(
-                            '/api/auth/',
-                            {
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                }
-                            }
-                        );
-                        console.log("Logged in with message", data.message);
-                    } catch (e) {
-                        console.log('not auth')
-                    }
-                })()
-        };
-    }, []);
-
-
     // Fetch tasks, and users at regular intervals
     useEffect(() => {
         // run immediately, then start a timer that runs every 1000ms
         try {
-            fetchTasks();
-            fetchUsers();
+            fetchSetTasks();
+            fetchSetUsers();
         } catch (error) {
             console.error("An error occurred while fetching data:", error);
         }
         const interval = setInterval(() => {
-            fetchTasks();
-            fetchUsers();
+            fetchSetTasks();
+            fetchSetUsers();
         }, 1000);
         return () => clearInterval(interval);
     }
@@ -95,19 +67,9 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     // Fetch selected task at regular intervals
     useEffect(() => {
         if (showTaskPopup && selectedTaskId) {
-            const fetchSelectedTask = async () => {
-                const list_tasks_url = `/api/tasks/${selectedTaskId}/?household=${selectedHousehold}`;
-                console.log("Fetching selected task...");
-                const response = await axios.get(
-                    list_tasks_url,
-                    {
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                    }
-                );
-                console.log("Setting selected task data: ", response);
-                setSelectedTask(response.data);
+            const fetchSetSelectedTask = async () => {
+                const data = await fetchSelectedTask(selectedTaskId, selectedHousehold);
+                setSelectedTask(data);
             };
 
             // Clear previous timer if it exists
@@ -115,9 +77,9 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                 clearInterval(updateSelectedTaskTimer.current);
             }
 
-            fetchSelectedTask();
+            fetchSetSelectedTask();
             // Store the new timer in the ref
-            updateSelectedTaskTimer.current = setInterval(fetchSelectedTask, 1000);
+            updateSelectedTaskTimer.current = setInterval(fetchSetSelectedTask, 1000);
         }
 
         return () => {
@@ -138,169 +100,73 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
     // Show brownie points animation when browniePoints changes
     useEffect(() => {
-        if (showAnimation) {
+        if (showFlipAnimation) {
             // Hide popup after it has been shown for 3 seconds (1 second fade-in + 2 seconds persist)
             const timeout = setTimeout(() => {
-                setShowAnimation(false);
+                setShowFlipAnimation(false);
             }, 3000);
 
             // Clean up timeout when the component is unmounted
             return () => clearTimeout(timeout);
         }
-    }, [showAnimation]);
+    }, [showFlipAnimation]);
 
 
     // Backend API functions //
 
 
-    // TODO: Fetch tasks in the App component, and pass them down as props
-    const fetchTasks = () => {
+    const fetchSetTasks = async () => {
         if (!selectedHousehold) {
             setTasks([]);
             return;
         }
-        const list_tasks_url = `/api/tasks/?household=${selectedHousehold}`;
 
         console.log("Fetching Tasks...");
-        axios.get(
-            list_tasks_url,
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
-            .then((res) => {
-                if (res.status !== 200) {
-                    console.log("Failed to fetch tasks.");
-                    return;
-                }
-                // Filter tasks by non-zero staleness
-                let data = res.data;
-                if (!data) {
-                    console.log("No data fetched for tasks");
-                    return;
-                }
-                console.log("Fetched tasks:", data)
-                // Sort by mean completion time, which is just the number of seconds
-                data.sort((a, b) => (a.mean_completion_time - b.mean_completion_time));
-                setTasks(data);
-            });
+        setTasks(await fetchTasks(selectedHousehold));
     };
 
 
     // TODO: Fetch users in the App component, and pass them down as props
-    const fetchUsers = () => {
-        if (!selectedHousehold) {
-            console.log("No household selected");
+    const fetchSetUsers = async () => {
+        const data = await fetchUsers(selectedHousehold);
+        if (data === null) {
+            setUsers([]);
             return;
         }
-        let list_users_url = `/api/households/${selectedHousehold}/users/`;
-
-        console.log("Fetching household users");
-        axios.get(
-            list_users_url,
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
-            .then((res) => {
-                if (res.status !== 200) {
-                    console.log("Failed to fetch users.");
-                    return;
-                }
-                console.log("Setting users: ", res.data);
-                setUsers(res.data);
-            })
-            .catch((error) => {
-                console.error("An error occurred while fetching data:", error);
-            });
+        console.log("Setting users: ", users);
+        setUsers(data);
     };
 
 
+    const completionTimeLookup = [
+        0, 1, 2, 5, 10, 15, 20, 30, 45, 60, 90, 120
+    ];
+
     const handleCreateWorkLog = async (event) => {
         event.preventDefault();
-
-        if (!selectedHousehold) {
-            console.log("No household selected");
-            return;
-        }
 
         // Get completion time from the lookup table
         const completionTime_minutes = parseInt(completionTimeLookup[completionTime]);
         // "[-]DD HH:MM:SS" and completion time is in minutes
         const completionTime_str = `0 ${Math.floor(completionTime_minutes / 60)}:${completionTime_minutes % 60}:00`;
 
-        const calculate_brownie_points_url = "/api/calculate_brownie_points/";
-        const payload = {
-            task_id: selectedTaskId,
-            completion_time: completionTime_str,
-            grossness
-        };
-        console.log("Creating work log");
-        console.log("Payload: ", payload);
+        // Create the work log. 
+        const browniePoints = await createWorkLog(
+            selectedHousehold,
+            selectedTaskId,
+            completionTime_str,
+            completionUsers,
+            grossness,
+        );
 
-        // Get the value of this tasks' brownie_points from the server
-        let brownie_points = 0;
-        try {
-            const response = await axios.post(
-                calculate_brownie_points_url,
-                JSON.stringify(payload),
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                }
-            );
-
-            brownie_points = response.data.brownie_points;
-
-        } catch (error) {
-            console.error('Error:', error);
+        // If the creation succeeded, the brownie points will not be null
+        if (browniePoints === null) {
+            console.log("Failed to create worklog");
             return;
         }
 
-        // Convert brownie points from a string of a float to an integer
-        brownie_points = Math.round(parseFloat(brownie_points));
-        console.log("Brownie points: ", brownie_points);
-
-        setBrowniePoints(brownie_points);
-        setShowAnimation(true);
-
-        // pop each user off the list of completionUsers and create a worklog for each
-        for (const completionUser of completionUsers) {
-            const worklog = {
-                task: selectedTaskId,
-                user: completionUser,
-                completion_time: completionTime_str,
-                grossness,
-                brownie_points
-            };
-
-            console.log("Creating worklog: ", worklog);
-
-            // Make a POST request to create a new WorkLog entry
-            try {
-                const response = await axios.post(
-                    '/api/worklogs/',
-                    JSON.stringify(worklog),
-                    {
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                    });
-                if (response.status !== 201) {
-                    console.log("Failed to create worklog.");
-                    return;
-                }
-                console.log('WorkLog created: ', response.data);
-            } catch (error) {
-                console.error('Error: ', error);
-            }
-        }
-
-        // Clear the list of completionUsers and close the popup
-        completionUsers.length = 0;
+        setBrowniePoints(browniePoints);
+        setShowFlipAnimation(true);
 
         closeCompleteTaskPopup();
         closeTaskPopup();
@@ -309,11 +175,19 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
     const handleCreateTask = async (event) => {
         event.preventDefault();
-        const createTaskUrl = `/api/tasks/`;
 
-        const max_interval_in_minutes = (newTask.max_interval_days || 0) * 24 * 60 + (newTask.max_interval_hours || 0) * 60 + (newTask.max_interval_minutes || 0);
-        const min_interval_in_minutes = (newTask.min_interval_days || 0) * 24 * 60 + (newTask.min_interval_hours || 0) * 60 + (newTask.min_interval_minutes || 0);
+        // Convert max_interval and min_interval to minutes
+        const max_interval_in_minutes =
+            (newTask.max_interval_days || 0) * 24 * 60 +
+            (newTask.max_interval_hours || 0) * 60 +
+            (newTask.max_interval_minutes || 0);
 
+        const min_interval_in_minutes =
+            (newTask.min_interval_days || 0) * 24 * 60 +
+            (newTask.min_interval_hours || 0) * 60 +
+            (newTask.min_interval_minutes || 0);
+
+        // Check for invalid inputs
         if (newTask.task_name === "") {
             setInputError(true);
             console.log("Task name may not be blank");
@@ -347,98 +221,46 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         const max_interval = `${newTask.max_interval_days || 0} ${newTask.max_interval_hours || 0}:${newTask.max_interval_minutes || 0}:00`;
         const min_interval = `${newTask.min_interval_days || 0} ${newTask.min_interval_hours || 0}:${newTask.min_interval_minutes || 0}:00`;
 
-        // Create a new object containing the formatted max_interval and min_interval
-        const formattedNewTask = {
-            ...newTask,
-            household: selectedHousehold,
+        const response_data = await createTask(
+            newTask.task_name,
+            selectedHousehold,
             max_interval,
-            min_interval
-        };
+            min_interval,
+            newTask.description,
+        );
 
-        console.log("Creating a new task");
-        console.log("formattedNewTask: ", formattedNewTask);
+        console.log("Created task. Response:", response_data);
+        await fetchSetTasks();
+        setShowTaskPopup(false);
 
-        await axios.post(
-            createTaskUrl,
-            JSON.stringify(formattedNewTask),
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            })
-            .then(res => {
-                if (res.status !== 201) {
-                    console.log("Failed to create task.");
-                    return;
-                }
-                console.log("Created task. Response:", res.data);
-                fetchTasks();
-                setShowTaskPopup(false);
-        
-                // Reset the newTask state
-                console.log("Resetting task")
-                setNewTask({
-                    task_name: '',
-                    max_interval: '0:0',
-                    min_interval: '0:0',
-                    description: ''
-                });
-        
-                // Fetch task list again
-                fetchTasks();
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
+        // Reset the newTask state
+        console.log("Resetting task")
+        setNewTask({
+            task_name: '',
+            max_interval: '0:0',
+            min_interval: '0:0',
+            description: ''
+        });
     };
 
 
-    const deleteTask = (taskId) => {
-        const deleteTaskUrl = `/api/tasks/${taskId}/?household=${selectedHousehold}`;
-        console.log("Deleting task");
-        console.log("deleteTaskUrl: ", deleteTaskUrl);
-        console.log("taskId: ", taskId);
-
-        axios.delete(
-            deleteTaskUrl,
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            })
-            .then((res) => {
-                if (res.status !== 204) {
-                    console.log("Failed to delete task.");
-                    return;
-                }
-                console.log("Deleted task with ID: ", taskId);
-                closeTaskPopup();
-            });
+    const handleDeleteTask = async (taskId) => {
+        const succeeded = await deleteTask(taskId, selectedHousehold);
+        if (succeeded) {
+            closeTaskPopup();
+        } else {
+            console.log("Failed to delete task", succeeded);
+        }
     };
 
 
-    const freezeTask = (taskId) => {
-        const freezeTaskUrl = `/api/tasks/${taskId}/toggle_frozen/`;
-        console.log("Freezing task");
-        console.log("freezeTaskUrl: ", freezeTaskUrl);
-        console.log("taskId: ", taskId);
-
-        axios.post(
-            freezeTaskUrl,
-            {},
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            })
-            .then((res) => {
-                if (res.status !== 200) {
-                    console.log("Failed to freeze task.");
-                    return;
-                }
-                console.log("Freezed task with ID: ", taskId);
-                closeTaskPopup();
-            });
+    const handleFreezeTask = async (taskId) => {
+        const succeeded = await freezeTask(taskId);
+        if (succeeded) {
+            closeTaskPopup();
+        } else {
+            console.log("Failed to freeze task", succeeded);
+        }
     }
 
 
@@ -502,7 +324,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         setShowTaskPopup(false);
         setSelectedTask(null);
         setSelectedTaskId(null);
-        fetchTasks();
+        fetchSetTasks();
     };
 
     const closeCompleteTaskPopup = () => {
@@ -511,80 +333,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         setCompletionTime(0);
         setGrossness(0);
     };
-
-
-    // Helper functions //
-
-
-    const formatDuration = (duration) => {
-        console.log("SelectedTask: ", selectedTask);
-        console.log("Formatting duration: ", duration);
-        if (!duration) {
-            return "Never";
-        }
-
-        // The day number may or may not exist, so handle that
-        let days = "0";
-        let time = duration;
-
-        // Check if duration contains day information
-        if (duration.includes(" ")) {
-            const parts = duration.split(" ");
-            days = parts[0];
-            time = parts[1];
-        }
-
-        // Extract hours, minutes, and seconds
-        const [hours, minutes, seconds] = time.split(":").map(Number);
-
-        // Construct human-readable string
-        const daysStr = days === "1" ? "1 day" : `${days} days`;
-        const hoursStr = hours === 1 ? "1 hour" : `${hours} hours`;
-        const minutesStr = minutes === 1 ? "1 minute" : `${minutes} minutes`;
-
-        return `${daysStr} ${hoursStr} ${minutesStr}`;
-    };
-
-
-    const getTimeSince = (timestamp) => {
-        const now = moment();
-        const then = moment(timestamp);
-        const duration = moment.duration(now.diff(then));
-
-        // If the duration is less than a minute, return "Just now"
-        if (duration.asMinutes() < 1) {
-            return "Just now";
-        }
-
-        const days = duration.days();
-        const hours = duration.hours();
-        const minutes = duration.minutes();
-
-        let output = ''
-        if (days !== 0) {
-            output += days === "1" ? "1 day" : `${days} days`;
-        }
-        if (hours !== 0) {
-            output += hours === 1 ? " 1 hour" : ` ${hours} hours`;
-        }
-        if (minutes !== 0) {
-            output += minutes === 1 ? " 1 minute" : ` ${minutes} minutes`;
-        }
-
-        if (output === '') {
-            return "Just now";
-        }
-
-        // If there's a trailing or leading space, remove it
-        output = output.trim();
-
-        output += " ago";
-
-        return output;
-    };
-
-
-
 
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- //
@@ -642,8 +390,8 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                                 </div>
                                 <div className="task-popup-actions">
                                     <button className="button complete-button" onClick={() => handleOpenCompleteTaskPopup(selectedTask)}>Complete Task</button>
-                                    <button className="button freeze-button" onClick={() => freezeTask(selectedTask.id)}>{selectedTask.frozen ? "Unfreeze Task" : "Freeze Task"}</button>
-                                    <button className="button delete-button" onClick={() => deleteTask(selectedTask.id)}>Delete Task</button>
+                                    <button className="button freeze-button" onClick={() => handleFreezeTask(selectedTask.id)}>{selectedTask.frozen ? "Unfreeze Task" : "Freeze Task"}</button>
+                                    <button className="button delete-button" onClick={() => handleDeleteTask(selectedTask.id)}>Delete Task</button>
                                 </div>
                             </div>
 
@@ -804,8 +552,8 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
             ) : null}
 
 
-            <div className={`brownie-points-popup ${showAnimation ? 'show' : ''}`}>
-                <div className={`brownie-points-animation ${showAnimation ? 'show' : ''}`}>
+            <div className={`brownie-points-popup ${showFlipAnimation ? 'show' : ''}`}>
+                <div className={`brownie-points-animation ${showFlipAnimation ? 'show' : ''}`}>
                     {`You earned ${browniePoints} brownie points!`}
                 </div>
             </div>
