@@ -37,7 +37,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 logger.info("Whilelisting host for CSRF: ", config("FRONTEND_URL", default=None))
-ALLOWED_CSRF_ORIGINS = [config("FRONTEND_URL", default=None)]
+ALLOWED_CSRF_ORIGINS = [config("FRONTEND_URL", default=None), "192.168.1.186:3836"]
 CORS_ORIGIN_ALLOW_ALL = True
 
 # Static files configurations
