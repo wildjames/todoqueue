@@ -20,4 +20,4 @@ python manage.py createsuperuser --noinput
 
 # Start the Django server
 echo "Starting the Django server..." && \
-gunicorn todoqueue_backend.wsgi:application --bind 0.0.0.0:$PORT
+gunicorn todoqueue_backend.wsgi:application --bind 0.0.0.0:$DJANGO_HOST_PORT
