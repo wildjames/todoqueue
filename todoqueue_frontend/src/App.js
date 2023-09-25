@@ -9,7 +9,7 @@ import axios from 'axios';
 import { Helmet } from 'react-helmet';
 
 import UserStatistics from './UserStatistics';
-import Tasks from './Tasks';
+import Tasks from './components/Tasks';
 import { Navigation } from './navigation';
 import { Login } from './Login';
 import { Logout } from './logout';

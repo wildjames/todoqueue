@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 // import { Link } from 'react-router-dom';
-import './App.css';
+import '../App.css';
 import { SimpleFlipper } from './flipper';
-import { fetchTasks, fetchSelectedTask, createWorkLog, createTask, deleteTask, freezeTask } from './api/tasks';
-import { fetchUsers } from './api/users';
-import { formatDuration, getTimeSince } from './utils';
-import useAuthCheck from './hooks/authCheck';
+import ShowTaskPopup from './ShowTaskPopup';
+import { fetchTasks, fetchSelectedTask, createWorkLog, createTask, deleteTask, freezeTask } from '../api/tasks';
+import { fetchUsers } from '../api/users';
+import { formatDuration, getTimeSince } from '../utils';
+import useAuthCheck from '../hooks/authCheck';
 
 
 const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
@@ -257,7 +258,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     const handleFreezeTask = async (taskId) => {
         const succeeded = await freezeTask(taskId);
         if (succeeded) {
-            closeTaskPopup();
+            // closeTaskPopup();
         } else {
             console.log("Failed to freeze task", succeeded);
         }
@@ -313,6 +314,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
 
     const handleOverlayClick = (e) => {
+        console.log("Detected click!", popupInnerRef);
         if (popupInnerRef.current && !popupInnerRef.current.contains(e.target)) {
             console.log("Clicked outside of popup");
             closeCompleteTaskPopup();
@@ -338,7 +340,13 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- //
 
 
-
+    const propsForTaskDetails = {
+        selectedTask: selectedTask,  // Assuming you have a state variable named selectedTask
+        handleOpenCompleteTaskPopup: handleOpenCompleteTaskPopup,  // Handler function
+        handleFreezeTask: handleFreezeTask,  // Handler function
+        handleDeleteTask: handleDeleteTask,  // Handler function
+        handleOverlayClick: handleOverlayClick  // Handler function
+    };
 
 
     return (
@@ -349,133 +357,11 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                 <div className="text">Select a household</div>
             </div>
 
-            {/* // TODO: Separate these two popups */}
-            {showTaskPopup ? (
-                <div className="popup" onClick={handleOverlayClick}>
-                    <div className="popup-inner" ref={popupInnerRef}>
-                        {selectedTask ? (
-                            <div>
-                                <h2 className="task-popup-header">{selectedTask.task_name}</h2>
-                                <table className="task-popup-table">
-                                    <tbody>
-                                        <tr>
-                                            <td className="task-popup-label">This takes on average:</td>
-                                            <td className="task-popup-content">{(selectedTask.mean_completion_time / 60).toFixed(1)} minutes</td>
-                                        </tr>
-                                        <tr>
-                                            <td className="task-popup-label">Do this at most every:</td>
-                                            <td className="task-popup-content">{formatDuration(selectedTask.max_interval)}</td>
-                                        </tr>
-                                        <tr>
-                                            <td className="task-popup-label">and at least every:</td>
-                                            <td className="task-popup-content">{formatDuration(selectedTask.min_interval)}</td>
-                                        </tr>
-                                        <tr>
-                                            <td className="task-popup-label">Last done:</td>
-                                            <td className="task-popup-content">{getTimeSince(selectedTask.last_completed)}</td>
-                                        </tr>
-                                        <tr>
-                                            <td className="task-popup-label">Staleness:</td>
-                                            <td className="task-popup-content">{parseFloat(selectedTask.staleness).toFixed(2)}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <div className="task-popup-description">
-                                    {selectedTask.description == "" ? "" :
-                                        <p><strong>Description:</strong> {selectedTask.description}</p>
-                                    }
-                                    {selectedTask.frozen ? (
-                                        <p style={{ color: "black" }}><strong>Task is frozen, and won't ever appear on the queue</strong></p>
-                                    ) : null}
-                                </div>
-                                <div className="task-popup-actions">
-                                    <button className="button complete-button" onClick={() => handleOpenCompleteTaskPopup(selectedTask)}>Complete Task</button>
-                                    <button className="button freeze-button" onClick={() => handleFreezeTask(selectedTask.id)}>{selectedTask.frozen ? "Unfreeze Task" : "Freeze Task"}</button>
-                                    <button className="button delete-button" onClick={() => handleDeleteTask(selectedTask.id)}>Delete Task</button>
-                                </div>
-                            </div>
-
-                        ) : (
-                            <div>
-                                <h2>Create a New Task</h2>
-                                <form className="task-form">
-                                    <div className="input-group">
-                                        <input type="text" name="task_name" placeholder="Task Name" onChange={handleCreateInputChange} />
-                                    </div>
-                                    <div className="input-group input-group-horizontal">
-                                        <label>Max Interval: </label>
-                                        <input
-                                            className={inputError ? "input-error" : ""}
-                                            type="number"
-                                            min="0"
-                                            name="max_interval_days"
-                                            placeholder="Days"
-                                            onChange={handleCreateInputChange}
-                                        />
-                                        <input
-                                            className={inputError ? "input-error" : ""}
-                                            type="number"
-                                            min="0"
-                                            name="max_interval_hours"
-                                            placeholder="Hours"
-                                            onChange={handleCreateInputChange}
-                                        />
-                                        <input
-                                            className={inputError ? "input-error" : ""}
-                                            type="number"
-                                            min="0"
-                                            name="max_interval_minutes"
-                                            placeholder="Minutes"
-                                            onChange={handleCreateInputChange}
-                                        />
-                                    </div>
-                                    <div className="input-group input-group-horizontal">
-                                        <label>Min Interval: </label>
-                                        <input
-                                            className={inputError ? "input-error" : ""}
-                                            type="number"
-                                            min="0"
-                                            name="min_interval_days"
-                                            placeholder="Days"
-                                            onChange={handleCreateInputChange}
-                                        />
-                                        <input
-                                            className={inputError ? "input-error" : ""}
-                                            type="number"
-                                            min="0"
-                                            name="min_interval_hours"
-                                            placeholder="Hours"
-                                            onChange={handleCreateInputChange}
-                                        />
-                                        <input
-                                            className={inputError ? "input-error" : ""}
-                                            type="number"
-                                            min="0"
-                                            name="min_interval_minutes"
-                                            placeholder="Minutes"
-                                            onChange={handleCreateInputChange}
-                                        />
-                                    </div>
-                                    <div className="input-group">
-                                        <input
-                                            type="text"
-                                            name="description"
-                                            placeholder="Description"
-                                            onChange={handleCreateInputChange}
-                                        />
-                                        <button
-                                            className={`button create-button ${inputError ? "disabled" : "enabled"}`}
-                                            onClick={handleCreateTask}
-                                        >
-                                            Create Task
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        )}
-                    </div>
-                </div >
-            ) : null}
+            {
+                showTaskPopup && selectedTask ? (
+                    <ShowTaskPopup ref={popupInnerRef} {...propsForTaskDetails} />
+                ) : null
+            }
 
 
             {showCompleteTaskPopup ? (
