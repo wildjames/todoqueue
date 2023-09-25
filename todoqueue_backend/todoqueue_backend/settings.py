@@ -13,8 +13,13 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from datetime import timedelta
 from pathlib import Path
 import os
-import sys
 from decouple import config
+
+from logging import getLogger, INFO, DEBUG, basicConfig
+
+basicConfig(level=INFO)
+logger = getLogger(__name__)
+
 
 
 
@@ -31,7 +36,7 @@ SECRET_KEY = config("DJANGO_SECRET", default=os.urandom(32))
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-print("Whilelisting host for CSRF: ", config("FRONTEND_URL", default=None))
+logger.info("Whilelisting host for CSRF: ", config("FRONTEND_URL", default=None))
 ALLOWED_CSRF_ORIGINS = [config("FRONTEND_URL", default=None)]
 CORS_ORIGIN_ALLOW_ALL = True
 
