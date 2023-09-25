@@ -21,10 +21,6 @@ from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-HOSTNAME = os.environ.get("HOSTNAME", "localhost")
-PORT = os.environ.get("PORT", "8000")
-
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -34,8 +30,7 @@ SECRET_KEY = "django-insecure-623ov0uawpvansx0o8^7x(0v&va!7wwoi09t1qd7svjnftsi8f
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [f"http://{HOSTNAME}:{PORT}", "*"]
-CSRF_TRUSTED_ORIGINS = [f"http://{HOSTNAME}:{PORT}"]
+ALLOWED_HOSTS = ["*"]
 CORS_ORIGIN_ALLOW_ALL = True
 
 # Static files configurations
@@ -55,8 +50,6 @@ EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
 EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
-
-SITE_DOMAIN = f"{HOSTNAME}:{PORT}"
 
 
 # Application definition
