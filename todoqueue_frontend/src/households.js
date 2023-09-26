@@ -33,6 +33,7 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
         , [selectedHousehold]);
 
 
+    // TODO: refactor to use popup framework
     const handleOpenUsersPopup = (household) => {
         console.log("Opening users popup for household:", household);
         setSelectedHousehold(household);
@@ -77,6 +78,7 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
     };
 
 
+    // TODO: Move to the api folder
     const handleCreate = async () => {
         try {
             // Get the logged in user
