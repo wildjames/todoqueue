@@ -135,6 +135,11 @@ h1 {
   border: 2px solid #125361;
 }
 
+.popup-inner.frozen {
+  background-color: #a8efff;
+  border: 2px solid #125361;
+}
+
 .task-wrapper {
   position: relative;
   display: inline-block;
@@ -264,6 +269,8 @@ h1 {
   width: 500px;
   text-align: center;
   box-shadow: 0 4px 16px rgba(255, 239, 0, 0.51);
+  /* 0.5s transition for background color, color, and appearing/disappearing */
+  transition: background-color 1s ease, opacity 0.5s ease, color 0.5s ease;
 }
 
 .task-popup-header {
