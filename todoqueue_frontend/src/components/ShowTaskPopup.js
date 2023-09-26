@@ -1,10 +1,37 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import BasePopup from './BasePopup';
 import { formatDuration, getTimeSince } from '../utils';
-import { deleteTask, freezeTask } from '../api/tasks';
+import { deleteTask, freezeTask, fetchSelectedTask } from '../api/tasks';
 
 const ShowTaskPopup = React.forwardRef((props, ref) => {
+    const updateSelectedTaskTimer = useRef(null);
     const innerClass = props.selectedTask && props.selectedTask.frozen ? 'frozen' : '';
+
+
+    const fetchSetSelectedTask = async () => {
+        const data = await fetchSelectedTask(props.selectedTaskId, props.selectedHousehold);
+        props.setSelectedTask(data);
+    };
+
+    // Fetch selected task at regular intervals
+    useEffect(() => {
+
+        // Clear previous timer if it exists
+        if (updateSelectedTaskTimer.current) {
+            clearInterval(updateSelectedTaskTimer.current);
+        }
+
+        fetchSetSelectedTask();
+        updateSelectedTaskTimer.current = setInterval(fetchSetSelectedTask, 1000);
+
+
+        return () => {
+            if (updateSelectedTaskTimer.current) {
+                clearInterval(updateSelectedTaskTimer.current);
+            }
+        };
+    }, [props.selectedTaskId]);
+
 
     const handleDeleteTask = async (taskId) => {
         const succeeded = await deleteTask(taskId, props.selectedHousehold);
@@ -19,7 +46,7 @@ const ShowTaskPopup = React.forwardRef((props, ref) => {
     const handleFreezeTask = async (taskId) => {
         const succeeded = await freezeTask(taskId);
         if (succeeded) {
-            // props.closeTaskPopup();
+            fetchSetSelectedTask();
         } else {
             console.log("Failed to freeze task", succeeded);
         }

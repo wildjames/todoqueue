@@ -5,9 +5,10 @@ import { SimpleFlipper } from './flipper';
 import ShowTaskPopup from './ShowTaskPopup';
 import CompleteTaskPopup from './CompleteTaskPopup';
 import CreateTaskPopup from './CreateTaskPopup';
-import { fetchTasks, fetchSelectedTask, createWorkLog } from '../api/tasks';
-import { fetchUsers } from '../api/users';
 import useAuthCheck from '../hooks/authCheck';
+
+import { fetchTasks } from '../api/tasks';
+import { fetchUsers } from '../api/users';
 
 
 const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
@@ -24,8 +25,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
     const [browniePoints, setBrowniePoints] = useState(0);
     const [showFlipAnimation, setShowFlipAnimation] = useState(false);
-
-    const updateSelectedTaskTimer = useRef(null);
 
     const popupInnerRef = useRef(null);
 
@@ -55,32 +54,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         return () => clearInterval(interval);
     }
         , [showSidebar, selectedHousehold]);
-
-
-    // Fetch selected task at regular intervals
-    useEffect(() => {
-        if (showTaskPopup && selectedTaskId) {
-            const fetchSetSelectedTask = async () => {
-                const data = await fetchSelectedTask(selectedTaskId, selectedHousehold);
-                setSelectedTask(data);
-            };
-
-            // Clear previous timer if it exists
-            if (updateSelectedTaskTimer.current) {
-                clearInterval(updateSelectedTaskTimer.current);
-            }
-
-            fetchSetSelectedTask();
-            // Store the new timer in the ref
-            updateSelectedTaskTimer.current = setInterval(fetchSetSelectedTask, 1000);
-        }
-
-        return () => {
-            if (updateSelectedTaskTimer.current) {
-                clearInterval(updateSelectedTaskTimer.current);
-            }
-        };
-    }, [showTaskPopup, selectedTaskId]);
 
 
     // If the selectedHousehold is null, hide the sidebar
@@ -203,8 +176,10 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         handleOpenCompleteTaskPopup: handleOpenCompleteTaskPopup,
         closeTaskPopup: closeTaskPopup,
         handleOverlayClick: handleOverlayClick,
+        setSelectedTask: setSelectedTask,
         selectedHousehold: selectedHousehold,
         selectedTask: selectedTask,
+        selectedTaskId: selectedTaskId,
     };
 
 
