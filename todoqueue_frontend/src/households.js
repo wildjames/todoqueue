@@ -1,5 +1,6 @@
-import axios from "axios";
+import axios from "./api/axiosConfig";
 import { useEffect, useState, useRef } from "react";
+import useAuthCheck from './hooks/authCheck';
 
 
 export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
@@ -11,6 +12,8 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
     const [userEmail, setUserEmail] = useState('');
 
     const popupInnerRef = useRef(null);
+
+    useAuthCheck();
 
     useEffect(() => {
         setShowHouseholdSelector(false);

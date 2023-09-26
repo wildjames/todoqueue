@@ -1,8 +1,11 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect } from "react";
+import axios from 'axios';
+import useAuthCheck from './hooks/authCheck';
 
 
 export const Logout = ({ setShowHouseholdSelector }) => {
+
+  useAuthCheck();
 
   useEffect(() => {
     setShowHouseholdSelector(false);
@@ -12,7 +15,7 @@ export const Logout = ({ setShowHouseholdSelector }) => {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await axios.post(
+        await axios.post(
           '/api/logout/',
           {
             refresh_token: localStorage.getItem('refresh_token')
