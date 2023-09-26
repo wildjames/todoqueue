@@ -38,6 +38,7 @@ DEBUG = True
 web_port = config("DJANGO_HOST_PORT", default=8000, cast=int)
 logger.info("Whilelisting host for CSRF: {}".format(config("FRONTEND_URL", default=None)))
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 ALLOWED_HOSTS = ["*"]
 ALLOWED_CSRF_ORIGINS = [config("FRONTEND_URL", default=None), f"192.168.1.186:{web_port}", f"localhost:{web_port}"]
 logger.info(f"Allowed CSRF origins: {ALLOWED_CSRF_ORIGINS}")

@@ -56,7 +56,7 @@ class RegisterView(APIView):
     def post(self, request):
         logger.info(f"Registering user with email: {request.data['email']}")
         serializer = CustomUserRegistrationSerializer(data=request.data)
-        
+
         # If the user already exists, and is not activated, then delete the user and create a new one
         try:
             user = user_model.objects.get(email=request.data["email"])
@@ -87,7 +87,7 @@ class RegisterView(APIView):
                 # Get the current site from the request
                 current_site = get_current_site(request)
                 # If we're using HTTP/HTTPS, use that as the protocol
-                protocol = "https" if request.is_secure() else "http"
+                protocol = request.scheme
                 current_site = f"{protocol}://{current_site.domain}"
 
                 # Create activation link
@@ -147,13 +147,13 @@ class ConfirmRegistrationView(APIView):
             user.is_active = True
             user.save()
             logger.info(f"User activated: {user}")
-            
+
             # Redirect the user to the login page on frontend
-            return HttpResponseRedirect(f"/login")
+            return HttpResponseRedirect(f"/registration_confirmed")
 
         else:
             logger.info(f"Activation failed")
-            return HttpResponseRedirect(f"/signup")
+            return HttpResponseRedirect(f"/registration_failed")
 
 
 class ForgotPasswordView(APIView):
@@ -179,7 +179,7 @@ class ForgotPasswordView(APIView):
             # Create password reset link
             current_site = get_current_site(request)
             # If we're using HTTP/HTTPS, use that as the protocol
-            protocol = "https" if request.is_secure() else "http"
+            protocol = request.scheme
             current_site = f"{protocol}://{current_site.domain}"
             mail_subject = "Reset your password"
             message = render_to_string(
@@ -194,13 +194,19 @@ class ForgotPasswordView(APIView):
 
             # Send password reset email
             logger.info(f"Sending password reset email to {user.email}")
-            send_mail(
-                subject=mail_subject,
-                message=None,
-                from_email=None,
-                html_message=message,
-                recipient_list=[user.email],
-            )
+            try:
+                send_mail(
+                    subject=mail_subject,
+                    message=None,
+                    from_email=None,
+                    html_message=message,
+                    recipient_list=[user.email],
+                )
+            except Exception as e:
+                return Response(
+                    {"detail": "Password reset failed could not send email"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
             logger.info(f"Password reset email sent to {user.email}")
 
             return Response(
@@ -210,7 +216,7 @@ class ForgotPasswordView(APIView):
         except Exception as e:
             logger.info(f"Password reset failed: {e}")
             return Response(
-                {"detail": "Password reset failed: {}".format(e)},
+                {"detail": "Password reset failed"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -226,7 +232,9 @@ class CompleteForgotPasswordView(APIView):
             user = None
 
         if user is not None and default_token_generator.check_token(user, token):
-            logger.info(f"Token and user ID are valid for password reset of user {user}")
+            logger.info(
+                f"Token and user ID are valid for password reset of user {user}"
+            )
             serializer = ResetPasswordSerializer(data=request.data)
             if serializer.is_valid(raise_exception=True):
                 logger.info(f"Password reset for user: {user}")

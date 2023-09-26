@@ -1,4 +1,3 @@
-import logo from './logo.svg';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -8,15 +7,18 @@ import { BrowserRouter as Router, Route, Routes, BrowserRouter } from 'react-rou
 import axios from 'axios';
 import { Helmet } from 'react-helmet';
 
-import UserStatistics from './UserStatistics';
 import Tasks from './components/Tasks';
-import { Navigation } from './navigation';
-import { Login } from './Login';
-import { Logout } from './logout';
+import ConfirmRegistration from './components/ConfirmRegistration';
+import FailedRegistration from './components/FailedRegistration';
+import ForgotPassword from './components/forgotPassword';
+import Login from './components/Login';
+import { Logout } from './components/logout';
+
+import { Navigation } from './components/navigation';
 import { SignUp } from './signup';
-import { ForgotPassword } from './forgotPassword';
 import { ResetPassword } from './resetPassword';
 import { ManageHouseholds } from './households';
+import UserStatistics from './UserStatistics';
 
 
 const App = () => {
@@ -100,6 +102,8 @@ const App = () => {
           <Route path="/login" element={<Login setShowHouseholdSelector={setShowHouseholdSelector} />} />
           <Route path="/logout" element={<Logout setShowHouseholdSelector={setShowHouseholdSelector} />} />
           <Route path="/signup" element={<SignUp setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/registration_confirmed" element={<ConfirmRegistration />} />
+          <Route path="/registration_failed" element={<FailedRegistration />} />
           <Route path="/forgot_password" element={<ForgotPassword setShowHouseholdSelector={setShowHouseholdSelector} />} />
           <Route path="/reset_password/:uid/:token" element={<ResetPassword setShowHouseholdSelector={setShowHouseholdSelector} />} />
           <Route path="/manage_households" element={<ManageHouseholds households={households} setShowHouseholdSelector={setShowHouseholdSelector} />} />

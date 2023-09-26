@@ -1,51 +1,39 @@
-import axios from "./api/axiosConfig";
 import { useState, useEffect } from "react";
 
+import { resetPassword } from "../api/users";
+import AlertMessage from "./popups/AlertPopup";
+import Spinner from "./spinner/Spinner";
 
-export const ForgotPassword = ({ setShowHouseholdSelector }) => {
+const ForgotPassword = ({ setShowHouseholdSelector }) => {
     const [email, setEmail] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const [showSpinner, setShowSpinner] = useState(false);
 
     useEffect(() => {
         setShowHouseholdSelector(false);
     }, []);
 
-    //TODO: move this to the api folder
     const submit = async e => {
         e.preventDefault();
+        setErrorMessage('');
+        const result = resetPassword(email);
 
-        console.log("Resetting password");
+        // Show loading spinner
+        setShowSpinner(true);
 
-        const payload = {
-            email: email
-        };
+        // Wait for the result promise to resolve
+        const data = await result;
 
-        console.log("Sending reset password payload:", payload);
-
-        try {
-            const res = await axios.post(
-                '/api/forgot_password/',
-                payload,
-                {
-                    headers:
-                    {
-                        'Content-Type': 'application/json'
-                    },
-                    withCredentials: true
-                },
-            );
-            if (res.status === 200) {
-                console.log("Password reset email sent:", res.data);
-                setErrorMessage("A password reset link has been sent to your email.");
-            } else {
-                console.log("Error during password reset:", res);
-                setErrorMessage("Error during password reset.");
-            }
-
-        } catch (error) {
-            console.log("Error during password reset:", error);
+        if (data.error) {
+            setErrorMessage(data.error);
+        } else if (data.success) {
+            setErrorMessage(data.success);
+        } else {
             setErrorMessage("Error during password reset.");
         }
+
+        // Hide loading spinner
+        setShowSpinner(false);
     }
 
     return (
@@ -53,6 +41,14 @@ export const ForgotPassword = ({ setShowHouseholdSelector }) => {
             <form className="Auth-form" onSubmit={submit}>
                 <div className="Auth-form-content">
                     <h3 className="Auth-form-title">Forgot Password</h3>
+
+                    {
+                        errorMessage !== '' &&
+                        <AlertMessage message={errorMessage} />
+                    }
+
+                    {showSpinner && <Spinner />}
+
                     <div className="form-group mt-3">
                         <label>Email</label>
                         <input className="form-control mt-1"
@@ -65,16 +61,17 @@ export const ForgotPassword = ({ setShowHouseholdSelector }) => {
                     </div>
                     <div className="d-grid gap-2 mt-3">
                         <button type="submit"
-                            className="btn btn-primary">Reset Password</button>
+                            className="button">Reset Password</button>
                     </div>
                     <div className="mt-3">
                         <a href="/login">Remembered your password? Log in</a>
                     </div>
-                    <div className="mt-3" style={{ width: "" }}>
-                        <h3>{errorMessage}</h3>
-                    </div>
+
                 </div>
             </form>
         </div>
     );
 }
+
+
+export default ForgotPassword;
