@@ -13,7 +13,7 @@ export function Navigation({ households, selectedHousehold, setSelectedHousehold
     return (
         <div>
             <Navbar className="navbar" bg="dark" variant="dark" sticky="left">
-                <Navbar.Brand href="/" style={{ paddingRight: '20px', paddingLeft: '20px' }}>ToDo Queue</Navbar.Brand>
+                <Navbar.Brand href="/" style={{ paddingRight: '20px', paddingLeft: '20px' }}>ToDoQu</Navbar.Brand>
                 {
                     isAuth ?
                         <Nav className="me-auto">
