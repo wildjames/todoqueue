@@ -4,7 +4,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Route, Routes, BrowserRouter } from 'react-router-dom';
 
-import axios from 'axios';
 import { Helmet } from 'react-helmet';
 
 import Tasks from './components/Tasks';
@@ -13,10 +12,11 @@ import FailedRegistration from './components/FailedRegistration';
 import ForgotPassword from './components/forgotPassword';
 import Login from './components/Login';
 import { Logout } from './components/logout';
-
+import { fetchHouseholds } from './api/households';
 import { Navigation } from './components/navigation';
+import { ResetPassword } from './components/resetPassword';
+
 import { SignUp } from './signup';
-import { ResetPassword } from './resetPassword';
 import { ManageHouseholds } from './households';
 import UserStatistics from './UserStatistics';
 
@@ -36,48 +36,24 @@ const App = () => {
 
   // Fetch households at regular intervals
   useEffect(() => {
-    // run immediately, then start a timer that runs every 1000ms
-    try {
-      fetchHouseholds();
-    } catch (error) {
-      console.error("An error occurred while fetching data:", error);
-    }
-    const interval = setInterval(() => {
-      fetchHouseholds();
-    }, 1000);
-    return () => clearInterval(interval);
-  }
-    , [selectedHousehold]);
-
-
-
-  const fetchHouseholds = () => {
-    // Only do this if we are logged in
-    if (localStorage.getItem('access_token') === null) {
-      return;
-    }
-
-    const list_households_url = "/api/households/";
-    axios.get(list_households_url, {
-      headers: {
-        'Content-Type': 'application/json',
+    const updateHouseholds = async () => {
+      try {
+        const fetchedHouseholds = await fetchHouseholds();
+        setHouseholds(fetchedHouseholds);
+        if (selectedHousehold === null && fetchedHouseholds.length === 1) {
+          console.log("Setting selected household to: ", fetchedHouseholds[0].id);
+          setSelectedHousehold(fetchedHouseholds[0].id);
+        }
+      } catch (error) {
+        console.error("An error occurred while fetching data:", error);
       }
-    })
-      .then((res) => {
-        if (res.status !== 200) {
-          console.log("Failed to fetch households.");
-          return;
-        }
-        setHouseholds(res.data);
-        if (selectedHousehold === null && res.data.length === 1) {
-          console.log("Setting selected household to: ", res.data[0].id);
-          setSelectedHousehold(res.data[0].id);
-        }
-      })
-      .catch((error) => {
-        console.error("An error occurred while fetching households:", error);
-      });
-  };
+    };
+
+    // run immediately, then start a timer that runs every 1000ms
+    updateHouseholds();
+    const interval = setInterval(updateHouseholds, 1000);
+    return () => clearInterval(interval);
+  }, [selectedHousehold]);
 
 
   return (

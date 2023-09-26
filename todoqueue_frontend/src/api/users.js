@@ -97,7 +97,7 @@ export const fetchUsers = async (selectedHousehold) => {
 };
 
 
-export const resetPassword = async (email) => {
+export const forgotPassword = async (email) => {
 
     console.log("Resetting password");
 
@@ -130,5 +130,29 @@ export const resetPassword = async (email) => {
     } catch (error) {
         console.log("Error during password reset:", error);
         return { error: "Error during password reset." };
+    }
+};
+
+
+export const resetPassword = async (uid, token, newPassword, confirmPassword) => {
+    const payload = {
+        new_password: newPassword,
+        confirm_new_password: confirmPassword,
+    };
+
+    try {
+        const res = await axios.post(
+            `/api/complete_forgot_password/${uid}/${token}/`,
+            payload,
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                withCredentials: true
+            },
+        );
+        return res.data;
+    } catch (error) {
+        throw error;
     }
 };
