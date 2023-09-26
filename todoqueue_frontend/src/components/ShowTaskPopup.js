@@ -1,9 +1,29 @@
 import React from 'react';
 import BasePopup from './BasePopup';
 import { formatDuration, getTimeSince } from '../utils';
+import { deleteTask, freezeTask } from '../api/tasks';
 
 const ShowTaskPopup = React.forwardRef((props, ref) => {
     const innerClass = props.selectedTask && props.selectedTask.frozen ? 'frozen' : '';
+
+    const handleDeleteTask = async (taskId) => {
+        const succeeded = await deleteTask(taskId, props.selectedHousehold);
+        if (succeeded) {
+            props.closeTaskPopup();
+        } else {
+            console.log("Failed to delete task", succeeded);
+        }
+    };
+
+
+    const handleFreezeTask = async (taskId) => {
+        const succeeded = await freezeTask(taskId);
+        if (succeeded) {
+            // props.closeTaskPopup();
+        } else {
+            console.log("Failed to freeze task", succeeded);
+        }
+    }
 
 
     return (
@@ -44,8 +64,8 @@ const ShowTaskPopup = React.forwardRef((props, ref) => {
                 </div>
                 <div className="task-popup-actions">
                     <button className="button complete-button" onClick={() => props.handleOpenCompleteTaskPopup(props.selectedTask)}>Complete Task</button>
-                    <button className="button freeze-button" onClick={() => props.handleFreezeTask(props.selectedTask.id)}>{props.selectedTask.frozen ? "Unfreeze Task" : "Freeze Task"}</button>
-                    <button className="button delete-button" onClick={() => props.handleDeleteTask(props.selectedTask.id)}>Delete Task</button>
+                    <button className="button freeze-button" onClick={() => handleFreezeTask(props.selectedTask.id)}>{props.selectedTask.frozen ? "Unfreeze Task" : "Freeze Task"}</button>
+                    <button className="button delete-button" onClick={() => handleDeleteTask(props.selectedTask.id)}>Delete Task</button>
                 </div>
             </div>
         </BasePopup>

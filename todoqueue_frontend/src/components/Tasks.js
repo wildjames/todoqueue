@@ -5,7 +5,7 @@ import { SimpleFlipper } from './flipper';
 import ShowTaskPopup from './ShowTaskPopup';
 import CompleteTaskPopup from './CompleteTaskPopup';
 import CreateTaskPopup from './CreateTaskPopup';
-import { fetchTasks, fetchSelectedTask, createWorkLog, createTask, deleteTask, freezeTask } from '../api/tasks';
+import { fetchTasks, fetchSelectedTask, createWorkLog } from '../api/tasks';
 import { fetchUsers } from '../api/users';
 import useAuthCheck from '../hooks/authCheck';
 
@@ -169,27 +169,8 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     };
 
 
-    const handleDeleteTask = async (taskId) => {
-        const succeeded = await deleteTask(taskId, selectedHousehold);
-        if (succeeded) {
-            closeTaskPopup();
-        } else {
-            console.log("Failed to delete task", succeeded);
-        }
-    };
 
-
-    const handleFreezeTask = async (taskId) => {
-        const succeeded = await freezeTask(taskId);
-        if (succeeded) {
-            // closeTaskPopup();
-        } else {
-            console.log("Failed to freeze task", succeeded);
-        }
-    }
-
-
-    // Popup functions (TODO: Clean up the logic here) //
+    // Popup functions (TODO: Clean up the logic and names here) //
 
 
     const handleOpenCompleteTaskPopup = (task) => {
@@ -250,10 +231,10 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
     const propsForTaskDetails = {
         selectedTask: selectedTask,
+        selectedHousehold: selectedHousehold,
         handleOpenCompleteTaskPopup: handleOpenCompleteTaskPopup,
-        handleFreezeTask: handleFreezeTask,
-        handleDeleteTask: handleDeleteTask,
-        handleOverlayClick: handleOverlayClick
+        handleOverlayClick: handleOverlayClick,
+        closeTaskPopup: closeTaskPopup,
     };
 
 
