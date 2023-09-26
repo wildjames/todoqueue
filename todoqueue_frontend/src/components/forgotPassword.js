@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-import { resetPassword } from "../api/users";
+import { forgotPassword } from "../api/users";
 import AlertMessage from "./popups/AlertPopup";
 import Spinner from "./spinner/Spinner";
 
@@ -16,7 +16,7 @@ const ForgotPassword = ({ setShowHouseholdSelector }) => {
     const submit = async e => {
         e.preventDefault();
         setErrorMessage('');
-        const result = resetPassword(email);
+        const result = forgotPassword(email);
 
         // Show loading spinner
         setShowSpinner(true);

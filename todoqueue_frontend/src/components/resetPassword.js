@@ -1,6 +1,8 @@
-import axios from "./api/axiosConfig";
-import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { resetPassword } from "../api/users";
+import Spinner from "./spinner/Spinner";
+import AlertMessage from "./popups/AlertPopup";
 
 
 export const ResetPassword = ({ setShowHouseholdSelector }) => {
@@ -8,6 +10,7 @@ export const ResetPassword = ({ setShowHouseholdSelector }) => {
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const [showSpinner, setShowSpinner] = useState(false);
 
 
     useEffect(() => {
@@ -17,54 +20,39 @@ export const ResetPassword = ({ setShowHouseholdSelector }) => {
 
     const submit = async e => {
         e.preventDefault();
+        setShowSpinner(true);
 
         if (newPassword !== confirmPassword) {
             setErrorMessage("Passwords do not match.");
+            setShowSpinner(false);
             return;
         }
 
         console.log("Resetting password");
 
-        const payload = {
-            new_password: newPassword,
-            confirm_new_password: confirmPassword,
-        };
-
-        console.log("Sending new password payload:", payload);
-
         try {
-            const res = await axios.post(
-                `/api/complete_forgot_password/${uid}/${token}/`,
-                payload,
-                {
-                    headers:
-                    {
-                        'Content-Type': 'application/json'
-                    },
-                    withCredentials: true
-                },
-            );
-            if (res.status === 200) {
-                console.log("Password successfully reset:", res.data);
-                setErrorMessage("Password successfully reset. You can now log in.");
-                // Redirect to login page after 5 seconds.
-                setTimeout(() => {
-                    window.location.href = '/login';
-                }, 5000);
-            } else {
-                console.log("Error during password reset:", res);
-                setErrorMessage("Error during password reset.");
-            }
+            const response = await resetPassword(uid, token, newPassword, confirmPassword);
+            console.log("Password successfully reset:", response);
+            setErrorMessage("Password successfully reset. You can now log in.");
+            setShowSpinner(false);
+            // Redirect to login page after 5 seconds.
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 5000);
         } catch (error) {
             console.log("Error during password reset:", error);
             setErrorMessage("Error during password reset.");
+            setShowSpinner(false);
         }
     };
 
     return (
         <div className="Auth-form-container todoqueue-auth-form">
+
             <form className="Auth-form" onSubmit={submit}>
                 <div className="Auth-form-content">
+                    {errorMessage !== '' && <AlertMessage message={errorMessage} />}
+
                     <h3 className="Auth-form-title">Reset Password</h3>
                     <div className="form-group mt-3">
                         <label>New Password</label>
@@ -76,6 +64,7 @@ export const ResetPassword = ({ setShowHouseholdSelector }) => {
                             required
                             onChange={e => setNewPassword(e.target.value)} />
                     </div>
+
                     <div className="form-group mt-3">
                         <label>Confirm New Password</label>
                         <input className="form-control mt-1"
@@ -86,13 +75,13 @@ export const ResetPassword = ({ setShowHouseholdSelector }) => {
                             required
                             onChange={e => setConfirmPassword(e.target.value)} />
                     </div>
+
                     <div className="d-grid gap-2 mt-3">
                         <button type="submit"
-                            className="btn btn-primary">Reset Password</button>
+                            className="button">Reset Password</button>
                     </div>
-                    <div className="mt-3" style={{ width: "" }}>
-                        <h3>{errorMessage}</h3>
-                    </div>
+
+                    {showSpinner && <Spinner />}
                 </div>
             </form>
         </div>
