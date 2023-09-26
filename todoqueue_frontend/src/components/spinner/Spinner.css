@@ -1,0 +1,24 @@
+.loader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 10vh;
+}
+
+.loader {
+    border: 1.5vh solid #f3f3f300;
+    border-top: 1.5vh solid #f3f3f300;
+    border-bottom: 1.5vh solid #f3f3f300;
+    border-color: #5f3e7d #f3f3f300;
+    border-radius: 50%;
+    border-width: 2vh 2vh;
+    border-style: solid;
+    width: 10vh;
+    height: 10vh;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
