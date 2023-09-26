@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import BasePopup from './BasePopup';
-import { formatDuration, getTimeSince } from '../utils';
-import { deleteTask, freezeTask, fetchSelectedTask } from '../api/tasks';
+import { formatDuration, getTimeSince } from '../../utils';
+import { deleteTask, freezeTask, fetchSelectedTask } from '../../api/tasks';
 
-const ShowTaskPopup = React.forwardRef((props, ref) => {
+const TaskDetailsPopup = React.forwardRef((props, ref) => {
     const updateSelectedTaskTimer = useRef(null);
     const innerClass = props.selectedTask && props.selectedTask.frozen ? 'frozen' : '';
 
@@ -36,7 +36,7 @@ const ShowTaskPopup = React.forwardRef((props, ref) => {
     const handleDeleteTask = async (taskId) => {
         const succeeded = await deleteTask(taskId, props.selectedHousehold);
         if (succeeded) {
-            props.closeTaskPopup();
+            props.closeCurrentPopup();
         } else {
             console.log("Failed to delete task", succeeded);
         }
@@ -99,4 +99,4 @@ const ShowTaskPopup = React.forwardRef((props, ref) => {
     );
 });
 
-export default ShowTaskPopup;
+export default TaskDetailsPopup;

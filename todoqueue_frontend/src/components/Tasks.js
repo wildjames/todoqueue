@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 // import { Link } from 'react-router-dom';
 import '../App.css';
-import { SimpleFlipper } from './flipper';
-import ShowTaskPopup from './ShowTaskPopup';
-import CompleteTaskPopup from './CompleteTaskPopup';
-import CreateTaskPopup from './CreateTaskPopup';
 import useAuthCheck from '../hooks/authCheck';
+
+import { SimpleFlipper } from './flipper/flipper';
+
+import TaskDetailsPopup from './popups/TaskDetailsPopup';
+import CompleteTaskPopup from './popups/CompleteTaskPopup';
+import CreateTaskPopup from './popups/CreateTaskPopup';
 
 import { fetchTasks } from '../api/tasks';
 import { fetchUsers } from '../api/users';
@@ -18,21 +20,32 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     const [selectedTask, setSelectedTask] = useState(null);
     const [selectedTaskId, setSelectedTaskId] = useState(null);
 
-    const [showTaskPopup, setShowTaskPopup] = useState(false);
-    const [showCompleteTaskPopup, setShowCompleteTaskPopup] = useState(false);
-    const [showCreateTaskPopup, setShowCreateTaskPopup] = useState(false);
     const [showSidebar, setShowSidebar] = useState(false);
 
+    const isInitialRender = useRef(true);
     const [browniePoints, setBrowniePoints] = useState(0);
     const [showFlipAnimation, setShowFlipAnimation] = useState(false);
 
+    // Define an enumeration for the popups
+    const PopupType = {
+        NONE: 'NONE',
+        TASK_DETAILS: 'TASK_DETAILS',
+        COMPLETE_TASK: 'COMPLETE_TASK',
+        CREATE_TASK: 'CREATE_TASK'
+    };
+    // State variable for the current popup
+    const [currentPopup, setCurrentPopup] = useState(PopupType.NONE);
+    // This reference is used to detect when a user clicks off a popup
     const popupInnerRef = useRef(null);
 
     // Redirect to the login page if not logged in
     useAuthCheck();
 
+
     // useEffects //
 
+
+    // Show the household selector on first render
     useEffect(() => {
         setShowHouseholdSelector(true);
     }, []);
@@ -52,8 +65,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
             fetchSetUsers();
         }, 1000);
         return () => clearInterval(interval);
-    }
-        , [showSidebar, selectedHousehold]);
+    }, [showSidebar, selectedHousehold]);
 
 
     // If the selectedHousehold is null, hide the sidebar
@@ -65,6 +77,12 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
 
     useEffect(() => {
+        // Prevent BP popup from showing on initial render
+        if (isInitialRender.current) {
+            isInitialRender.current = false;
+            return;
+        }
+
         console.log("Brownie points changed");
         const timeout = setTimeout(() => {
             setShowFlipAnimation(true);
@@ -89,7 +107,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     }, [showFlipAnimation]);
 
 
-    // Backend API functions //
+    // Data getters //
 
 
     const fetchSetTasks = async () => {
@@ -103,7 +121,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     };
 
 
-    // TODO: Fetch users in the App component, and pass them down as props
     const fetchSetUsers = async () => {
         const data = await fetchUsers(selectedHousehold);
         if (data === null) {
@@ -116,56 +133,40 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
 
 
-    // Popup functions (TODO: Clean up the logic and names here) //
+    // Popup functions //
 
 
     const handleOpenCompleteTaskPopup = (task) => {
         setSelectedTask(task);
         setSelectedTaskId(task.id);
-        setShowTaskPopup(false);
-        setShowCompleteTaskPopup(true);
+        setCurrentPopup(PopupType.COMPLETE_TASK);
     };
 
-
-
-    const showTaskDetails = (task) => {
+    const handleOpenTaskDetails = (task) => {
         setSelectedTask(task);
         setSelectedTaskId(task.id);
-        setShowTaskPopup(true);
+        setCurrentPopup(PopupType.TASK_DETAILS);
     };
-
 
     const handleOpenCreateTaskPopup = () => {
-        setShowTaskPopup(false);
         setSelectedTask(null);
         setSelectedTaskId(null);
-        setShowCreateTaskPopup(true);
+        setCurrentPopup(PopupType.CREATE_TASK);
     };
 
-
     const handleOverlayClick = (e) => {
-        console.log("Detected click!", popupInnerRef);
         if (popupInnerRef.current && !popupInnerRef.current.contains(e.target)) {
-            console.log("Clicked outside of popup");
-            closeCompleteTaskPopup();
-            closeTaskPopup();
-            closeCreateTaskPopup();
+            closeCurrentPopup();
         }
     };
 
-    const closeTaskPopup = () => {
-        setShowTaskPopup(false);
+    // Close the current popup, whatever it may be
+    const closeCurrentPopup = () => {
+        setCurrentPopup(PopupType.NONE);
+
+        // Reset selected task and ID
         setSelectedTask(null);
         setSelectedTaskId(null);
-        fetchSetTasks();
-    };
-
-    const closeCompleteTaskPopup = () => {
-        setShowCompleteTaskPopup(false);
-    };
-
-    const closeCreateTaskPopup = () => {
-        setShowCreateTaskPopup(false);
     };
 
 
@@ -173,9 +174,9 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
 
     const propsForTaskDetails = {
-        handleOpenCompleteTaskPopup: handleOpenCompleteTaskPopup,
-        closeTaskPopup: closeTaskPopup,
+        closeCurrentPopup: closeCurrentPopup,
         handleOverlayClick: handleOverlayClick,
+        handleOpenCompleteTaskPopup: handleOpenCompleteTaskPopup,
         setSelectedTask: setSelectedTask,
         selectedHousehold: selectedHousehold,
         selectedTask: selectedTask,
@@ -184,20 +185,20 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
 
     const propsForCompleteTask = {
+        closeCurrentPopup: closeCurrentPopup,
         handleOverlayClick: handleOverlayClick,
+        setBrowniePoints: setBrowniePoints,
         selectedHousehold: selectedHousehold,
         selectedTask: selectedTask,
         users: users,
-        setBrowniePoints: setBrowniePoints,
-        closeCompleteTaskPopup: closeCompleteTaskPopup,
     };
 
 
     const propsForCreateTask = {
-        setShowCreateTaskPopup: setShowCreateTaskPopup,
+        closeCurrentPopup: closeCurrentPopup,
         handleOverlayClick: handleOverlayClick,
-        selectedHousehold: selectedHousehold,
         fetchSetTasks: fetchSetTasks,
+        selectedHousehold: selectedHousehold,
     };
 
 
@@ -205,28 +206,26 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         <div className="Tasks">
 
             <div className={`empty-state ${selectedHousehold ? 'hide' : 'show'}`}>
-                <div className={`arrow-up ${selectedHousehold ? '' : 'bounce'}`}></div>
+                <div className="arrow-up bounce"></div>
                 <div className="text">Select a household</div>
             </div>
 
-            {
-                showTaskPopup && selectedTask ? (
-                    <ShowTaskPopup ref={popupInnerRef} {...propsForTaskDetails} />
-                ) : null
-            }
 
             {
-                showCompleteTaskPopup ? (
-                    <CompleteTaskPopup ref={popupInnerRef} {...propsForCompleteTask} />
-                ) : null
+                // Popups
+                (() => {
+                    switch (currentPopup) {
+                        case PopupType.TASK_DETAILS:
+                            return <TaskDetailsPopup ref={popupInnerRef} {...propsForTaskDetails} />;
+                        case PopupType.COMPLETE_TASK:
+                            return <CompleteTaskPopup ref={popupInnerRef} {...propsForCompleteTask} />;
+                        case PopupType.CREATE_TASK:
+                            return <CreateTaskPopup ref={popupInnerRef} {...propsForCreateTask} />;
+                        default:
+                            return null;
+                    }
+                })()
             }
-
-            {
-                showCreateTaskPopup ? (
-                    <CreateTaskPopup ref={popupInnerRef} {...propsForCreateTask} />
-                ) : null
-            }
-
 
             <div className={`brownie-points-popup ${showFlipAnimation ? 'show' : ''}`}>
                 <div className={`brownie-points-animation ${showFlipAnimation ? 'show' : ''}`}>
@@ -242,7 +241,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                         <div className="task-wrapper" key={task.id}>
                             <div
                                 className={`task-card ${task.staleness === 1 ? 'stale' : ''}`}
-                                onClick={() => showTaskDetails(task)}
+                                onClick={() => handleOpenTaskDetails(task)}
                                 style={{
                                     bottom: `calc(${(task.staleness) * 100}% - ${task.staleness * 120}px)`
                                 }}
@@ -280,7 +279,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                         <div className="task-wrapper sidebar-wrapper" key={task.id}>
                             <div
                                 className={`task-card fresh ${task.frozen ? 'frozen' : ''}`}
-                                onClick={() => showTaskDetails(task)}
+                                onClick={() => handleOpenTaskDetails(task)}
                             >
                                 <div className="task-content">
                                     <span className="task-text">
@@ -308,6 +307,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                     Create Task
                 </button>
             ) : null}
+
 
             {selectedHousehold ? (
                 // <Link to="/user_statistics" style={{ textDecoration: 'none', color: 'inherit' }}>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import BasePopup from './BasePopup';
-import { createWorkLog } from '../api/tasks';
+import { createWorkLog } from '../../api/tasks';
 
 const CompleteTaskPopup = React.forwardRef((props, ref) => {
     const [completionUsers, setCompletionUsers] = useState([]);
@@ -40,7 +40,7 @@ const CompleteTaskPopup = React.forwardRef((props, ref) => {
 
         setCompletionUsers([]);
 
-        props.closeCompleteTaskPopup();
+        props.closeCurrentPopup();
     };
 
 
