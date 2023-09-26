@@ -11,12 +11,12 @@ import { Helmet } from 'react-helmet';
 import Tasks from './components/Tasks';
 import ConfirmRegistration from './components/ConfirmRegistration';
 import FailedRegistration from './components/FailedRegistration';
+import ForgotPassword from './components/forgotPassword';
 
 import { Navigation } from './navigation';
 import { Login } from './Login';
 import { Logout } from './logout';
 import { SignUp } from './signup';
-import { ForgotPassword } from './forgotPassword';
 import { ResetPassword } from './resetPassword';
 import { ManageHouseholds } from './households';
 import UserStatistics from './UserStatistics';
