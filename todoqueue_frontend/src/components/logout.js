@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+
 import useAuthCheck from '../hooks/authCheck';
 import { logOutUser } from '../api/users';
 
