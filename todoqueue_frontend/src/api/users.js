@@ -45,6 +45,32 @@ export const loginUser = async (email, password) => {
     }
 };
 
+
+export const logOutUser = async () => {
+    try {
+      await axios.post(
+        '/api/logout/',
+        {
+          refresh_token: localStorage.getItem('refresh_token')
+        },
+        {
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true
+        }
+      );
+
+      console.log("Clearing local storage");
+      localStorage.clear();
+      axios.defaults.headers.common['Authorization'] = null;
+
+      console.log("Redirecting to login page");
+      window.location.href = '/login';
+    } catch (e) {
+      console.log('logout not working', e);
+    }
+  }
+
+
 export const fetchUsers = async (selectedHousehold) => {
     if (!selectedHousehold) {
         console.log("No household selected - skipping get users.");
