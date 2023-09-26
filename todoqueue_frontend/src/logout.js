@@ -1,8 +1,11 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect } from "react";
+import axios from './api/axiosConfig';
+import useAuthCheck from './hooks/authCheck';
 
 
 export const Logout = ({ setShowHouseholdSelector }) => {
+
+  useAuthCheck();
 
   useEffect(() => {
     setShowHouseholdSelector(false);
