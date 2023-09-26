@@ -13,7 +13,6 @@ import useAuthCheck from '../hooks/authCheck';
 const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     const [tasks, setTasks] = useState([]);
     const [users, setUsers] = useState([]);
-    const [completionUsers, setCompletionUsers] = useState([]);
 
     const [selectedTask, setSelectedTask] = useState(null);
     const [selectedTaskId, setSelectedTaskId] = useState(null);
@@ -22,9 +21,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     const [showCompleteTaskPopup, setShowCompleteTaskPopup] = useState(false);
     const [showCreateTaskPopup, setShowCreateTaskPopup] = useState(false);
     const [showSidebar, setShowSidebar] = useState(false);
-
-    const [grossness, setGrossness] = useState(0);
-    const [completionTime, setCompletionTime] = useState(0);
 
     const [browniePoints, setBrowniePoints] = useState(0);
     const [showFlipAnimation, setShowFlipAnimation] = useState(false);
@@ -41,6 +37,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     useEffect(() => {
         setShowHouseholdSelector(true);
     }, []);
+
 
     // Fetch tasks, and users at regular intervals
     useEffect(() => {
@@ -94,6 +91,17 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     }, [selectedHousehold]);
 
 
+    useEffect(() => {
+        console.log("Brownie points changed");
+        const timeout = setTimeout(() => {
+            setShowFlipAnimation(true);
+        }, 500);
+
+        // Clean up timeout when the component is unmounted
+        return () => clearTimeout(timeout);
+    }, [browniePoints]);
+
+
     // Show brownie points animation when browniePoints changes
     useEffect(() => {
         if (showFlipAnimation) {
@@ -131,41 +139,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         }
         console.log("Setting users: ", users);
         setUsers(data);
-    };
-
-
-    const completionTimeLookup = [
-        0, 1, 2, 5, 10, 15, 20, 30, 45, 60, 90, 120
-    ];
-
-    const handleCreateWorkLog = async (event) => {
-        event.preventDefault();
-
-        // Get completion time from the lookup table
-        const completionTime_minutes = parseInt(completionTimeLookup[completionTime]);
-        // "[-]DD HH:MM:SS" and completion time is in minutes
-        const completionTime_str = `0 ${Math.floor(completionTime_minutes / 60)}:${completionTime_minutes % 60}:00`;
-
-        // Create the work log. 
-        const browniePoints = await createWorkLog(
-            selectedHousehold,
-            selectedTaskId,
-            completionTime_str,
-            completionUsers,
-            grossness,
-        );
-
-        // If the creation succeeded, the brownie points will not be null
-        if (browniePoints === null) {
-            console.log("Failed to create worklog");
-            return;
-        }
-
-        setBrowniePoints(browniePoints);
-        setShowFlipAnimation(true);
-
-        closeCompleteTaskPopup();
-        closeTaskPopup();
     };
 
 
@@ -216,9 +189,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
     const closeCompleteTaskPopup = () => {
         setShowCompleteTaskPopup(false);
-        setCompletionUsers([]);
-        setCompletionTime(0);
-        setGrossness(0);
     };
 
     const closeCreateTaskPopup = () => {
@@ -230,33 +200,28 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
 
     const propsForTaskDetails = {
-        selectedTask: selectedTask,
-        selectedHousehold: selectedHousehold,
         handleOpenCompleteTaskPopup: handleOpenCompleteTaskPopup,
-        handleOverlayClick: handleOverlayClick,
         closeTaskPopup: closeTaskPopup,
+        handleOverlayClick: handleOverlayClick,
+        selectedHousehold: selectedHousehold,
+        selectedTask: selectedTask,
     };
 
 
     const propsForCompleteTask = {
-        selectedTask: selectedTask,
-        handleCreateWorkLog: handleCreateWorkLog,
         handleOverlayClick: handleOverlayClick,
+        selectedHousehold: selectedHousehold,
+        selectedTask: selectedTask,
         users: users,
-        completionUsers: completionUsers,
-        setCompletionUsers: setCompletionUsers,
-        grossness: grossness,
-        setGrossness: setGrossness,
-        completionTime: completionTime,
-        setCompletionTime: setCompletionTime,
-        completionTimeLookup: completionTimeLookup,
+        setBrowniePoints: setBrowniePoints,
+        closeCompleteTaskPopup: closeCompleteTaskPopup,
     };
 
 
     const propsForCreateTask = {
+        setShowCreateTaskPopup: setShowCreateTaskPopup,
         handleOverlayClick: handleOverlayClick,
         selectedHousehold: selectedHousehold,
-        setShowCreateTaskPopup: setShowCreateTaskPopup,
         fetchSetTasks: fetchSetTasks,
     };
 

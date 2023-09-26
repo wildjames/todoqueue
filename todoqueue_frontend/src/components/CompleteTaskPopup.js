@@ -1,15 +1,54 @@
-import React from 'react';
+import React, { useState } from 'react';
 import BasePopup from './BasePopup';
-import { formatDuration, getTimeSince } from '../utils';
+import { createWorkLog } from '../api/tasks';
 
 const CompleteTaskPopup = React.forwardRef((props, ref) => {
+    const [completionUsers, setCompletionUsers] = useState([]);
+    const [grossness, setGrossness] = useState(0);
+    const [completionTime, setCompletionTime] = useState(0);
+
     const innerClass = props.selectedTask && props.selectedTask.frozen ? 'frozen' : '';
+
+    const completionTimeLookup = [
+        0, 1, 2, 5, 10, 15, 20, 30, 45, 60, 90, 120
+    ];
+
+    const handleCreateWorkLog = async (event) => {
+        event.preventDefault();
+
+        // Get completion time from the lookup table
+        const completionTime_minutes = parseInt(completionTimeLookup[completionTime]);
+        // "[-]DD HH:MM:SS" and completion time is in minutes
+        const completionTime_str = `0 ${Math.floor(completionTime_minutes / 60)}:${completionTime_minutes % 60}:00`;
+
+        // Create the work log. 
+        const browniePoints = await createWorkLog(
+            props.selectedHousehold,
+            props.selectedTask.id,
+            completionTime_str,
+            completionUsers,
+            grossness,
+        );
+
+        // If the creation succeeded, the brownie points will not be null
+        if (browniePoints === null) {
+            console.log("Failed to create worklog");
+            return;
+        }
+
+        props.setBrowniePoints(browniePoints);
+
+        setCompletionUsers([]);
+
+        props.closeCompleteTaskPopup();
+    };
+
 
     return (
         <BasePopup onClick={props.handleOverlayClick} innerClass={innerClass} ref={ref}>
             <div>
                 <h2 style={{ color: "black" }} >Complete Task: {props.selectedTask && props.selectedTask.task_name}</h2>
-                <form onSubmit={props.handleCreateWorkLog}>
+                <form onSubmit={handleCreateWorkLog}>
                     <div className="form-section">
                         <div className="form-section">
                             <label>Select Users:</label>
@@ -21,14 +60,14 @@ const CompleteTaskPopup = React.forwardRef((props, ref) => {
                                             type="button"
                                             // If no users are selected, add a red shadow to indicate that someone needs to be selected.
                                             // If this user is selected, make their name button green
-                                            className={`button user-button ${props.completionUsers.length === 0 ? "input-error" : ""} ${props.completionUsers.includes(user.id) ? 'selected' : ''}`}
+                                            className={`button user-button ${completionUsers.length === 0 ? "input-error" : ""} ${completionUsers.includes(user.id) ? 'selected' : ''}`}
                                             onClick={() => {
-                                                if (props.completionUsers.includes(user.id)) {
+                                                if (completionUsers.includes(user.id)) {
                                                     // Remove user from list
-                                                    props.setCompletionUsers(props.completionUsers.filter(id => id !== user.id));
+                                                    setCompletionUsers(completionUsers.filter(id => id !== user.id));
                                                 } else {
                                                     // Add user to list
-                                                    props.setCompletionUsers([...props.completionUsers, user.id]);
+                                                    setCompletionUsers([...completionUsers, user.id]);
                                                 }
                                             }}
                                         >
@@ -38,18 +77,18 @@ const CompleteTaskPopup = React.forwardRef((props, ref) => {
                             </div>
                         </div>
                     </div>
-                    <div className={`form-section time-slider label-and-input ${props.completionTime == 0 ? "input-error" : ""}`}>
+                    <div className={`form-section time-slider label-and-input ${completionTime == 0 ? "input-error" : ""}`}>
                         <label htmlFor="completionTime">Completion Time:</label>
                         <input
                             id="completionTime"
                             type="range"
                             min="0"
-                            max={props.completionTimeLookup.length - 1}
+                            max={completionTimeLookup.length - 1}
                             step="1"
-                            value={props.completionTime}
-                            onChange={e => props.setCompletionTime(e.target.value)}
+                            value={completionTime}
+                            onChange={e => setCompletionTime(e.target.value)}
                         />
-                        <span>{props.completionTimeLookup[props.completionTime]} minute{props.completionTimeLookup[props.completionTime] == 1 ? "" : "s"}</span>
+                        <span>{completionTimeLookup[completionTime]} minute{completionTimeLookup[completionTime] == 1 ? "" : "s"}</span>
                     </div>
 
                     <div className="form-section label-and-input" style={{ display: "block" }}>
@@ -58,8 +97,8 @@ const CompleteTaskPopup = React.forwardRef((props, ref) => {
                             {Array.from({ length: 5 }, (_, index) => index + 1).map(num => (
                                 <span
                                     key={num}
-                                    className={`poop-emoji ${props.grossness >= num ? 'selected' : ''}`}
-                                    onClick={() => props.setGrossness(props.grossness === num ? 0 : num)}
+                                    className={`poop-emoji ${grossness >= num ? 'selected' : ''}`}
+                                    onClick={() => setGrossness(grossness === num ? 0 : num)}
                                 >
                                     💩
                                 </span>
@@ -67,9 +106,9 @@ const CompleteTaskPopup = React.forwardRef((props, ref) => {
                         </div>
                     </div>
                     <button
-                        className={`button form-section ${props.completionUsers.length > 0 ? "enabled" : "disabled"}`}
+                        className={`button form-section ${completionUsers.length > 0 ? "enabled" : "disabled"}`}
                         type="submit"
-                        disabled={props.completionUsers.length === 0}
+                        disabled={completionUsers.length === 0}
                     >
                         Submit
                     </button>
