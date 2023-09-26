@@ -87,7 +87,7 @@ class RegisterView(APIView):
                 # Get the current site from the request
                 current_site = get_current_site(request)
                 # If we're using HTTP/HTTPS, use that as the protocol
-                protocol = "https" if request.is_secure() else "http"
+                protocol = request.scheme
                 current_site = f"{protocol}://{current_site.domain}"
 
                 # Create activation link
@@ -149,11 +149,11 @@ class ConfirmRegistrationView(APIView):
             logger.info(f"User activated: {user}")
             
             # Redirect the user to the login page on frontend
-            return HttpResponseRedirect(f"/login")
+            return HttpResponseRedirect(f"/registration_confirmed")
 
         else:
             logger.info(f"Activation failed")
-            return HttpResponseRedirect(f"/signup")
+            return HttpResponseRedirect(f"/registration_failed")
 
 
 class ForgotPasswordView(APIView):
@@ -179,7 +179,7 @@ class ForgotPasswordView(APIView):
             # Create password reset link
             current_site = get_current_site(request)
             # If we're using HTTP/HTTPS, use that as the protocol
-            protocol = "https" if request.is_secure() else "http"
+            protocol = request.scheme
             current_site = f"{protocol}://{current_site.domain}"
             mail_subject = "Reset your password"
             message = render_to_string(
