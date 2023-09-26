@@ -1,6 +1,50 @@
 import axios from './axiosConfig';
 
 
+export const loginUser = async (email, password) => {
+    console.log("Logging in");
+
+    const user = {
+        email: email,
+        password: password
+    };
+
+    let data;
+    try {
+        const res = await axios.post(
+            '/api/token/',
+            user,
+            {
+                headers:
+                {
+                    'Content-Type': 'application/json'
+                },
+                withCredentials: true
+            },
+        );
+        console.log(res);
+        data = res.data;
+    } catch (error) {
+        console.error("Error making the request:", error);
+        return { error: "Error logging in, please try again or reset your password." };
+    }
+
+
+    try {
+        console.log("Login successful, setting access token.");
+        // Initialize the access & refresh token in localstorage.      
+        localStorage.clear();
+        localStorage.setItem('access_token', data.access);
+        localStorage.setItem('refresh_token', data.refresh);
+
+        axios.defaults.headers.common['Authorization'] = `Bearer ${data['access']}`;
+        return { success: "Login successful." };
+    } catch (error) {
+        console.log("Error during login:", error);
+        return { error: "Error logging in, please try again or reset your password." };
+    }
+};
+
 export const fetchUsers = async (selectedHousehold) => {
     if (!selectedHousehold) {
         console.log("No household selected - skipping get users.");

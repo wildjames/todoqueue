@@ -12,9 +12,9 @@ import Tasks from './components/Tasks';
 import ConfirmRegistration from './components/ConfirmRegistration';
 import FailedRegistration from './components/FailedRegistration';
 import ForgotPassword from './components/forgotPassword';
+import Login from './components/Login';
 
 import { Navigation } from './navigation';
-import { Login } from './Login';
 import { Logout } from './logout';
 import { SignUp } from './signup';
 import { ResetPassword } from './resetPassword';

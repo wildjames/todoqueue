@@ -1,11 +1,14 @@
-import axios from "./api/axiosConfig";
 import { useState, useEffect } from "react"; // Define the Login function.
+import { loginUser } from "../api/users";
+import AlertMessage from "./popups/AlertPopup";
+import Spinner from "./spinner/Spinner";
 
 
-export const Login = ({ setShowHouseholdSelector }) => {
+const Login = ({ setShowHouseholdSelector }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loginError, setLoginError] = useState(false);
+    const [showSpinner, setShowSpinner] = useState(false);
 
     useEffect(() => {
         setShowHouseholdSelector(false);
@@ -15,44 +18,17 @@ export const Login = ({ setShowHouseholdSelector }) => {
     const submit = async e => {
         e.preventDefault();
 
-        console.log("Logging in");
+        const response = loginUser(email, password);
 
-        const user = {
-            email: email,
-            password: password
-        };
+        setShowSpinner(true);
+        const data = await response;
+        setShowSpinner(false);
 
-        // Create the POST requuest
-        const res = await axios.post(
-            '/api/token/',
-            user,
-            {
-                headers:
-                {
-                    'Content-Type': 'application/json'
-                },
-                withCredentials: true
-            },
-        );
-        setLoginError(true);
-        if (res.status !== 200) {
-            console.log("Error during login:", res);
-            return;
-        }
-        setLoginError(false);
-        console.log(res);
-
-        try {
-            // Initialize the access & refresh token in localstorage.      
-            localStorage.clear();
-            localStorage.setItem('access_token', res.data.access);
-            localStorage.setItem('refresh_token', res.data.refresh);
-
-            axios.defaults.headers.common['Authorization'] = `Bearer ${res.data['access']}`;
-            window.location.href = '/'
-        } catch (error) {
-            console.log("Error during login:", error);
-            setLoginError(true);
+        if (data.error) {
+            setLoginError(data.error);
+        } else if (data.success) {
+            setShowSpinner(false);
+            window.location.href = "/";
         }
     }
 
@@ -62,7 +38,9 @@ export const Login = ({ setShowHouseholdSelector }) => {
                 <div className="Auth-form-content">
                     <h3 className="Auth-form-title">Sign In</h3>
 
-                    {loginError && <div className="alert alert-danger" role="alert">Login failed. Please check your credentials.</div>}
+                    {loginError && <AlertMessage message={"Login failed. Please check your credentials."} />}
+
+                    {showSpinner && <Spinner />}
 
                     <div className="form-group mt-3">
                         <label>Email</label>
@@ -87,14 +65,24 @@ export const Login = ({ setShowHouseholdSelector }) => {
 
                     <div className="d-grid gap-2 mt-3">
                         <button type="submit"
-                            className="btn btn-primary">Submit</button>
+                            className="button"
+                            style={{ margin: "0" }}
+                        >
+                            Log In
+                        </button>
                     </div>
 
                     <div className="d-grid gap-3 mt-3">
-                        <a href="/signup" className="btn btn-secondary">Sign Up</a>
+                        <button
+                            onClick="window.location.href='/signup';"
+                            className="button button-secondary"
+                            style={{ margin: "0" }}
+                        >
+                            Sign Up
+                        </button>
                     </div>
 
-                    <div className="mt-3">
+                    <div>
                         <a href="/forgot_password">Forgot your password?</a>
                     </div>
                 </div>
@@ -102,3 +90,5 @@ export const Login = ({ setShowHouseholdSelector }) => {
         </div>
     )
 }
+
+export default Login;
