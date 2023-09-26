@@ -54,6 +54,22 @@ class RegisterView(APIView):
     def post(self, request):
         logger.info(f"Registering user with email: {request.data['email']}")
         serializer = CustomUserRegistrationSerializer(data=request.data)
+        
+        # If the user already exists, and is not activated, then delete the user and create a new one
+        try:
+            user = user_model.objects.get(email=request.data["email"])
+            if not user.is_active:
+                logger.info(f"User found: {user}")
+                user.delete()
+                logger.info(f"User deleted: {user}")
+            else:
+                logger.info(f"User already exists: {user}")
+                return Response(
+                    {"detail": "User with this email already exists."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        except user_model.DoesNotExist:
+            pass
 
         if serializer.is_valid(raise_exception=True):
             user = serializer.save()
@@ -68,6 +84,9 @@ class RegisterView(APIView):
 
                 # Get the current site from the request
                 current_site = get_current_site(request)
+                # If we're using HTTP/HTTPS, use that as the protocol
+                protocol = "https" if request.is_secure() else "http"
+                current_site = f"{protocol}://{current_site.domain}"
 
                 # Create activation link
                 mail_subject = "Activate your account"
@@ -75,7 +94,7 @@ class RegisterView(APIView):
                     "accounts/activation_email.html",
                     {
                         "user": user,
-                        "domain": current_site.domain,
+                        "domain": current_site,
                         "uid": uid,
                         "token": token,
                     },
@@ -127,14 +146,12 @@ class ConfirmRegistrationView(APIView):
             user.save()
             logger.info(f"User activated: {user}")
             
-            site = get_current_site(request).domain
-
             # Redirect the user to the login page on frontend
-            return HttpResponseRedirect(f"{site}/login")
+            return HttpResponseRedirect(f"/login")
 
         else:
             logger.info(f"Activation failed")
-            return HttpResponseRedirect(f"{site}/signup")
+            return HttpResponseRedirect(f"/signup")
 
 
 class ForgotPasswordView(APIView):
@@ -159,12 +176,15 @@ class ForgotPasswordView(APIView):
 
             # Create password reset link
             current_site = get_current_site(request)
+            # If we're using HTTP/HTTPS, use that as the protocol
+            protocol = "https" if request.is_secure() else "http"
+            current_site = f"{protocol}://{current_site.domain}"
             mail_subject = "Reset your password"
             message = render_to_string(
                 "accounts/password_reset_email.html",  # Update the path based on where you place the email template
                 {
                     "user": user,
-                    "domain": current_site.domain,
+                    "domain": current_site,
                     "uid": uid,
                     "token": token,
                 },

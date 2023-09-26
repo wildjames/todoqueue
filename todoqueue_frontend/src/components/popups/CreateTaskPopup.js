@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import BasePopup from './BasePopup';
-import { createTask } from '../api/tasks';
+import { createTask } from '../../api/tasks';
 
 const CreateTaskPopup = React.forwardRef((props, ref) => {
     const [newTask, setNewTask] = useState({
@@ -76,7 +76,7 @@ const CreateTaskPopup = React.forwardRef((props, ref) => {
 
         console.log("Created task. Response:", response_data);
         await props.fetchSetTasks();
-        props.setShowCreateTaskPopup(false);
+        props.closeCurrentPopup();
 
         // Reset the newTask state
         console.log("Resetting task")

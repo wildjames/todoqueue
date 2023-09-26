@@ -11,7 +11,6 @@ const CountdownTracker = ({ value }) => {
             setCurrentValue(value);
 
             const el = elRef.current;
-            const top = el.querySelector('.card__top');
             const bottom = el.querySelector('.card__bottom');
             const backBottom = el.querySelector('.card__back .card__bottom');
             const back = el.querySelector('.card__back');

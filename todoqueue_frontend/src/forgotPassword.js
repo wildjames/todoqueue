@@ -10,6 +10,7 @@ export const ForgotPassword = ({ setShowHouseholdSelector }) => {
         setShowHouseholdSelector(false);
     }, []);
 
+    //TODO: move this to the api folder
     const submit = async e => {
         e.preventDefault();
 
