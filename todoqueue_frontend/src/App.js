@@ -1,4 +1,3 @@
-import logo from './logo.svg';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -15,7 +14,7 @@ import ForgotPassword from './components/forgotPassword';
 import Login from './components/Login';
 import { Logout } from './components/logout';
 
-import { Navigation } from './navigation';
+import { Navigation } from './components/navigation';
 import { SignUp } from './signup';
 import { ResetPassword } from './resetPassword';
 import { ManageHouseholds } from './households';

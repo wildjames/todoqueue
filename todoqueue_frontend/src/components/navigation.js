@@ -1,7 +1,7 @@
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import React, { useState, useEffect } from 'react';
-import './App.css';
+import '../App.css';
 
 export function Navigation({ households, selectedHousehold, setSelectedHousehold, showHouseholdSelector }) {
     const [isAuth, setIsAuth] = useState(false); useEffect(() => {
