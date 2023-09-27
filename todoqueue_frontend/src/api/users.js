@@ -156,3 +156,42 @@ export const resetPassword = async (uid, token, newPassword, confirmPassword) =>
         throw error;
     }
 };
+
+
+export const signUp = async (email, username, password) => {
+    console.log("Signing up");
+
+    const newUser = {
+        email: email,
+        username: username,
+        password: password
+    };
+
+    console.log("Sending new user payload:", newUser);
+
+    try {
+        const res = await axios.post(
+            '/api/register/',
+            newUser,
+            {
+                headers:
+                {
+                    'Content-Type': 'application/json'
+                },
+                withCredentials: true
+            },
+        );
+        if (res.status === 201) {
+            console.log("New user created:", res.data);
+            return { "success": "New user created. Please check your email for a verification link."};
+        }
+        else {
+            console.log("Error during registration:", res);
+            return {"error": "Error during registration."};
+        }
+
+    } catch (error) {
+        console.log("Error during registration:", error);
+        return {"error": "Error during registration."};
+    }
+};
