@@ -80,6 +80,7 @@ const Login = ({ setShowHouseholdSelector }) => {
 
                     <div className="d-grid gap-3 mt-3">
                         <button
+                            type="button"
                             onClick={signup}
                             className="button button-secondary"
                             style={{ margin: "0" }}
