@@ -1,12 +1,16 @@
-import axios from "./api/axiosConfig";
 import { useState, useEffect } from "react";
+
+import { signUp } from "../api/users";
+import Spinner from "./spinner/Spinner";
+import AlertMessage from "./popups/AlertPopup";
 
 
 export const SignUp = ({ setShowHouseholdSelector }) => {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
+    const [showSpinner, setShowSpinner] = useState(false);
+    const [feedbackMessage, setFeedbackMessage] = useState('');
 
     useEffect(() => {
         setShowHouseholdSelector(false);
@@ -14,49 +18,32 @@ export const SignUp = ({ setShowHouseholdSelector }) => {
 
     const submit = async e => {
         e.preventDefault();
+        
+        const promise = signUp(email, username, password);
+        setShowSpinner(true);
 
-        console.log("Signing up");
-
-        const newUser = {
-            email: email,
-            username: username,
-            password: password
-        };
-
-        console.log("Sending new user payload:", newUser);
-
-        try {
-            const res = await axios.post(
-                '/api/register/',
-                newUser,
-                {
-                    headers:
-                    {
-                        'Content-Type': 'application/json'
-                    },
-                    withCredentials: true
-                },
-            );
-            if (res.status === 201) {
-                console.log("New user created:", res.data);
-                setErrorMessage("New user created. Please check your email for a verification link.");
-            }
-            else {
-                console.log("Error during registration:", res);
-                setErrorMessage("Error during registration.");
-            }
-
-        } catch (error) {
-            console.log("Error during registration:", error);
-            setErrorMessage("Error during registration.");
+        const data = await promise;
+        
+        setShowSpinner(false);
+        if (data.success) {
+            setFeedbackMessage(data.success);
+        } else {
+            setFeedbackMessage(data.error);
         }
+
     }
 
     return (
         <div className="Auth-form-container todoqueue-auth-form">
             <form className="Auth-form" onSubmit={submit}>
                 <div className="Auth-form-content">
+
+                    { showSpinner && <Spinner /> }
+
+                    { feedbackMessage !== "" && <AlertMessage message={feedbackMessage} /> }
+
                     <h3 className="Auth-form-title">Sign Up</h3>
+
                     <div className="form-group mt-3">
                         <label>Email</label>
                         <input className="form-control mt-1"
@@ -67,6 +54,7 @@ export const SignUp = ({ setShowHouseholdSelector }) => {
                             required
                             onChange={e => setEmail(e.target.value)} />
                     </div>
+                    
                     <div className="form-group mt-3">
                         <label>Username</label>
                         <input className="form-control mt-1"
@@ -77,6 +65,7 @@ export const SignUp = ({ setShowHouseholdSelector }) => {
                             required
                             onChange={e => setUsername(e.target.value)} />
                     </div>
+                    
                     <div className="form-group mt-3">
                         <label>Password</label>
                         <input name='password'
@@ -87,16 +76,16 @@ export const SignUp = ({ setShowHouseholdSelector }) => {
                             required
                             onChange={e => setPassword(e.target.value)} />
                     </div>
+                    
                     <div className="d-grid gap-2 mt-3">
                         <button type="submit"
                             className="btn btn-primary">Register</button>
                     </div>
+                    
                     <div className="mt-3">
                         <a href="/login">Already have an account?</a>
                     </div>
-                    <div className="mt-3" style={{ width: "" }}>
-                        <h3>{errorMessage}</h3>
-                    </div>
+
                 </div>
             </form>
         </div>

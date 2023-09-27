@@ -15,8 +15,8 @@ import { Logout } from './components/logout';
 import { fetchHouseholds } from './api/households';
 import { Navigation } from './components/navigation';
 import { ResetPassword } from './components/resetPassword';
+import { SignUp } from './components/signup';
 
-import { SignUp } from './signup';
 import { ManageHouseholds } from './households';
 import UserStatistics from './UserStatistics';
 

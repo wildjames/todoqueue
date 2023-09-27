@@ -33,6 +33,11 @@ const Login = ({ setShowHouseholdSelector }) => {
         }
     }
 
+    const signup = async (e) => {
+        e.preventDefault();
+        window.location.href = "/signup";
+    }
+
     return (
         <div className="Auth-form-container todoqueue-auth-form">
             <form className="Auth-form" onSubmit={submit}>
@@ -75,7 +80,7 @@ const Login = ({ setShowHouseholdSelector }) => {
 
                     <div className="d-grid gap-3 mt-3">
                         <button
-                            onClick="window.location.href='/signup';"
+                            onClick={signup}
                             className="button button-secondary"
                             style={{ margin: "0" }}
                         >
