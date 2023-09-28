@@ -119,6 +119,11 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
                     placeholder="Enter household name"
                     className="input-field"
                     style={{ border: "3px solid #fff" }}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            handleCreate();
+                        }
+                    }}
                 />
                 <button className="button create-button" onClick={handleCreate}>Create</button>
             </div>

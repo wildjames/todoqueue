@@ -49,6 +49,7 @@ const HouseholdDetailsPopup = React.forwardRef((props, ref) => {
         setErrorMessage("");
         const data = await promise;
         setShowSpinner(false);
+        updateUsers(props.selectedHousehold.id);
 
         if (data.error) {
             setErrorMessage(data.error);
@@ -71,6 +72,7 @@ const HouseholdDetailsPopup = React.forwardRef((props, ref) => {
         setErrorMessage("");
         const data = await promise;
         setShowSpinner(false);
+        updateUsers(props.selectedHousehold.id);
 
         if (data.error) {
             setErrorMessage(data.error);
@@ -93,6 +95,11 @@ const HouseholdDetailsPopup = React.forwardRef((props, ref) => {
                         value={userEmail}
                         onChange={(e) => setUserEmail(e.target.value)}
                         style={{ border: "3px solid rgb(143, 143, 143)", borderRadius: "7px" }}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                handleAddUser();
+                            }
+                        }}
                     />
                     <button
                         className="button add-user-button"
