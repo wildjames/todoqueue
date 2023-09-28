@@ -18,8 +18,6 @@ import { ResetPassword } from './components/resetPassword';
 import { SignUp } from './components/signup';
 import { ManageHouseholds } from './components/households';
 
-import UserStatistics from './UserStatistics';
-
 
 const App = () => {
   const [households, setHouseholds] = useState([]);
@@ -73,7 +71,6 @@ const App = () => {
 
       <div className="App">
         <Routes>
-          <Route path="/user_statistics" element={<UserStatistics selectedHousehold={selectedHousehold} setShowHouseholdSelector={setShowHouseholdSelector} />} />
           <Route path="/" element={<Tasks selectedHousehold={selectedHousehold} setShowHouseholdSelector={setShowHouseholdSelector} />} />
           <Route path="/login" element={<Login setShowHouseholdSelector={setShowHouseholdSelector} />} />
           <Route path="/logout" element={<Logout setShowHouseholdSelector={setShowHouseholdSelector} />} />
