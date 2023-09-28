@@ -606,18 +606,10 @@ h1 {
 .Households {
   text-align: center;
   font-family: 'Arial', sans-serif;
-  margin-top: 0px;
-  display: flex;
-}
-
-
-.household-container {
-  left: 50%;
-  transform: translateX(-50%);
-  position: absolute;
-  top: calc(50px + 2.5em);
-  width: 400px;
+  display: block;
+  width: 40vw;
   font-family: 'Arial', sans-serif;
+  margin: 5vh auto;
 }
 
 .household-wrapper {
@@ -628,6 +620,12 @@ h1 {
   border-radius: 4px;
   padding: 8px;
   margin-top: 10px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.household-name {
+  font-size: 1.5rem;
 }
 
 .household-select {

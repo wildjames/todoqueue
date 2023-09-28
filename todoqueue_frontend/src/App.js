@@ -16,9 +16,7 @@ import { fetchHouseholds } from './api/households';
 import { Navigation } from './components/navigation';
 import { ResetPassword } from './components/resetPassword';
 import { SignUp } from './components/signup';
-
-import { ManageHouseholds } from './households';
-import UserStatistics from './UserStatistics';
+import { ManageHouseholds } from './components/households';
 
 
 const App = () => {
@@ -73,7 +71,6 @@ const App = () => {
 
       <div className="App">
         <Routes>
-          <Route path="/user_statistics" element={<UserStatistics selectedHousehold={selectedHousehold} setShowHouseholdSelector={setShowHouseholdSelector} />} />
           <Route path="/" element={<Tasks selectedHousehold={selectedHousehold} setShowHouseholdSelector={setShowHouseholdSelector} />} />
           <Route path="/login" element={<Login setShowHouseholdSelector={setShowHouseholdSelector} />} />
           <Route path="/logout" element={<Logout setShowHouseholdSelector={setShowHouseholdSelector} />} />

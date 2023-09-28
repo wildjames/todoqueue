@@ -153,23 +153,51 @@ class CreateHouseholdView(APIView):
 
         return Response("OK", 201)
 
+
 class AddUserToHouseholdView(APIView):
     def post(self, request, pk):
         logger.info(f"Adding user to household")
-        household = Household.objects.get(pk=pk)
-        
+        # If the household doesn't exist, return a meaningful error
+        try:
+            household = Household.objects.get(pk=pk)
+        except Household.DoesNotExist:
+            logger.info(f"Household {pk} does not exist")
+            return Response(
+                {"detail": "Household does not exist"}, status=status.HTTP_404_NOT_FOUND
+            )
+
         logger.info(f"Adding a user to the household: {household}")
         logger.info(f"Request: {request}")
-        
+
+        if "email" not in request.data:
+            logger.info(f"Missing email")
+            return Response(
+                {"detail": "Missing email"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
         email = request.data["email"]
-        
-        user = get_user_model().objects.get(email=email)
-        logger.info("Got user")
-        household.users.add(user)
-        
+
+        try:
+            user = get_user_model().objects.get(email=email)
+            logger.info("Got user")
+        except get_user_model().DoesNotExist:
+            logger.info(f"User {email} does not exist")
+            return Response(
+                {"detail": "User does not exist"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        try:
+            household.users.add(user)
+        except Exception as e:
+            logger.error(f"Failed to add user to household. Error: {e}")
+            return Response(
+                {"detail": "Failed to add user to household"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
         user.save()
         household.save()
-        
+
         return Response("OK", 200)
 
 
@@ -177,29 +205,31 @@ class RemoveUserFromHouseholdView(APIView):
     def post(self, request, pk):
         logger.info(f"Removing user from household")
         household = Household.objects.get(pk=pk)
-        
+
         logger.info(f"Removing a user from the household: {household}")
         logger.info(f"Request: {request}")
-        
+
         email = request.data["email"]
-        
+
         user = get_user_model().objects.get(email=email)
         logger.info("Got user")
         household.users.remove(user)
-        
+
         if household.users.count() == 0:
             household.delete()
-        
+
         user.save()
         household.save()
-        
+
         return Response("OK", 200)
 
 
 def renormalize(value, old_range, new_range):
     old_range_width = old_range[1] - old_range[0]
     new_range_width = new_range[1] - new_range[0]
-    new_value = (((value - old_range[0]) * new_range_width) / old_range_width) + new_range[0]
+    new_value = (
+        ((value - old_range[0]) * new_range_width) / old_range_width
+    ) + new_range[0]
     return new_value
 
 
@@ -273,7 +303,7 @@ def calculate_brownie_points(task_id, completion_time, grossness):
 
     # Compute the bonus scale factor. If something took longer, or was more gross than usual, the user
     # gets a bonus for that. They don't get penalised for being quick, though.
-    if (average_grossness * average_completion_time_minutes == 0):
+    if average_grossness * average_completion_time_minutes == 0:
         # Catch div 0 error
         bonus_scale_factor = 1
     else:
@@ -310,7 +340,9 @@ def calculate_brownie_points_view(request):
 
         brownie_points = None
         try:
-            brownie_points = calculate_brownie_points(task_id, completion_time, grossness)
+            brownie_points = calculate_brownie_points(
+                task_id, completion_time, grossness
+            )
         except Exception as e:
             logger.info(f"Failed to calcualte brownie points. Error: {e}")
             return Response(
