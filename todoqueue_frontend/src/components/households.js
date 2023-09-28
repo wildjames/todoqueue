@@ -57,7 +57,7 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
         setErrorMessage("");
         const data = await promise;
         setShowSpinner(false);
-        
+
 
         if (data.error) {
             setErrorMessage(data.error);
@@ -111,13 +111,14 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
                 )()
             }
 
-            <div className="input-group">
+            <div>
                 <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter household name"
                     className="input-field"
+                    style={{ border: "3px solid #fff" }}
                 />
                 <button className="button create-button" onClick={handleCreate}>Create</button>
             </div>

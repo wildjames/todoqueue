@@ -86,12 +86,13 @@ const HouseholdDetailsPopup = React.forwardRef((props, ref) => {
             <div>
                 <h2>{props.selectedHousehold.name}</h2>
 
-                <div className="input-group">
+                <div>
                     <input
                         type="text"
                         placeholder="Enter user email"
                         value={userEmail}
                         onChange={(e) => setUserEmail(e.target.value)}
+                        style={{ border: "3px solid rgb(143, 143, 143)", borderRadius: "7px" }}
                     />
                     <button
                         className="button add-user-button"
