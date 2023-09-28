@@ -1,7 +1,11 @@
-import axios from "./api/axiosConfig";
 import { useEffect, useState, useRef } from "react";
 import useAuthCheck from './hooks/authCheck';
 
+import Spinner from './components/spinner/Spinner';
+import AlertMessage from "./components/popups/AlertPopup";
+
+import { fetchUsers } from './api/users';
+import { createHousehold, deleteHousehold, addUserToHousehold, removeUserFromHousehold } from './api/households';
 
 export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
     const [users, setUsers] = useState([]);
@@ -10,6 +14,7 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
     const [showUsersPopup, setShowUsersPopup] = useState(false);
     const [selectedHousehold, setSelectedHousehold] = useState(null);
     const [userEmail, setUserEmail] = useState('');
+    const [showSpinner, setShowSpinner] = useState(false);
 
     const popupInnerRef = useRef(null);
 
@@ -20,26 +25,32 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
     }, []);
 
 
-    // Fetch users at regular intervals
-    useEffect(() => {
-        // run immediately, then start a timer that runs every 1000ms
+    const updateUsers = async (id) => {
         try {
-            fetchUsers();
+            const users = await fetchUsers(id);
+            setUsers(users);
         } catch (error) {
             console.error("An error occurred while fetching data:", error);
         }
+    }
+
+
+    // Fetch users for the selected household at regular intervals
+    useEffect(() => {
         const interval = setInterval(() => {
-            fetchUsers();
+            if (selectedHousehold) {
+                updateUsers(selectedHousehold.id);
+            }
         }, 1000);
         return () => clearInterval(interval);
-    }
-        , [selectedHousehold]);
+    }, [selectedHousehold]);
 
 
     // TODO: refactor to use popup framework
     const handleOpenUsersPopup = (household) => {
         console.log("Opening users popup for household:", household);
         setSelectedHousehold(household);
+        updateUsers(household.id);
         setShowUsersPopup(true);
     };
 
@@ -55,89 +66,56 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
     };
 
 
-    // TODO: Fetch users from the App component and pass them down as props
-    const fetchUsers = () => {
-        if (!selectedHousehold) {
-            console.log("No household selected");
-            return;
-        }
-
-        axios.get(`/api/households/${selectedHousehold.id}/users/`,
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
-            .then((res) => {
-                if (res.status !== 200) {
-                    console.log("Failed to fetch users.");
-                    return;
-                }
-                setUsers(res.data);
-            })
-            .catch((error) => {
-                console.error("An error occurred while fetching data:", error);
-            });
-    };
-
-
-    // TODO: Move to the api folder
     const handleCreate = async () => {
-        try {
-            // Get the logged in user
-            const res = await axios.post("/api/create_household/",
-                {
-                    name: name
-                },
-                {
-                    headers: { "Content-Type": "application/json" },
-                    withCredentials: true
-                }
-            );
-            console.log("Created household:", res);
+        console.log("Creating household:", name);
+        const promise = createHousehold(name);
 
-            setName("");
-        } catch (error) {
-            console.error("Failed to create household:", error);
-            setErrorMessage("Failed to create household.");
+        setShowSpinner(true);
+        setErrorMessage("");
+        const data = await promise;
+        setShowSpinner(false);
+        setName("");
+
+        if (data.error) {
+            setErrorMessage(data.error);
+        } else if (data.success) {
+            console.log("Successfully created household");
         }
     };
 
 
     const handleDelete = async (id) => {
-        try {
-            await axios.delete("/api/households/" + id + "/", {
-                withCredentials: true
-            });
+        console.log("Deleting household:", id);
+        const promise = deleteHousehold(id);
 
-        } catch (error) {
-            console.error("Failed to delete household:", error);
-            setErrorMessage("Failed to delete household.");
+        setShowSpinner(true);
+        setErrorMessage("");
+        const data = await promise;
+        setShowSpinner(false);
+
+        if (data.error) {
+            setErrorMessage(data.error);
+        } else if (data.success) {
+            console.log("Successfully deleted household");
         }
     };
 
 
-    // TODO: Fill in this request logic
     const handleAddUser = async () => {
-        // Logic to add user based on userEmail to selectedHousehold
         console.log("Adding user:", userEmail);
 
-        try {
-            let response = await axios.post(
-                `/api/households/${selectedHousehold.id}/add_user/`,
-                {
-                    email: userEmail
-                },
-                {
-                    headers: { "Content-Type": "application/json" },
-                    withCredentials: true
-                }
-            );
-            console.log(response);
-        } 
-        catch (error) {
-            console.log("Failed to add user to household");
-            console.log(error);
+        const promise = addUserToHousehold(selectedHousehold.id, userEmail);
+
+        setShowSpinner(true);
+        setErrorMessage("");
+        const data = await promise;
+        setShowSpinner(false);
+
+        if (data.error) {
+            setErrorMessage(data.error);
+        }
+        else if (data.success) {
+            console.log("Successfully added user to household");
         }
 
         setUserEmail('');
@@ -148,22 +126,18 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
         // Logic to remove user with userId from selectedHousehold
         console.log("Removing user:", email);
 
-        try {
-            let response = await axios.post(
-                `/api/households/${selectedHousehold.id}/remove_user/`,
-                {
-                    email: email
-                },
-                {
-                    headers: { "Content-Type": "application/json" },
-                    withCredentials: true
-                }
-            );
-            console.log(response);
+        const promise = removeUserFromHousehold(selectedHousehold.id, email);
+
+        setShowSpinner(true);
+        setErrorMessage("");
+        const data = await promise;
+        setShowSpinner(false);
+
+        if (data.error) {
+            setErrorMessage(data.error);
         }
-        catch (error) {
-            console.log("Failed to remove user from household");
-            console.log(error);
+        else if (data.success) {
+            console.log("Successfully removed user from household");
         }
     };
 
@@ -227,12 +201,12 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
                     </div>
                 )}
 
+                {
+                    errorMessage !== '' &&
+                    <AlertMessage message={errorMessage} />
+                }
 
-                {errorMessage && (
-                    <div className="error-message">
-                        <h3>{errorMessage}</h3>
-                    </div>
-                )}
+                {showSpinner && <Spinner />}
 
             </div>
         </div>
