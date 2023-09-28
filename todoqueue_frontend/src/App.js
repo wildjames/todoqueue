@@ -16,8 +16,8 @@ import { fetchHouseholds } from './api/households';
 import { Navigation } from './components/navigation';
 import { ResetPassword } from './components/resetPassword';
 import { SignUp } from './components/signup';
+import { ManageHouseholds } from './components/households';
 
-import { ManageHouseholds } from './households';
 import UserStatistics from './UserStatistics';
 
 
