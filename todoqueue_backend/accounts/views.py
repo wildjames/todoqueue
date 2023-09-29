@@ -1,4 +1,5 @@
 from logging import getLogger
+from time import sleep
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
@@ -166,6 +167,7 @@ class ForgotPasswordView(APIView):
             logger.info(f"User found: {user}")
         except user_model.DoesNotExist:
             logger.info(f"User not found")
+            sleep(10)
             return Response(
                 {"detail": "User with this email does not exist."},
                 status=status.HTTP_400_BAD_REQUEST,

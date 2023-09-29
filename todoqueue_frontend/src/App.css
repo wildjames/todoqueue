@@ -52,13 +52,6 @@ h1 {
   text-align: left;
 }
 
-.navbar-bottom-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -562,15 +555,6 @@ h1 {
   margin: 0.2rem;
 }
 
-.navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  width: 100vw;
-  z-index: 1020;
-}
-
 .todoqueue-auth-form {
   max-width: 400px;
   margin: 10% auto;
@@ -626,31 +610,6 @@ h1 {
 
 .household-name {
   font-size: 1.5rem;
-}
-
-.household-select {
-  width: 300px;
-  padding: 3px;
-  border: 1px solid #8d8d8d;
-  border-radius: 5px;
-  font-size: 16px;
-  color: #ffffff;
-  background-color: #212528;
-  background-image: url("data:image/svg+xml;charset=UTF8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23000000' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.7em top 50%;
-  background-size: 0.65em auto;
-  appearance: none;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translateX(-50%) translateY(-50%);
-}
-
-.household-select:focus {
-  border-color: #007bff;
-  outline: none;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
 }
 
 .brownie-points-animation {
