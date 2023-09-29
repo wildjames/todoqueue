@@ -63,7 +63,7 @@ def update_brownie_points(sender, instance, action, **kwargs):
         
         return Response("OK", 200)
 
-class Task(models.Model):
+class FlexibleTask(models.Model):
     task_name = models.CharField(max_length=255)
     description = models.TextField(default="")
     max_interval = models.DurationField(default="0:0")
@@ -111,7 +111,7 @@ class Task(models.Model):
 
 class WorkLog(models.Model):
     # Preserve the work logs, even if the task is deleted
-    task = models.ForeignKey(Task, on_delete=models.SET_NULL, null=True)
+    task = models.ForeignKey(FlexibleTask, on_delete=models.SET_NULL, null=True)
     user = models.ForeignKey(usermodel, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     completion_time = models.DurationField()
@@ -141,11 +141,11 @@ class WorkLog(models.Model):
 
         super(WorkLog, self).save(*args, **kwargs)
 
-    @receiver(pre_delete, sender=Task)
+    @receiver(pre_delete, sender=FlexibleTask)
     def save_task_to_worklogs(sender, instance, **kwargs):
         """When a task is deleted, preserve it's data in the worklogs as JSON"""
         worklogs = WorkLog.objects.filter(task=instance)
-        serialized_task = TaskSerializer(instance)
+        serialized_task = FlexibleTaskSerializer(instance)
         json_task = JSONRenderer().render(serialized_task.data)
 
         for worklog in worklogs:
@@ -164,13 +164,13 @@ class WorkLog(models.Model):
 # Serializers have to live here, to avoid circular imports :(
 
 
-class TaskSerializer(serializers.ModelSerializer):
+class FlexibleTaskSerializer(serializers.ModelSerializer):
     staleness = serializers.SerializerMethodField()
     mean_completion_time = serializers.SerializerMethodField()
     description = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
-        model = Task
+        model = FlexibleTask
         fields = "__all__"
 
     def get_staleness(self, obj):
@@ -189,7 +189,7 @@ class WorkLogSerializer(serializers.ModelSerializer):
 
     def get_task_data(self, obj):
         if obj.task:
-            return TaskSerializer(obj.task).data
+            return FlexibleTaskSerializer(obj.task).data
         else:
             return obj.task_json
 

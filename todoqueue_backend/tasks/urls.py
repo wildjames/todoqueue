@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 router = DefaultRouter()
-router.register(r"tasks", views.TaskViewSet)
+router.register(r"flexible-tasks", views.FlexibleTaskViewSet)
 router.register(r"worklogs", views.WorkLogViewSet)
 router.register(r"households", views.HouseholdViewSet)
 
