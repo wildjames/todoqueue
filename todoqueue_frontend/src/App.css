@@ -52,13 +52,6 @@ h1 {
   text-align: left;
 }
 
-.navbar-bottom-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
 .empty-state {
   display: flex;
   flex-direction: column;
