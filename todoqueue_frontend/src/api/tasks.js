@@ -7,7 +7,7 @@ export const fetchTasks = async (selectedHousehold) => {
         return [];
     }
 
-    const list_tasks_url = `/api/tasks/?household=${selectedHousehold}`;
+    const list_tasks_url = `/api/flexible-tasks/?household=${selectedHousehold}`;
     console.log("Fetching Tasks...");
 
     try {
@@ -43,7 +43,7 @@ export const fetchTasks = async (selectedHousehold) => {
 
 // Get information about a specific task
 export const fetchSelectedTask = async (selectedTaskId, selectedHousehold) => {
-    const list_tasks_url = `/api/tasks/${selectedTaskId}/?household=${selectedHousehold}`;
+    const list_tasks_url = `/api/flexible-tasks/${selectedTaskId}/?household=${selectedHousehold}`;
     console.log("Fetching selected task...");
 
     const response = await axios.get(list_tasks_url, {
@@ -151,7 +151,7 @@ export const createTask = async (
     min_interval,
     description,
 ) => {
-    const createTaskUrl = `/api/tasks/`;
+    const createTaskUrl = `/api/flexible-tasks/`;
 
     const newTask = {
         task_name,
@@ -190,7 +190,7 @@ export const deleteTask = async (
     taskId,
     selectedHousehold,
 ) => {
-    const deleteTaskUrl = `/api/tasks/${taskId}/?household=${selectedHousehold}`;
+    const deleteTaskUrl = `/api/flexible-tasks/${taskId}/?household=${selectedHousehold}`;
 
     console.log("Deleting task");
     console.log("deleteTaskUrl: ", deleteTaskUrl);
@@ -214,7 +214,7 @@ export const deleteTask = async (
 };
 
 export const freezeTask = async (taskId) => {
-    const freezeTaskUrl = `/api/tasks/${taskId}/toggle_frozen/`;
+    const freezeTaskUrl = `/api/flexible-tasks/${taskId}/toggle_frozen/`;
 
     console.log("Freezing task");
     console.log("freezeTaskUrl: ", freezeTaskUrl);

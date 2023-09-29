@@ -15,8 +15,8 @@ from .models import (
     Household,
     HouseholdSerializer,
     CreateHouseholdSerializer,
-    Task,
-    TaskSerializer,
+    FlexibleTask,
+    FlexibleTaskSerializer,
     UserStatisticsSerializer,
     WorkLog,
     WorkLogSerializer,
@@ -26,10 +26,10 @@ logger = getLogger(__name__)
 basicConfig(level=INFO)
 
 
-class TaskViewSet(viewsets.ModelViewSet):
+class FlexibleTaskViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
-    queryset = Task.objects.all().order_by("-task_name")
-    serializer_class = TaskSerializer
+    queryset = FlexibleTask.objects.all().order_by("-task_name")
+    serializer_class = FlexibleTaskSerializer
 
     def get_queryset(self):
         """When a user requests a task list, only return tasks that belong to the household they are in"""
@@ -40,19 +40,19 @@ class TaskViewSet(viewsets.ModelViewSet):
         if household_id is None:
             # Return an empty queryset if household is not provided
             logger.info(f"No household provided")
-            return Task.objects.none()
+            return FlexibleTask.objects.none()
 
         household = get_object_or_404(Household, id=household_id)
 
         if user in household.users.all():
-            return Task.objects.filter(household=household).order_by("-task_name")
+            return FlexibleTask.objects.filter(household=household).order_by("-task_name")
         else:
             # Return an empty queryset if the user does not belong to the household
-            return Task.objects.none()
+            return FlexibleTask.objects.none()
 
     @action(detail=True, methods=["POST"], url_path="toggle_frozen")
     def toggle_frozen(self, request, pk=None):
-        task = Task.objects.get(pk=pk)
+        task = FlexibleTask.objects.get(pk=pk)
         task.frozen = not task.frozen
         task.save(update_fields=["frozen"])
         return Response({"frozen": task.frozen}, status=status.HTTP_200_OK)
@@ -135,7 +135,7 @@ class HouseholdViewSet(viewsets.ModelViewSet):
             )
 
         # Serialize the tasks of the household
-        task_serializer = TaskSerializer(household.tasks.all(), many=True)
+        task_serializer = FlexibleTaskSerializer(household.tasks.all(), many=True)
 
         return Response(task_serializer.data)
 
@@ -254,7 +254,7 @@ def calculate_brownie_points(task_id, completion_time, grossness):
     user_gross_scale_range = [0, 5]
     output_gross_scale_range = [1, 2]
 
-    task = Task.objects.get(id=task_id)
+    task = FlexibleTask.objects.get(id=task_id)
     if task is None:
         logger.error("No task found with ID: {task_id}")
         return None

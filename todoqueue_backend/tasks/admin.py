@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Task, WorkLog, Household
+from .models import FlexibleTask, WorkLog, Household
 
 
 class HouseholdAdmin(admin.ModelAdmin):
@@ -8,7 +8,7 @@ class HouseholdAdmin(admin.ModelAdmin):
     filter_horizontal = ("users",)
 
 
-class TaskAdmin(admin.ModelAdmin):
+class FlexibleTaskAdmin(admin.ModelAdmin):
     list_display = (
         "task_name",
         "last_completed",
@@ -34,6 +34,6 @@ class WorkLogAdmin(admin.ModelAdmin):
 
 
 # Register your models here.
-admin.site.register(Task, TaskAdmin)
+admin.site.register(FlexibleTask, FlexibleTaskAdmin)
 admin.site.register(WorkLog, WorkLogAdmin)
 admin.site.register(Household, HouseholdAdmin)

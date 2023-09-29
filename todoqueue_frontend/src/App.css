@@ -593,7 +593,7 @@ h1 {
   display: block;
   width: 40vw;
   font-family: 'Arial', sans-serif;
-  margin: 5vh auto;
+  margin: calc(56px + 3vh) auto;
 }
 
 .household-wrapper {
