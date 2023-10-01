@@ -22,7 +22,9 @@ class FlexibleTaskAdmin(admin.ModelAdmin):
 # Custom admin view for WorkLog model
 class WorkLogAdmin(admin.ModelAdmin):
     list_display = (
-        "task",
+        "content_type",
+        "object_id",
+        "content_object",
         "user",
         "timestamp",
         "completion_time",
@@ -30,7 +32,7 @@ class WorkLogAdmin(admin.ModelAdmin):
         "brownie_points",
     )
     search_fields = ("task__task_name", "user__email")
-    list_filter = ("timestamp", "user", "task")
+    list_filter = ("timestamp", "user", "content_type", "object_id")
 
 
 # Register your models here.

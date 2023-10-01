@@ -1,3 +1,4 @@
+import typing
 from datetime import timedelta
 from logging import INFO, basicConfig, getLogger
 
@@ -12,18 +13,56 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import (
-    Household,
-    HouseholdSerializer,
     CreateHouseholdSerializer,
     FlexibleTask,
     FlexibleTaskSerializer,
+    Household,
+    HouseholdSerializer,
+    ScheduledTask,
+    ScheduledTaskSerializer,
     UserStatisticsSerializer,
     WorkLog,
     WorkLogSerializer,
+    get_task_by_id,
 )
 
 logger = getLogger(__name__)
 basicConfig(level=INFO)
+
+
+
+class ScheduledTaskViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
+    queryset = ScheduledTask.objects.all().order_by("-task_name")
+    serializer_class = ScheduledTaskSerializer
+
+    def get_queryset(self):
+        """When a user requests a task list, only return tasks that belong to the household they are in"""
+        logger.info(f"Getting tasks for user: {self.request.user}")
+        user = self.request.user
+        household_id = self.request.query_params.get("household", None)
+
+        if household_id is None:
+            # Return an empty queryset if household is not provided
+            logger.info(f"No household provided")
+            return ScheduledTask.objects.none()
+
+        household = get_object_or_404(Household, id=household_id)
+
+        if user in household.users.all():
+            return ScheduledTask.objects.filter(household=household).order_by(
+                "-task_name"
+            )
+        else:
+            # Return an empty queryset if the user does not belong to the household
+            return ScheduledTask.objects.none()
+
+    @action(detail=True, methods=["POST"], url_path="toggle_frozen")
+    def toggle_frozen(self, request, pk=None):
+        task = ScheduledTask.objects.get(pk=pk)
+        task.frozen = not task.frozen
+        task.save(update_fields=["frozen"])
+        return Response({"frozen": task.frozen}, status=status.HTTP_200_OK)
 
 
 class FlexibleTaskViewSet(viewsets.ModelViewSet):
@@ -45,7 +84,9 @@ class FlexibleTaskViewSet(viewsets.ModelViewSet):
         household = get_object_or_404(Household, id=household_id)
 
         if user in household.users.all():
-            return FlexibleTask.objects.filter(household=household).order_by("-task_name")
+            return FlexibleTask.objects.filter(household=household).order_by(
+                "-task_name"
+            )
         else:
             # Return an empty queryset if the user does not belong to the household
             return FlexibleTask.objects.none()
@@ -135,9 +176,19 @@ class HouseholdViewSet(viewsets.ModelViewSet):
             )
 
         # Serialize the tasks of the household
-        task_serializer = FlexibleTaskSerializer(household.tasks.all(), many=True)
+        tasks = []
 
-        return Response(task_serializer.data)
+        flexible_task_serializer = FlexibleTaskSerializer(
+            household.flexible_tasks.all(), many=True
+        )
+        tasks.extend(flexible_task_serializer.data)
+
+        scheduled_task_serializer = ScheduledTaskSerializer(
+            household.scheduled_tasks.all(), many=True
+        )
+        tasks.extend(scheduled_task_serializer.data)
+
+        return Response(tasks)
 
 
 class CreateHouseholdView(APIView):
@@ -254,7 +305,7 @@ def calculate_brownie_points(task_id, completion_time, grossness):
     user_gross_scale_range = [0, 5]
     output_gross_scale_range = [1, 2]
 
-    task = FlexibleTask.objects.get(id=task_id)
+    task = get_task_by_id(task_id)
     if task is None:
         logger.error("No task found with ID: {task_id}")
         return None
@@ -270,10 +321,9 @@ def calculate_brownie_points(task_id, completion_time, grossness):
 
     logger.info(f"[Task {task_id}]  Completion time as timedelta: {completion_time}")
     logger.info(f"[Task {task_id}]  Grossness: {grossness}")
-    logger.info(f"[Task {task_id}]  Task max interval: {task.max_interval}")
 
     # Get all the work logs associated with this task
-    work_logs = WorkLog.objects.filter(task=task)
+    work_logs = WorkLog.objects.filter(object_id=task_id)
     if work_logs is None or len(work_logs) == 0:
         logger.info(
             f"[Task {task_id}]  No work logs for this task. Using this work log as the first."

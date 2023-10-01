@@ -109,7 +109,7 @@ export const createWorkLog = async (
     // pop each user off the list of completionUsers and create a worklog for each
     for (const completionUser of completionUsers) {
         const worklog = {
-            task: selectedTaskId,
+            task_id: selectedTaskId,
             user: completionUser,
             completion_time: completionTimeString,
             grossness,
