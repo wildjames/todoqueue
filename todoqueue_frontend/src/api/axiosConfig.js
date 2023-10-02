@@ -13,6 +13,8 @@ const getCSRFToken = () => {
   return getCookie("csrftoken");
 };
 
+axios.defaults.withCredentials = true;
+
 axios.interceptors.request.use(
   config => {
     const csrfToken = getCSRFToken();

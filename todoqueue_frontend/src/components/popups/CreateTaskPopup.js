@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import BasePopup from './BasePopup';
-import { createTask } from '../../api/tasks';
+import { createFlexibleTask } from '../../api/tasks';
 
 const CreateTaskPopup = React.forwardRef((props, ref) => {
     const [newTask, setNewTask] = useState({
@@ -66,7 +66,7 @@ const CreateTaskPopup = React.forwardRef((props, ref) => {
         const max_interval = `${newTask.max_interval_days || 0} ${newTask.max_interval_hours || 0}:${newTask.max_interval_minutes || 0}:00`;
         const min_interval = `${newTask.min_interval_days || 0} ${newTask.min_interval_hours || 0}:${newTask.min_interval_minutes || 0}:00`;
 
-        const response_data = await createTask(
+        const response_data = await createFlexibleTask(
             newTask.task_name,
             props.selectedHousehold,
             max_interval,

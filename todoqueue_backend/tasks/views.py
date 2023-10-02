@@ -6,11 +6,13 @@ from accounts.serializers import CustomUserSerializer
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import action, api_view, permission_classes, authentication_classes
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
 
 from .models import (
     CreateHouseholdSerializer,
@@ -28,7 +30,6 @@ from .models import (
 
 logger = getLogger(__name__)
 basicConfig(level=INFO)
-
 
 
 class ScheduledTaskViewSet(viewsets.ModelViewSet):
@@ -57,13 +58,6 @@ class ScheduledTaskViewSet(viewsets.ModelViewSet):
             # Return an empty queryset if the user does not belong to the household
             return ScheduledTask.objects.none()
 
-    @action(detail=True, methods=["POST"], url_path="toggle_frozen")
-    def toggle_frozen(self, request, pk=None):
-        task = ScheduledTask.objects.get(pk=pk)
-        task.frozen = not task.frozen
-        task.save(update_fields=["frozen"])
-        return Response({"frozen": task.frozen}, status=status.HTTP_200_OK)
-
 
 class FlexibleTaskViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
@@ -91,12 +85,22 @@ class FlexibleTaskViewSet(viewsets.ModelViewSet):
             # Return an empty queryset if the user does not belong to the household
             return FlexibleTask.objects.none()
 
-    @action(detail=True, methods=["POST"], url_path="toggle_frozen")
-    def toggle_frozen(self, request, pk=None):
-        task = FlexibleTask.objects.get(pk=pk)
-        task.frozen = not task.frozen
-        task.save(update_fields=["frozen"])
-        return Response({"frozen": task.frozen}, status=status.HTTP_200_OK)
+
+@api_view(["POST"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def toggle_frozen(request, taskId):
+    # Use the get_task_by_id function to retrieve the task
+    task, task_type = get_task_by_id(taskId)
+
+    if not task:
+        return Response({"detail": "Task not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    # Toggle the frozen attribute
+    task.frozen = not task.frozen
+    task.save(update_fields=["frozen"])
+
+    return Response({"frozen": task.frozen}, status=status.HTTP_200_OK)
 
 
 class WorkLogViewSet(viewsets.ModelViewSet):

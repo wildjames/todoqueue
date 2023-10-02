@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import BasePopup from './BasePopup';
 import { formatDuration, getTimeSince } from '../../utils';
-import { deleteTask, freezeTask, fetchSelectedTask } from '../../api/tasks';
+import { deleteFlexibleTask, freezeTask, fetchSelectedTask } from '../../api/tasks';
 
 const TaskDetailsPopup = React.forwardRef((props, ref) => {
     const updateSelectedTaskTimer = useRef(null);
@@ -34,7 +34,7 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
 
 
     const handleDeleteTask = async (taskId) => {
-        const succeeded = await deleteTask(taskId, props.selectedHousehold);
+        const succeeded = await deleteFlexibleTask(taskId, props.selectedHousehold);
         if (succeeded) {
             props.closeCurrentPopup();
         } else {

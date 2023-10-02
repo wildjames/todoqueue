@@ -144,7 +144,7 @@ export const createWorkLog = async (
     return brownie_points;
 };
 
-export const createTask = async (
+export const createFlexibleTask = async (
     task_name,
     household,
     max_interval,
@@ -186,7 +186,7 @@ export const createTask = async (
     return res.data;
 };
 
-export const deleteTask = async (
+export const deleteFlexibleTask = async (
     taskId,
     selectedHousehold,
 ) => {
@@ -213,8 +213,84 @@ export const deleteTask = async (
     return true;
 };
 
+
+export const createScheduledTask = async (
+    task_name,
+    description,
+    household,
+    max_interval,
+    recur_dayhour,
+    recur_weekday,
+    recur_monthday,
+    recur_yearmonth
+) => {
+    const createTaskUrl = `/api/scheduled-tasks/`;
+
+    const newTask = {
+        task_name,
+        household,
+        recur_dayhour,
+        recur_weekday,
+        recur_monthday,
+        recur_yearmonth,
+        max_interval,
+    };
+
+    if (description) {
+        newTask.description = description;
+    }
+
+    console.log("Creating a new task");
+    console.log("newTask: ", newTask);
+
+    const res = await axios.post(
+        createTaskUrl,
+        JSON.stringify(newTask),
+        {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+    if (res.status !== 201) {
+        console.log("Failed to create task.");
+        return;
+    }
+
+    return res.data;
+};
+
+
+export const deleteScheduledTask = async (
+    taskId,
+    selectedHousehold,
+) => {
+    const deleteTaskUrl = `/api/scheduled-tasks/${taskId}/?household=${selectedHousehold}`;
+
+    console.log("Deleting scheduled task");
+    console.log("deleteTaskUrl: ", deleteTaskUrl);
+    console.log("taskId: ", taskId);
+
+    const res = await axios.delete(
+        deleteTaskUrl,
+        {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }
+    );
+
+    if (res.status !== 204) {
+        console.log("Failed to delete scheduled task: ", res);
+        return false;
+    }
+    console.log("Deleted scheduled task with ID: ", taskId);
+    return true;
+};
+
+
 export const freezeTask = async (taskId) => {
-    const freezeTaskUrl = `/api/flexible-tasks/${taskId}/toggle_frozen/`;
+    const freezeTaskUrl = `/api/toggle_frozen/${taskId}/`;
 
     console.log("Freezing task");
     console.log("freezeTaskUrl: ", freezeTaskUrl);

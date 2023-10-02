@@ -32,4 +32,5 @@ urlpatterns = [
         views.RemoveUserFromHouseholdView.as_view(),
         name="remove_user_from_household",
     ),
+    path('toggle_frozen/<uuid:taskId>/', views.toggle_frozen, name='toggle_frozen'),
 ]
