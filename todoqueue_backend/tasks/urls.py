@@ -5,6 +5,7 @@ from . import views
 router = DefaultRouter()
 router.register(r"flexible-tasks", views.FlexibleTaskViewSet)
 router.register(r"scheduled-tasks", views.ScheduledTaskViewSet)
+router.register(r'all-tasks', views.AllTasksViewSet, basename='all-tasks')
 router.register(r"worklogs", views.WorkLogViewSet)
 router.register(r"households", views.HouseholdViewSet)
 

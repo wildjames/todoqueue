@@ -22,10 +22,12 @@ from .models import (
     HouseholdSerializer,
     ScheduledTask,
     ScheduledTaskSerializer,
+    AllTasksSerializer,
     UserStatisticsSerializer,
     WorkLog,
     WorkLogSerializer,
     get_task_by_id,
+    get_serializer_for_task,
 )
 
 logger = getLogger(__name__)
@@ -84,6 +86,51 @@ class FlexibleTaskViewSet(viewsets.ModelViewSet):
         else:
             # Return an empty queryset if the user does not belong to the household
             return FlexibleTask.objects.none()
+        
+        
+class AllTasksViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = AllTasksSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        household_id = self.request.query_params.get("household", None)
+
+        if household_id is None:
+            # Return an empty queryset if household is not provided
+            return []
+
+        household = get_object_or_404(Household, id=household_id)
+
+        if user in household.users.all():
+            scheduled_tasks = ScheduledTask.objects.filter(household=household)
+            flexible_tasks = FlexibleTask.objects.filter(household=household)
+            return list(scheduled_tasks) + list(flexible_tasks)
+        else:
+            # Return an empty queryset if the user does not belong to the household
+            return []
+        
+    def retrieve(self, request, *args, **kwargs):
+        task_id = kwargs.get('pk')
+        task, task_type = get_task_by_id(task_id)
+        
+        if not task:
+            return Response({"detail": "Task not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        data = AllTasksSerializer(task).data
+        
+        return Response(data)
+    
+    def delete(self, request, *args, **kwargs):
+        task_id = kwargs.get('pk')
+        task, task_type = get_task_by_id(task_id)
+        
+        if not task:
+            return Response({"detail": "Task not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        task.delete()
+        
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(["POST"])

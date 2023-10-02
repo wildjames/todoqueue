@@ -60,6 +60,7 @@ const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
             return;
         }
 
+        console.log("All inputs are OK");
         setInputError(false);
 
         // Convert max_interval and min_interval to Django DurationField format "[-]DD HH:MM:SS"
@@ -129,7 +130,7 @@ const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
             <div>
                 <div className="popup-type-selector">
                     <label>Task Type: </label>
-                    <select value={props.currentPopup} onChange={handlePopupTypeChange}>
+                    <select value={props.currentPopup} onChange={handlePopupTypeChange} style={{ margin: "1rem" }}>
                         <option value={props.PopupType.CREATE_SCHEDULED_TASK}>Scheduled Task</option>
                         <option value={props.PopupType.CREATE_FLEXIBLE_TASK}>Flexible Task</option>
                     </select>

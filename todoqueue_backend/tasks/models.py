@@ -232,7 +232,8 @@ class WorkLog(models.Model):
     # TODO: Worklogs should carry a JSON payload of their tasks, in case the task gets deleted?
 
 
-def get_task_by_id(task_id) -> FlexibleTask | ScheduledTask | None:
+def get_task_by_id(task_id):
+    """Returns both the Task object, and the ContentType object for the given task ID, as a tuple."""
     # Add other task models to this list as needed
     task_models = [FlexibleTask, ScheduledTask]
 
@@ -248,7 +249,7 @@ def get_task_by_id(task_id) -> FlexibleTask | ScheduledTask | None:
             continue
 
     logger.error(f"No task found with ID: {task_id}")
-    return None
+    return None, None
 
 
 # Serializers have to live here, to avoid circular imports :(
@@ -296,6 +297,25 @@ def get_serializer_for_task(
         return ScheduledTaskSerializer
 
     # Add other conditions for other task types. Don't forget!!
+
+    raise TypeError("Task instance is not a valid task type.")
+
+
+class AllTasksSerializer(serializers.BaseSerializer):
+    def to_representation(self, obj):
+        task, type = get_task_by_id(obj.id)
+        if task is None:
+            raise serializers.ValidationError("Task with the given ID does not exist.")
+        
+        try:
+            serialized_data = get_serializer_for_task(task)(task).data
+            serialized_data["type"] = type.model
+        except AttributeError:
+            raise serializers.ValidationError("Task with the given ID does not exist.")
+        except TypeError:
+            raise serializers.ValidationError("Failed to serialize task.")
+        
+        return serialized_data
 
 
 class WorkLogSerializer(serializers.ModelSerializer):

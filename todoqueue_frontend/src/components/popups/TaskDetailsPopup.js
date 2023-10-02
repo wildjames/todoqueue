@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
+import moment from 'moment';
 import BasePopup from './BasePopup';
 import { formatDuration, getTimeSince } from '../../utils';
-import { deleteFlexibleTask, freezeTask, fetchSelectedTask } from '../../api/tasks';
+import { deleteTask, freezeTask, fetchSelectedTask } from '../../api/tasks';
 
 const TaskDetailsPopup = React.forwardRef((props, ref) => {
     const updateSelectedTaskTimer = useRef(null);
@@ -32,9 +33,9 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
         };
     }, [props.selectedTaskId]);
 
-
     const handleDeleteTask = async (taskId) => {
-        const succeeded = await deleteFlexibleTask(taskId, props.selectedHousehold);
+        const succeeded = await deleteTask(taskId, props.selectedHousehold);
+        
         if (succeeded) {
             props.closeCurrentPopup();
         } else {
@@ -53,6 +54,34 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
     }
 
 
+    const calculateDueDate = (scheduledTask) => {
+        const now = moment();
+        const lastCompleted = moment(scheduledTask.last_completed);
+
+        if (scheduledTask.recur_dayhour !== -1) {
+            // Add the specified hours to the last completed date
+            const dueDate = lastCompleted.add(scheduledTask.recur_dayhour, 'hours');
+            return dueDate > now ? dueDate.format() : now.add(scheduledTask.recur_dayhour, 'hours').format();
+        } else if (scheduledTask.recur_weekday !== -1) {
+            // Find the next specified weekday after the last completed date
+            const dueDate = lastCompleted.day(scheduledTask.recur_weekday + 7);
+            return dueDate > now ? dueDate.format() : now.day(scheduledTask.recur_weekday + 7).format();
+        } else if (scheduledTask.recur_monthday !== -1) {
+            // Find the next specified day of the month after the last completed date
+            const dueDate = lastCompleted.date(scheduledTask.recur_monthday);
+            return dueDate > now ? dueDate.format() : now.add(1, 'months').date(scheduledTask.recur_monthday).format();
+        } else if (scheduledTask.recur_yearmonth !== -1) {
+            // Find the next specified month after the last completed date
+            const dueDate = lastCompleted.month(scheduledTask.recur_yearmonth - 1);
+            return dueDate > now ? dueDate.format() : now.add(1, 'years').month(scheduledTask.recur_yearmonth - 1).format();
+        } else {
+            // If none of the recurrence fields are set, return the current date and time
+            return now.format();
+        }
+    }
+
+
+
     return (
         <BasePopup onClick={props.handleOverlayClick} innerClass={innerClass} ref={ref}>
             <div>
@@ -63,14 +92,40 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
                             <td className="task-popup-label">This takes on average:</td>
                             <td className="task-popup-content">{(props.selectedTask.mean_completion_time / 60).toFixed(1)} minutes</td>
                         </tr>
-                        <tr>
-                            <td className="task-popup-label">Do this at most every:</td>
-                            <td className="task-popup-content">{formatDuration(props.selectedTask.max_interval)}</td>
-                        </tr>
-                        <tr>
-                            <td className="task-popup-label">and at least every:</td>
-                            <td className="task-popup-content">{formatDuration(props.selectedTask.min_interval)}</td>
-                        </tr>
+
+                        {
+                            (() => {
+                                switch (props.selectedTask.type) {
+                                    case "flexibletask":
+                                        return (
+                                            <>
+                                                <tr>
+                                                    <td className="task-popup-label">Do this at most every:</td>
+                                                    <td className="task-popup-content">{formatDuration(props.selectedTask.max_interval)}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td className="task-popup-label">and at least every:</td>
+                                                    <td className="task-popup-content">{formatDuration(props.selectedTask.min_interval)}</td>
+                                                </tr>
+                                            </>
+                                        );
+                                    case "scheduledtask":
+                                        return (
+                                            <>
+                                                <tr>
+                                                    <p><strong>{`Due in ${calculateDueDate(props.selectedTask)}`}</strong></p>
+                                                </tr>
+                                                <tr>
+                                                    <td className="task-popup-label">And you have this long to do it:</td>
+                                                    <td className="task-popup-content">{formatDuration(props.selectedTask.max_interval)}</td>
+                                                </tr>
+                                            </>
+                                        );
+                                    default:
+                                        return null;
+                                }
+                            })()
+                        }
                         <tr>
                             <td className="task-popup-label">Last done:</td>
                             <td className="task-popup-content">{getTimeSince(props.selectedTask.last_completed)}</td>
@@ -82,7 +137,7 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
                     </tbody>
                 </table>
                 <div className="task-popup-description">
-                    {props.selectedTask.description == "" ? "" :
+                    {props.selectedTask.description === "" ? "" :
                         <p><strong>Description:</strong> {props.selectedTask.description}</p>
                     }
                     {props.selectedTask.frozen ? (

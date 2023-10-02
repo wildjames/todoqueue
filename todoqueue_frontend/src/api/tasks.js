@@ -7,7 +7,7 @@ export const fetchTasks = async (selectedHousehold) => {
         return [];
     }
 
-    const list_tasks_url = `/api/flexible-tasks/?household=${selectedHousehold}`;
+    const list_tasks_url = `/api/all-tasks/?household=${selectedHousehold}`;
     console.log("Fetching Tasks...");
 
     try {
@@ -43,7 +43,7 @@ export const fetchTasks = async (selectedHousehold) => {
 
 // Get information about a specific task
 export const fetchSelectedTask = async (selectedTaskId, selectedHousehold) => {
-    const list_tasks_url = `/api/flexible-tasks/${selectedTaskId}/?household=${selectedHousehold}`;
+    const list_tasks_url = `/api/all-tasks/${selectedTaskId}/?household=${selectedHousehold}`;
     console.log("Fetching selected task...");
 
     const response = await axios.get(list_tasks_url, {
@@ -310,5 +310,30 @@ export const freezeTask = async (taskId) => {
         return false;
     }
     console.log("Freezed task with ID: ", taskId);
+    return true;
+};
+
+
+export const deleteTask = async (taskId, selectedHousehold) => {
+    const deleteTaskUrl = `/api/all-tasks/${taskId}/?household=${selectedHousehold}`;
+
+    console.log("Deleting task");
+    console.log("deleteTaskUrl: ", deleteTaskUrl);
+    console.log("taskId: ", taskId);
+
+    const res = await axios.delete(
+        deleteTaskUrl,
+        {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }
+    );
+
+    if (res.status !== 204) {
+        console.log("Failed to delete task: ", res);
+        return false;
+    }
+    console.log("Deleted task with ID: ", taskId);
     return true;
 };
