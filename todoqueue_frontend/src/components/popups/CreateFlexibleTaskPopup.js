@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import BasePopup from './BasePopup';
 import { createFlexibleTask } from '../../api/tasks';
 
-const CreateTaskPopup = React.forwardRef((props, ref) => {
+const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
     const [newTask, setNewTask] = useState({
         task_name: '',
         max_interval: '0:0',
@@ -118,14 +118,29 @@ const CreateTaskPopup = React.forwardRef((props, ref) => {
     };
 
 
+    const handlePopupTypeChange = (e) => {
+        const selectedType = e.target.value;
+        props.setCurrentPopup(selectedType);
+    };
+
+
     return (
         <BasePopup onClick={props.handleOverlayClick} ref={ref}>
             <div>
+                <div className="popup-type-selector">
+                    <label>Task Type: </label>
+                    <select value={props.currentPopup} onChange={handlePopupTypeChange}>
+                        <option value={props.PopupType.CREATE_SCHEDULED_TASK}>Scheduled Task</option>
+                        <option value={props.PopupType.CREATE_FLEXIBLE_TASK}>Flexible Task</option>
+                    </select>
+                </div>
+
                 <h2>Create a New Task</h2>
                 <form className="task-form">
                     <div className="input-group">
                         <input type="text" name="task_name" placeholder="Task Name" onChange={handleCreateInputChange} />
                     </div>
+
                     <div className="input-group input-group-horizontal">
                         <label>Max Interval: </label>
                         <input
@@ -200,4 +215,4 @@ const CreateTaskPopup = React.forwardRef((props, ref) => {
     );
 });
 
-export default CreateTaskPopup;
+export default CreateFlexibleTaskPopup;

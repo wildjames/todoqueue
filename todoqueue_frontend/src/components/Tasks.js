@@ -7,7 +7,8 @@ import { SimpleFlipper } from './flipper/flipper';
 
 import TaskDetailsPopup from './popups/TaskDetailsPopup';
 import CompleteTaskPopup from './popups/CompleteTaskPopup';
-import CreateTaskPopup from './popups/CreateTaskPopup';
+import CreateFlexibleTaskPopup from './popups/CreateFlexibleTaskPopup';
+import CreateScheduledTaskPopup from './popups/CreateScheduledTaskPopup';
 
 import { fetchTasks } from '../api/tasks';
 import { fetchUsers } from '../api/users';
@@ -31,7 +32,8 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         NONE: 'NONE',
         TASK_DETAILS: 'TASK_DETAILS',
         COMPLETE_TASK: 'COMPLETE_TASK',
-        CREATE_TASK: 'CREATE_TASK'
+        CREATE_SCHEDULED_TASK: 'CREATE_SCHEDULED_TASK',
+        CREATE_FLEXIBLE_TASK: 'CREATE_FLEXIBLE_TASK',
     };
     // State variable for the current popup
     const [currentPopup, setCurrentPopup] = useState(PopupType.NONE);
@@ -148,10 +150,10 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         setCurrentPopup(PopupType.TASK_DETAILS);
     };
 
-    const handleOpenCreateTaskPopup = () => {
+    const handleOpenCreateFlexibleTaskPopup = () => {
         setSelectedTask(null);
         setSelectedTaskId(null);
-        setCurrentPopup(PopupType.CREATE_TASK);
+        setCurrentPopup(PopupType.CREATE_FLEXIBLE_TASK);
     };
 
     const handleOverlayClick = (e) => {
@@ -194,11 +196,25 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     };
 
 
-    const propsForCreateTask = {
+    const propsForCreateFlexibleTask = {
         closeCurrentPopup: closeCurrentPopup,
         handleOverlayClick: handleOverlayClick,
         fetchSetTasks: fetchSetTasks,
         selectedHousehold: selectedHousehold,
+        PopupType: PopupType,
+        setCurrentPopup: setCurrentPopup,
+        currentPopup: currentPopup,
+    };
+
+
+    const propsForCreateScheduledTask = {
+        closeCurrentPopup: closeCurrentPopup,
+        handleOverlayClick: handleOverlayClick,
+        fetchSetTasks: fetchSetTasks,
+        selectedHousehold: selectedHousehold,
+        PopupType: PopupType,
+        setCurrentPopup: setCurrentPopup,
+        currentPopup: currentPopup,
     };
 
 
@@ -219,8 +235,10 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                             return <TaskDetailsPopup ref={popupInnerRef} {...propsForTaskDetails} />;
                         case PopupType.COMPLETE_TASK:
                             return <CompleteTaskPopup ref={popupInnerRef} {...propsForCompleteTask} />;
-                        case PopupType.CREATE_TASK:
-                            return <CreateTaskPopup ref={popupInnerRef} {...propsForCreateTask} />;
+                        case PopupType.CREATE_FLEXIBLE_TASK:
+                            return <CreateFlexibleTaskPopup ref={popupInnerRef} {...propsForCreateFlexibleTask} />;
+                        case PopupType.CREATE_SCHEDULED_TASK:
+                            return <CreateScheduledTaskPopup ref={popupInnerRef} {...propsForCreateScheduledTask} />;
                         default:
                             return null;
                     }
@@ -302,7 +320,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                 <button
                     className="button"
                     style={{ position: 'absolute', bottom: '20px', left: '50px' }}
-                    onClick={() => { handleOpenCreateTaskPopup(); }}
+                    onClick={() => { handleOpenCreateFlexibleTaskPopup(); }}
                 >
                     Create Task
                 </button>

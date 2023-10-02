@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import FlexibleTask, WorkLog, Household
+from .models import FlexibleTask, WorkLog, Household, ScheduledTask
 
 
 class HouseholdAdmin(admin.ModelAdmin):
@@ -11,9 +11,21 @@ class HouseholdAdmin(admin.ModelAdmin):
 class FlexibleTaskAdmin(admin.ModelAdmin):
     list_display = (
         "task_name",
+        "household",
         "last_completed",
         "max_interval",
         "min_interval",
+    )
+    search_fields = ("task_name",)
+    list_filter = ("last_completed",)
+
+
+class ScheduledTaskAdmin(admin.ModelAdmin):
+    list_display = (
+        "task_name",
+        "household",
+        "last_completed",
+        "max_interval",
     )
     search_fields = ("task_name",)
     list_filter = ("last_completed",)
@@ -37,5 +49,6 @@ class WorkLogAdmin(admin.ModelAdmin):
 
 # Register your models here.
 admin.site.register(FlexibleTask, FlexibleTaskAdmin)
+admin.site.register(ScheduledTask, ScheduledTaskAdmin)
 admin.site.register(WorkLog, WorkLogAdmin)
 admin.site.register(Household, HouseholdAdmin)

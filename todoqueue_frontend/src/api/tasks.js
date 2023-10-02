@@ -216,13 +216,13 @@ export const deleteFlexibleTask = async (
 
 export const createScheduledTask = async (
     task_name,
-    description,
     household,
-    max_interval,
     recur_dayhour,
     recur_weekday,
     recur_monthday,
-    recur_yearmonth
+    recur_yearmonth,
+    max_interval,
+    description,
 ) => {
     const createTaskUrl = `/api/scheduled-tasks/`;
 
