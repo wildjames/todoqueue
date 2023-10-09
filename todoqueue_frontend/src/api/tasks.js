@@ -7,7 +7,7 @@ export const fetchTasks = async (selectedHousehold) => {
         return [];
     }
 
-    const list_tasks_url = `/api/flexible-tasks/?household=${selectedHousehold}`;
+    const list_tasks_url = `/api/all-tasks/?household=${selectedHousehold}`;
     console.log("Fetching Tasks...");
 
     try {
@@ -43,7 +43,7 @@ export const fetchTasks = async (selectedHousehold) => {
 
 // Get information about a specific task
 export const fetchSelectedTask = async (selectedTaskId, selectedHousehold) => {
-    const list_tasks_url = `/api/flexible-tasks/${selectedTaskId}/?household=${selectedHousehold}`;
+    const list_tasks_url = `/api/all-tasks/${selectedTaskId}/?household=${selectedHousehold}`;
     console.log("Fetching selected task...");
 
     const response = await axios.get(list_tasks_url, {
@@ -109,7 +109,7 @@ export const createWorkLog = async (
     // pop each user off the list of completionUsers and create a worklog for each
     for (const completionUser of completionUsers) {
         const worklog = {
-            task: selectedTaskId,
+            task_id: selectedTaskId,
             user: completionUser,
             completion_time: completionTimeString,
             grossness,
@@ -144,7 +144,7 @@ export const createWorkLog = async (
     return brownie_points;
 };
 
-export const createTask = async (
+export const createFlexibleTask = async (
     task_name,
     household,
     max_interval,
@@ -186,7 +186,7 @@ export const createTask = async (
     return res.data;
 };
 
-export const deleteTask = async (
+export const deleteFlexibleTask = async (
     taskId,
     selectedHousehold,
 ) => {
@@ -213,8 +213,78 @@ export const deleteTask = async (
     return true;
 };
 
+
+export const createScheduledTask = async (
+    task_name,
+    household,
+    cronString,
+    max_interval,
+    description,
+) => {
+    const createTaskUrl = `/api/scheduled-tasks/`;
+
+    const newTask = {
+        task_name,
+        household,
+        cron_schedule: cronString,
+        max_interval,
+    };
+
+    if (description) {
+        newTask.description = description;
+    }
+
+    console.log("Creating a new task");
+    console.log("newTask: ", newTask);
+
+    const res = await axios.post(
+        createTaskUrl,
+        JSON.stringify(newTask),
+        {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+    if (res.status !== 201) {
+        console.log("Failed to create task.");
+        return;
+    }
+
+    return res.data;
+};
+
+
+export const deleteScheduledTask = async (
+    taskId,
+    selectedHousehold,
+) => {
+    const deleteTaskUrl = `/api/scheduled-tasks/${taskId}/?household=${selectedHousehold}`;
+
+    console.log("Deleting scheduled task");
+    console.log("deleteTaskUrl: ", deleteTaskUrl);
+    console.log("taskId: ", taskId);
+
+    const res = await axios.delete(
+        deleteTaskUrl,
+        {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }
+    );
+
+    if (res.status !== 204) {
+        console.log("Failed to delete scheduled task: ", res);
+        return false;
+    }
+    console.log("Deleted scheduled task with ID: ", taskId);
+    return true;
+};
+
+
 export const freezeTask = async (taskId) => {
-    const freezeTaskUrl = `/api/flexible-tasks/${taskId}/toggle_frozen/`;
+    const freezeTaskUrl = `/api/toggle_frozen/${taskId}/`;
 
     console.log("Freezing task");
     console.log("freezeTaskUrl: ", freezeTaskUrl);
@@ -234,5 +304,30 @@ export const freezeTask = async (taskId) => {
         return false;
     }
     console.log("Freezed task with ID: ", taskId);
+    return true;
+};
+
+
+export const deleteTask = async (taskId, selectedHousehold) => {
+    const deleteTaskUrl = `/api/all-tasks/${taskId}/?household=${selectedHousehold}`;
+
+    console.log("Deleting task");
+    console.log("deleteTaskUrl: ", deleteTaskUrl);
+    console.log("taskId: ", taskId);
+
+    const res = await axios.delete(
+        deleteTaskUrl,
+        {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }
+    );
+
+    if (res.status !== 204) {
+        console.log("Failed to delete task: ", res);
+        return false;
+    }
+    console.log("Deleted task with ID: ", taskId);
     return true;
 };

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import FlexibleTask, WorkLog, Household
+from .models import FlexibleTask, WorkLog, Household, ScheduledTask
 
 
 class HouseholdAdmin(admin.ModelAdmin):
@@ -11,6 +11,7 @@ class HouseholdAdmin(admin.ModelAdmin):
 class FlexibleTaskAdmin(admin.ModelAdmin):
     list_display = (
         "task_name",
+        "household",
         "last_completed",
         "max_interval",
         "min_interval",
@@ -19,10 +20,28 @@ class FlexibleTaskAdmin(admin.ModelAdmin):
     list_filter = ("last_completed",)
 
 
+class ScheduledTaskAdmin(admin.ModelAdmin):
+    list_display = (
+        "task_name",
+        "household",
+        "last_completed",
+        "max_interval",
+        "cron_schedule",
+    )
+    search_fields = ("task_name",)
+    list_filter = ("last_completed",)
+    
+    # def next_due(self, obj):
+    #     return obj.next_due.strftime('%Y-%m-%d %H:%M:%S')
+    # next_due.short_description = "Next Due"
+
+
 # Custom admin view for WorkLog model
 class WorkLogAdmin(admin.ModelAdmin):
     list_display = (
-        "task",
+        "content_type",
+        "object_id",
+        "content_object",
         "user",
         "timestamp",
         "completion_time",
@@ -30,10 +49,11 @@ class WorkLogAdmin(admin.ModelAdmin):
         "brownie_points",
     )
     search_fields = ("task__task_name", "user__email")
-    list_filter = ("timestamp", "user", "task")
+    list_filter = ("timestamp", "user", "content_type", "object_id")
 
 
 # Register your models here.
 admin.site.register(FlexibleTask, FlexibleTaskAdmin)
+admin.site.register(ScheduledTask, ScheduledTaskAdmin)
 admin.site.register(WorkLog, WorkLogAdmin)
 admin.site.register(Household, HouseholdAdmin)

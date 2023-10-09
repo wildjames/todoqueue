@@ -4,6 +4,8 @@ from . import views
 
 router = DefaultRouter()
 router.register(r"flexible-tasks", views.FlexibleTaskViewSet)
+router.register(r"scheduled-tasks", views.ScheduledTaskViewSet)
+router.register(r'all-tasks', views.AllTasksViewSet, basename='all-tasks')
 router.register(r"worklogs", views.WorkLogViewSet)
 router.register(r"households", views.HouseholdViewSet)
 
@@ -32,4 +34,5 @@ urlpatterns = [
         views.RemoveUserFromHouseholdView.as_view(),
         name="remove_user_from_household",
     ),
+    path('toggle_frozen/<uuid:taskId>/', views.toggle_frozen, name='toggle_frozen'),
 ]
