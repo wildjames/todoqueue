@@ -26,9 +26,14 @@ class ScheduledTaskAdmin(admin.ModelAdmin):
         "household",
         "last_completed",
         "max_interval",
+        "cron_schedule",
     )
     search_fields = ("task_name",)
     list_filter = ("last_completed",)
+    
+    # def next_due(self, obj):
+    #     return obj.next_due.strftime('%Y-%m-%d %H:%M:%S')
+    # next_due.short_description = "Next Due"
 
 
 # Custom admin view for WorkLog model

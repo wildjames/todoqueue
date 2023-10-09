@@ -66,14 +66,14 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
             // Find the next specified weekday after the last completed date
             const dueDate = lastCompleted.day(scheduledTask.recur_weekday + 7);
             return dueDate > now ? dueDate.format() : now.day(scheduledTask.recur_weekday + 7).format();
-        } else if (scheduledTask.recur_monthday !== -1) {
+        } else if (scheduledTask.recur_day !== -1) {
             // Find the next specified day of the month after the last completed date
-            const dueDate = lastCompleted.date(scheduledTask.recur_monthday);
-            return dueDate > now ? dueDate.format() : now.add(1, 'months').date(scheduledTask.recur_monthday).format();
-        } else if (scheduledTask.recur_yearmonth !== -1) {
+            const dueDate = lastCompleted.date(scheduledTask.recur_day);
+            return dueDate > now ? dueDate.format() : now.add(1, 'months').date(scheduledTask.recur_day).format();
+        } else if (scheduledTask.recur_month !== -1) {
             // Find the next specified month after the last completed date
-            const dueDate = lastCompleted.month(scheduledTask.recur_yearmonth - 1);
-            return dueDate > now ? dueDate.format() : now.add(1, 'years').month(scheduledTask.recur_yearmonth - 1).format();
+            const dueDate = lastCompleted.month(scheduledTask.recur_month - 1);
+            return dueDate > now ? dueDate.format() : now.add(1, 'years').month(scheduledTask.recur_month - 1).format();
         } else {
             // If none of the recurrence fields are set, return the current date and time
             return now.format();
@@ -113,7 +113,7 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
                                         return (
                                             <>
                                                 <tr>
-                                                    <p><strong>{`Due in ${calculateDueDate(props.selectedTask)}`}</strong></p>
+                                                    <p><strong>{`Due at ${props.selectedTask.next_due}`}</strong></p>
                                                 </tr>
                                                 <tr>
                                                     <td className="task-popup-label">And you have this long to do it:</td>

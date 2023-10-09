@@ -217,10 +217,7 @@ export const deleteFlexibleTask = async (
 export const createScheduledTask = async (
     task_name,
     household,
-    recur_dayhour,
-    recur_weekday,
-    recur_monthday,
-    recur_yearmonth,
+    cronString,
     max_interval,
     description,
 ) => {
@@ -229,10 +226,7 @@ export const createScheduledTask = async (
     const newTask = {
         task_name,
         household,
-        recur_dayhour,
-        recur_weekday,
-        recur_monthday,
-        recur_yearmonth,
+        cron_schedule: cronString,
         max_interval,
     };
 

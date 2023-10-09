@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import BasePopup from './BasePopup';
 import { createScheduledTask } from '../../api/tasks'; // Make sure to implement this function in your API
 
@@ -7,15 +7,18 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
         task_name: '',
         description: '',
         max_interval: '0:0',
-        recur_dayhour: -1,
-        recur_weekday: -1,
-        recur_monthday: -1,
-        recur_yearmonth: -1,
+        minutes: "0",
+        hours: "*",
+        DoM: "*",
+        DoW: "*",
+        months: "*",
     });
     const [inputError, setInputError] = useState(false);
 
     const handleCreateTask = async (event) => {
         event.preventDefault();
+
+        console.log("Checking inputs", newTask);
 
         // Check for invalid inputs
         if (newTask.task_name === "") {
@@ -24,18 +27,35 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
             return;
         }
 
-        // Only one of the recur fields can be > -1
-        const recur_fields = [
-            newTask.recur_dayhour,
-            newTask.recur_weekday,
-            newTask.recur_monthday,
-            newTask.recur_yearmonth,
-        ];
-        const recur_fields_greater_than_negative_one = recur_fields.filter((field) => field > -1);
-        console.log("Number of fields greater than -1: ", recur_fields_greater_than_negative_one.length);
-        if (recur_fields_greater_than_negative_one.length > 1) {
+        // Convert max_interval to minutes
+        const max_interval_in_minutes =
+            (newTask.max_interval_days || 0) * 24 * 60 +
+            (newTask.max_interval_hours || 0) * 60 +
+            (newTask.max_interval_minutes || 0);
+
+        // integers only
+        if (max_interval_in_minutes % 1 !== 0) {
             setInputError(true);
-            console.log("Only one of the recur fields can be > -1");
+            console.log("Max and Min intervals must be integers");
+            return;
+        }
+
+        if (max_interval_in_minutes < 0) {
+            setInputError(true);
+            console.log("Max and Min intervals must be positive");
+            return;
+        }
+
+        // Convert max_interval and min_interval to Django DurationField format "[-]DD HH:MM:SS"
+        const max_interval = `${newTask.max_interval_days || 0} ${newTask.max_interval_hours || 0}:${newTask.max_interval_minutes || 0}:00`;
+
+        const cronString = `${newTask.minutes} ${newTask.hours} ${newTask.DoM} ${newTask.months} ${newTask.DoW}`
+        // TODO: Validate cron expression
+        const regex = /^(\*|([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])|\*\/([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])) (\*|([0-9]|1[0-9]|2[0-3])|\*\/([0-9]|1[0-9]|2[0-3])) (\*|([1-9]|1[0-9]|2[0-9]|3[0-1])|\*\/([1-9]|1[0-9]|2[0-9]|3[0-1])) (\*|([1-9]|1[0-2])|\*\/([1-9]|1[0-2])) (\*|([0-6])|\*\/([0-6]))$/;
+        if (!regex.test(cronString)) {
+            console.error("The cron expression is not valid!", cronString);
+            console.error("This is the task it was build from:", newTask);
+            setInputError(true);
             return;
         }
 
@@ -44,11 +64,8 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
         const response_data = await createScheduledTask(
             newTask.task_name,
             props.selectedHousehold,
-            newTask.recur_dayhour,
-            newTask.recur_weekday,
-            newTask.recur_monthday,
-            newTask.recur_yearmonth,
-            newTask.max_interval,
+            cronString,
+            max_interval,
             newTask.description,
         );
 
@@ -62,10 +79,11 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
             task_name: '',
             description: '',
             max_interval: '0:0',
-            recur_dayhour: -1,
-            recur_weekday: -1,
-            recur_monthday: -1,
-            recur_yearmonth: -1,
+            minutes: "*",
+            hours: "*",
+            DoM: "*",
+            months: "*",
+            DoW: "*",
         });
     };
 
@@ -75,23 +93,6 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
         console.log("Setting new task in handleCreateInputChange");
         setNewTask((prevTask) => {
             const updatedTask = { ...prevTask, [name]: value };
-
-            // Only one of the recur fields can be > -1
-            const recur_fields = [
-                newTask.recur_dayhour,
-                newTask.recur_weekday,
-                newTask.recur_monthday,
-                newTask.recur_yearmonth,
-            ];
-
-            const recur_fields_greater_than_negative_one = recur_fields.filter((field) => field > -1);
-            console.log("Number of fields greater than -1: ", recur_fields_greater_than_negative_one.length);
-            if (recur_fields_greater_than_negative_one.length > 1) {
-                setInputError(true);
-                console.log("Only one of the recur fields can be > -1");
-            } else {
-                setInputError(false);
-            }
 
             return updatedTask;
         });
@@ -124,43 +125,48 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
 
 
                     <div className={inputError ? "input-group input-group-horizontal input-error" : "input-group input-group-horizontal"} >
-                        <label>Recur Day Hour: </label>
+                        <label>Minutes: </label>
                         <input
-                            type="number"
-                            name="recur_dayhour"
-                            placeholder="Day Hour"
+                            type="text"
+                            name="minutes"
+                            placeholder="e.g. 1,3 or 2-6 or *"
                             onChange={handleCreateInputChange}
-                            min="-1"
                         />
                     </div>
                     <div className={inputError ? "input-group input-group-horizontal input-error" : "input-group input-group-horizontal"} >
-                        <label>Recur Week Day: </label>
+                        <label>Hours: </label>
                         <input
-                            type="number"
-                            name="recur_weekday"
-                            placeholder="Week Day"
+                            type="text"
+                            name="hours"
+                            placeholder="e.g. 1,3 or 2-6 or *"
                             onChange={handleCreateInputChange}
-                            min="-1"
                         />
                     </div>
                     <div className={inputError ? "input-group input-group-horizontal input-error" : "input-group input-group-horizontal"} >
-                        <label>Recur Month Day: </label>
+                        <label>Day of the month: </label>
                         <input
-                            type="number"
-                            name="recur_monthday"
-                            placeholder="Month Day"
+                            type="text"
+                            name="DoM"
+                            placeholder="e.g. 1,3 or 2-6 or *"
                             onChange={handleCreateInputChange}
-                            min="-1"
                         />
                     </div>
                     <div className={inputError ? "input-group input-group-horizontal input-error" : "input-group input-group-horizontal"} >
-                        <label>Recur Year Month: </label>
+                        <label>Day of the week: </label>
                         <input
-                            type="number"
-                            name="recur_yearmonth"
-                            placeholder="Year Month"
+                            type="text"
+                            name="DoW"
+                            placeholder="e.g. 1,3 or 2-6 or *"
                             onChange={handleCreateInputChange}
-                            min="-1"
+                        />
+                    </div>
+                    <div className={inputError ? "input-group input-group-horizontal input-error" : "input-group input-group-horizontal"} >
+                        <label>Months: </label>
+                        <input
+                            type="text"
+                            name="months"
+                            placeholder="e.g. 1,3 or 2-6 or *"
+                            onChange={handleCreateInputChange}
                         />
                     </div>
 

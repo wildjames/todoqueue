@@ -1,7 +1,8 @@
-import json
-import typing
+from datetime import datetime
 import uuid
 from logging import getLogger
+
+import croniter
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -31,16 +32,16 @@ class Household(models.Model):
     def save(self, *args, **kwargs):
         super(Household, self).save(*args, **kwargs)
         for user in self.users.all():
-            logger.info(
+            logger.debug(
                 f"Setting BP for user {user}. Current BP: {user.brownie_point_credit}"
             )
             if str(self.id) not in user.brownie_point_credit:
-                logger.info(f"Setting BP credit for user {user}")
+                logger.debug(f"Setting BP credit for user {user}")
                 user.brownie_point_credit[str(self.id)] = 0.0
             if str(self.id) not in user.brownie_point_debit:
-                logger.info(f"Setting BP debit for user {user}")
+                logger.debug(f"Setting BP debit for user {user}")
                 user.brownie_point_debit[str(self.id)] = 0.0
-            logger.info("saving user")
+            logger.debug("saving user")
             user.save()
 
 
@@ -48,27 +49,35 @@ class Household(models.Model):
 def update_brownie_points(sender, instance, action, **kwargs):
     if action == "post_add":
         for user in instance.users.all():
-            logger.info("Setting up brownie points for users in household")
-            logger.info(f"Users in household: {instance.users.all()}")
+            logger.debug("Setting up brownie points for users in household")
+            logger.debug(f"Users in household: {instance.users.all()}")
             for user in instance.users.all():
-                logger.info(
+                logger.debug(
                     f"Setting BP for user {user}. Current BP: {user.brownie_point_credit}"
                 )
                 if str(instance.id) not in user.brownie_point_credit:
-                    logger.info(f"Setting BP credit for user {user}")
+                    logger.debug(f"Setting BP credit for user {user}")
                     user.brownie_point_credit[str(instance.id)] = 0.0
                 if str(instance.id) not in user.brownie_point_debit:
-                    logger.info(f"Setting BP debit for user {user}")
+                    logger.debug(f"Setting BP debit for user {user}")
                     user.brownie_point_debit[str(instance.id)] = 0.0
-                logger.info("saving user")
+                logger.debug("saving user")
                 user.save()
 
-        logger.info("OK")
+        logger.debug("OK")
 
         return Response("OK", 200)
 
 
 class ScheduledTask(models.Model):
+    """A task that is scheduled to be completed at a certain time, or on a certain day of the week/month/year.
+    Once the scheduled time has passed, the staleness of the task will increase linearly until the max_interval
+    has passed, after which the staleness will be 1.0.
+
+    There is a cron_schedule field, which accepts a string. This is a cron expression defining when the task should
+    be due. From Cron docs:
+    """
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     task_name = models.CharField(max_length=255)
@@ -79,18 +88,55 @@ class ScheduledTask(models.Model):
     )
     frozen = models.BooleanField(default=False)
 
-    recur_dayhour = models.IntegerField(default=-1)
-    recur_weekday = models.IntegerField(default=-1)
-    recur_monthday = models.IntegerField(default=-1)
-    recur_yearmonth = models.IntegerField(default=-1)
-
+    # Recurrance schedule. Cron syntax.
+    cron_schedule = models.CharField(max_length=255, default="0 * * * *")
     max_interval = models.DurationField(default="0:0")
+
+    @property
+    def last_due(self):
+        """Returns the previous time this task was due, as a datetime object."""
+        cron = croniter.croniter(self.cron_schedule, timezone.now().astimezone(), ret_type=datetime)
+        return cron.get_prev()
+
+    @property
+    def next_due(self):
+        """Returns the next time this task will occur, as a datetime object."""
+        cron = croniter.croniter(self.cron_schedule, timezone.now().astimezone(), ret_type=datetime)
+        return cron.get_next()
 
     # Calculate the staleness of this task
     @property
     def staleness(self):
-        # TODO: implement
-        return 1.0
+        last_due = self.last_due
+        now = timezone.now()
+        logger.debug(f"Time is now: {now.astimezone()}")
+        logger.debug(f"The task was last completed at {self.last_completed}")
+        logger.debug(f"The task was last due at {last_due}")
+
+        if self.last_completed > last_due:
+            logger.debug("The task HAS been done since the last due date, so is fresh")
+            return 0.0
+        logger.debug("The task has not been done since the last due date.")
+
+        # Allow some wiggle room. If the task was done in the last fifth of the previous interval,
+        # we consider the last completion date to be within this interval too.
+        if self.last_completed < last_due:
+            if (last_due - self.last_completed) < (self.max_interval):
+                logger.debug(
+                    f"The task was completed in the last allowed interval time the previous due date, so we still consider it done"
+                )
+                return 0.0
+
+        if now > (last_due + self.max_interval):
+            logger.debug("The task is urgent!")
+            return 1.0
+
+        staleness = (now - last_due) / self.max_interval
+        logger.debug(f"It has been {now - last_due} since the last due date")
+        logger.debug(f"And the max interval allowed is {self.max_interval}")
+
+        logger.debug(f"Staleness is {staleness}")
+        return staleness
 
     @property
     def mean_completion_time(self):
@@ -103,28 +149,6 @@ class ScheduledTask(models.Model):
         )
         mean_completion_time = total_completion_time / work_logs.count()
         return mean_completion_time.total_seconds()
-
-    def save(self, *args, **kwargs):
-        interval_list = [
-            self.recur_dayhour,
-            self.recur_weekday,
-            self.recur_monthday,
-            self.recur_yearmonth,
-        ]
-
-        # Exactly one recurrance interval has to be set
-        if all([l == -1 for l in interval_list]):
-            raise ValueError("One of the recur fields must be set (you set none)")
-
-        # Check that exactly one is set
-        recur_sum = sum(interval_list)
-        check = recur_sum - max(interval_list)
-        if check != -(len(interval_list) - 1):
-            raise ValueError(
-                "Exactly one of the recur fields must be set (you set more than one)"
-            )
-
-        super(ScheduledTask, self).save(*args, **kwargs)
 
 
 class FlexibleTask(models.Model):
@@ -213,13 +237,13 @@ class WorkLog(models.Model):
             try:
                 # Tasks MUST have a household field
                 household = self.content_object.household
-                logger.info(
+                logger.debug(
                     f"Crediting user {self.user.email} in household {household.id}"
                 )
-                logger.info(f"Current BP: {self.user.brownie_point_credit}")
+                logger.debug(f"Current BP: {self.user.brownie_point_credit}")
                 self.user.brownie_point_credit[str(household.id)] += self.brownie_points
                 self.user.save()
-                logger.info(
+                logger.debug(
                     f"User {self.user.username} was credited with {self.brownie_points} BP, and now has a total credit of {self.user.brownie_point_credit} BP"
                 )
             except AttributeError:
@@ -257,6 +281,8 @@ def get_task_by_id(task_id):
 
 class ScheduledTaskSerializer(serializers.ModelSerializer):
     staleness = serializers.SerializerMethodField()
+    next_due = serializers.SerializerMethodField()
+    last_due = serializers.SerializerMethodField()
     mean_completion_time = serializers.SerializerMethodField()
     description = serializers.CharField(required=False, allow_blank=True)
 
@@ -266,6 +292,12 @@ class ScheduledTaskSerializer(serializers.ModelSerializer):
 
     def get_staleness(self, obj):
         return obj.staleness
+
+    def get_next_due(self, obj):
+        return obj.next_due
+
+    def get_last_due(self, obj):
+        return obj.last_due
 
     def get_mean_completion_time(self, obj):
         return obj.mean_completion_time
@@ -306,15 +338,13 @@ class AllTasksSerializer(serializers.BaseSerializer):
         task, type = get_task_by_id(obj.id)
         if task is None:
             raise serializers.ValidationError("Task with the given ID does not exist.")
-        
+
         try:
             serialized_data = get_serializer_for_task(task)(task).data
             serialized_data["type"] = type.model
-        except AttributeError:
-            raise serializers.ValidationError("Task with the given ID does not exist.")
         except TypeError:
             raise serializers.ValidationError("Failed to serialize task.")
-        
+
         return serialized_data
 
 
