@@ -124,7 +124,7 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
                     </div>
 
 
-                    <div className={inputError ? "input-group input-group-horizontal input-error" : "input-group input-group-horizontal"} >
+                    <div className={`input-group input-group-horizontal no-max-width right-align ${inputError ? "input-error" : ""}`} >
                         <label>Minutes: </label>
                         <input
                             type="text"
@@ -133,7 +133,7 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
                             onChange={handleCreateInputChange}
                         />
                     </div>
-                    <div className={inputError ? "input-group input-group-horizontal input-error" : "input-group input-group-horizontal"} >
+                    <div className={`input-group input-group-horizontal no-max-width right-align ${inputError ? "input-error" : ""}`} >
                         <label>Hours: </label>
                         <input
                             type="text"
@@ -142,7 +142,7 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
                             onChange={handleCreateInputChange}
                         />
                     </div>
-                    <div className={inputError ? "input-group input-group-horizontal input-error" : "input-group input-group-horizontal"} >
+                    <div className={`input-group input-group-horizontal no-max-width right-align ${inputError ? "input-error" : ""}`} >
                         <label>Day of the month: </label>
                         <input
                             type="text"
@@ -151,7 +151,7 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
                             onChange={handleCreateInputChange}
                         />
                     </div>
-                    <div className={inputError ? "input-group input-group-horizontal input-error" : "input-group input-group-horizontal"} >
+                    <div className={`input-group input-group-horizontal no-max-width right-align ${inputError ? "input-error" : ""}`} >
                         <label>Day of the week: </label>
                         <input
                             type="text"
@@ -160,7 +160,7 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
                             onChange={handleCreateInputChange}
                         />
                     </div>
-                    <div className={inputError ? "input-group input-group-horizontal input-error" : "input-group input-group-horizontal"} >
+                    <div className={`input-group input-group-horizontal no-max-width right-align ${inputError ? "input-error" : ""}`} >
                         <label>Months: </label>
                         <input
                             type="text"
