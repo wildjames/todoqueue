@@ -123,53 +123,59 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
                         <input type="text" name="task_name" placeholder="Task Name" onChange={handleCreateInputChange} />
                     </div>
 
-
-                    <div className={inputError ? "input-group input-group-horizontal input-error" : "input-group input-group-horizontal"} >
-                        <label>Minutes: </label>
-                        <input
-                            type="text"
-                            name="minutes"
-                            placeholder="e.g. 1,3 or 2-6 or *"
-                            onChange={handleCreateInputChange}
-                        />
-                    </div>
-                    <div className={inputError ? "input-group input-group-horizontal input-error" : "input-group input-group-horizontal"} >
-                        <label>Hours: </label>
-                        <input
-                            type="text"
-                            name="hours"
-                            placeholder="e.g. 1,3 or 2-6 or *"
-                            onChange={handleCreateInputChange}
-                        />
-                    </div>
-                    <div className={inputError ? "input-group input-group-horizontal input-error" : "input-group input-group-horizontal"} >
-                        <label>Day of the month: </label>
-                        <input
-                            type="text"
-                            name="DoM"
-                            placeholder="e.g. 1,3 or 2-6 or *"
-                            onChange={handleCreateInputChange}
-                        />
-                    </div>
-                    <div className={inputError ? "input-group input-group-horizontal input-error" : "input-group input-group-horizontal"} >
-                        <label>Day of the week: </label>
-                        <input
-                            type="text"
-                            name="DoW"
-                            placeholder="e.g. 1,3 or 2-6 or *"
-                            onChange={handleCreateInputChange}
-                        />
-                    </div>
-                    <div className={inputError ? "input-group input-group-horizontal input-error" : "input-group input-group-horizontal"} >
-                        <label>Months: </label>
-                        <input
-                            type="text"
-                            name="months"
-                            placeholder="e.g. 1,3 or 2-6 or *"
-                            onChange={handleCreateInputChange}
-                        />
+                    <div className="input-pair-container">
+                        <div className={`input-group no-max-width left-align ${inputError ? "input-error" : ""}`}>
+                            <label>Minutes: </label>
+                            <input
+                                type="text"
+                                name="minutes"
+                                placeholder="'0', or '15,45', or '20-30'"
+                                onChange={handleCreateInputChange}
+                            />
+                        </div>
+                        <div className={`input-group no-max-width left-align ${inputError ? "input-error" : ""}`}>
+                            <label>Hours: </label>
+                            <input
+                                type="text"
+                                name="hours"
+                                placeholder="'12', or '9,18', or '10-14'"
+                                onChange={handleCreateInputChange}
+                            />
+                        </div>
                     </div>
 
+                    <div className="input-pair-container">
+                        <div className={`input-group no-max-width left-align ${inputError ? "input-error" : ""}`}>
+                            <label>Day of the month: </label>
+                            <input
+                                type="text"
+                                name="DoM"
+                                placeholder="'1', or '1,15' or '10-20'"
+                                onChange={handleCreateInputChange}
+                            />
+                        </div>
+                        <div className={`input-group no-max-width left-align ${inputError ? "input-error" : ""}`}>
+                            <label>Day of the week: </label>
+                            <input
+                                type="text"
+                                name="DoW"
+                                placeholder="'7', or '6,7', or '1-5'"
+                                onChange={handleCreateInputChange}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="input-pair-container">
+                        <div className={`input-group no-max-width left-align ${inputError ? "input-error" : ""}`}>
+                            <label>Months: </label>
+                            <input
+                                type="text"
+                                name="months"
+                                placeholder="'6', or '1,3,6,9', or '3-9'"
+                                onChange={handleCreateInputChange}
+                            />
+                        </div>
+                    </div>
 
                     <div className="input-group input-group-horizontal">
                         <label>Max Interval: </label>

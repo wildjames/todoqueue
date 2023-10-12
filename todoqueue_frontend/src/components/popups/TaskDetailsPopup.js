@@ -53,34 +53,26 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
         }
     }
 
-
-    const calculateDueDate = (scheduledTask) => {
-        const now = moment();
-        const lastCompleted = moment(scheduledTask.last_completed);
-
-        if (scheduledTask.recur_dayhour !== -1) {
-            // Add the specified hours to the last completed date
-            const dueDate = lastCompleted.add(scheduledTask.recur_dayhour, 'hours');
-            return dueDate > now ? dueDate.format() : now.add(scheduledTask.recur_dayhour, 'hours').format();
-        } else if (scheduledTask.recur_weekday !== -1) {
-            // Find the next specified weekday after the last completed date
-            const dueDate = lastCompleted.day(scheduledTask.recur_weekday + 7);
-            return dueDate > now ? dueDate.format() : now.day(scheduledTask.recur_weekday + 7).format();
-        } else if (scheduledTask.recur_day !== -1) {
-            // Find the next specified day of the month after the last completed date
-            const dueDate = lastCompleted.date(scheduledTask.recur_day);
-            return dueDate > now ? dueDate.format() : now.add(1, 'months').date(scheduledTask.recur_day).format();
-        } else if (scheduledTask.recur_month !== -1) {
-            // Find the next specified month after the last completed date
-            const dueDate = lastCompleted.month(scheduledTask.recur_month - 1);
-            return dueDate > now ? dueDate.format() : now.add(1, 'years').month(scheduledTask.recur_month - 1).format();
-        } else {
-            // If none of the recurrence fields are set, return the current date and time
-            return now.format();
-        }
+    function toHumanFriendlyDate(datetimeStr) {
+        // Parse the datetime string into a Date object
+        const dateObj = new Date(datetimeStr);
+    
+        // Extract date components
+        const day = dateObj.getDate();
+        const month = dateObj.getMonth() + 1; // Months are 0-based in JavaScript
+        const year = dateObj.getFullYear();
+    
+        // Extract time components
+        const hours = dateObj.getHours();
+        const minutes = dateObj.getMinutes();
+    
+        // Convert to human-friendly format
+        const humanFriendlyDate = `${day}/${month}/${year}`;
+        const humanFriendlyTime = `${hours}:${minutes < 10 ? '0' + minutes : minutes}`;
+    
+        return `${humanFriendlyDate} at ${humanFriendlyTime}`;
     }
-
-
+    
 
     return (
         <BasePopup onClick={props.handleOverlayClick} innerClass={innerClass} ref={ref}>
@@ -88,11 +80,6 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
                 <h2 className="task-popup-header">{props.selectedTask.task_name}</h2>
                 <table className="task-popup-table">
                     <tbody>
-                        <tr>
-                            <td className="task-popup-label">This takes on average:</td>
-                            <td className="task-popup-content">{(props.selectedTask.mean_completion_time / 60).toFixed(1)} minutes</td>
-                        </tr>
-
                         {
                             (() => {
                                 switch (props.selectedTask.type) {
@@ -113,7 +100,12 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
                                         return (
                                             <>
                                                 <tr>
-                                                    <p><strong>{`Due at ${props.selectedTask.next_due}`}</strong></p>
+                                                    <td className="task-popup-label">Due:</td>
+                                                    <td className="task-popup-content">{toHumanFriendlyDate(props.selectedTask.next_due)}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td className="task-popup-label">Schedule expression:</td>
+                                                    <td className="task-popup-content">{props.selectedTask.cron_schedule}</td>
                                                 </tr>
                                                 <tr>
                                                     <td className="task-popup-label">And you have this long to do it:</td>
@@ -129,6 +121,10 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
                         <tr>
                             <td className="task-popup-label">Last done:</td>
                             <td className="task-popup-content">{getTimeSince(props.selectedTask.last_completed)}</td>
+                        </tr>
+                        <tr>
+                            <td className="task-popup-label">This takes on average:</td>
+                            <td className="task-popup-content">{(props.selectedTask.mean_completion_time / 60).toFixed(1)} minutes</td>
                         </tr>
                         <tr>
                             <td className="task-popup-label">Staleness:</td>
