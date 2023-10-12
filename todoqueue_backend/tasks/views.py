@@ -4,7 +4,12 @@ from accounts.serializers import CustomUserSerializer
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
-from rest_framework.decorators import action, api_view, permission_classes, authentication_classes
+from rest_framework.decorators import (
+    action,
+    api_view,
+    permission_classes,
+    authentication_classes,
+)
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -86,8 +91,8 @@ class FlexibleTaskViewSet(viewsets.ModelViewSet):
         else:
             # Return an empty queryset if the user does not belong to the household
             return FlexibleTask.objects.none()
-        
-        
+
+
 class AllTasksViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = AllTasksSerializer
@@ -109,27 +114,31 @@ class AllTasksViewSet(viewsets.ReadOnlyModelViewSet):
         else:
             # Return an empty queryset if the user does not belong to the household
             return []
-        
+
     def retrieve(self, request, *args, **kwargs):
-        task_id = kwargs.get('pk')
+        task_id = kwargs.get("pk")
         task, task_type = get_task_by_id(task_id)
-        
+
         if not task:
-            return Response({"detail": "Task not found."}, status=status.HTTP_404_NOT_FOUND)
-        
+            return Response(
+                {"detail": "Task not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+
         data = AllTasksSerializer(task).data
-        
+
         return Response(data)
-    
+
     def delete(self, request, *args, **kwargs):
-        task_id = kwargs.get('pk')
+        task_id = kwargs.get("pk")
         task, task_type = get_task_by_id(task_id)
-        
+
         if not task:
-            return Response({"detail": "Task not found."}, status=status.HTTP_404_NOT_FOUND)
-        
+            return Response(
+                {"detail": "Task not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+
         task.delete()
-        
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -346,12 +355,13 @@ def calculate_brownie_points_view(request):
             # Get all the work logs associated with this task
             work_logs = WorkLog.objects.filter(object_id=task_id)
             grossnesses = [work_log.grossness for work_log in work_logs]
-            completion_times = [work_log.completion_time.seconds/60 for work_log in work_logs]
-                        
+            completion_times = [
+                work_log.completion_time.seconds / 60 for work_log in work_logs
+            ]
+
             # Convert completion time to a timedelta. It's a string formatted for a DurationField ("[-]DD HH:MM:SS")
             completion_time_td = parse_duration(completion_time)
             completion_time_minutes = completion_time_td.seconds / 60
-
 
             brownie_points = bp_function(
                 completion_time_minutes, grossness, grossnesses, completion_times

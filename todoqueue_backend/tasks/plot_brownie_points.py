@@ -22,14 +22,14 @@ Z = vfunc(A_timedelta_mesh, B_mesh)
 
 # Create a surface plot
 fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-ax.plot_surface(A_mesh, B_mesh, Z, cmap='viridis')
+ax = fig.add_subplot(111, projection="3d")
+ax.plot_surface(A_mesh, B_mesh, Z, cmap="viridis")
 
 # Set labels and title
-ax.set_xlabel('Completion Time (minutes)')
-ax.set_ylabel('Grossness')
-ax.set_zlabel('BP Score')
-ax.set_title('BP Calculation')
+ax.set_xlabel("Completion Time (minutes)")
+ax.set_ylabel("Grossness")
+ax.set_zlabel("BP Score")
+ax.set_title("BP Calculation")
 
 # Show the plot
 plt.show()

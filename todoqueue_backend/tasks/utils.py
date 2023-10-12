@@ -32,11 +32,16 @@ def parse_duration(duration_str):
     return timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 
 
-def bp_function(completion_time_minutes: float, grossness: float, grossnesses: List[float]=None, completion_times: List[float]=None) -> float:
-    """Return the brownie points for a given completion time and grossness. Optionally, pass in a list of 
+def bp_function(
+    completion_time_minutes: float,
+    grossness: float,
+    grossnesses: List[float] = None,
+    completion_times: List[float] = None,
+) -> float:
+    """Return the brownie points for a given completion time and grossness. Optionally, pass in a list of
     grossnesses and completion times to calculate the brownie points in the context of the history of how
     long it has taken to complete this task in the past.
-    
+
     Args:
         completion_time_minutes (float): The time it took to complete the task in minutes.
         grossness (float): The grossness of the task.
@@ -44,14 +49,17 @@ def bp_function(completion_time_minutes: float, grossness: float, grossnesses: L
         completion_times (List[float], optional): A list of completion times for this task. Defaults to None.
     """
     user_gross_scale_range = [0, 5]
-    output_gross_scale_range = [0, 50]
+    output_gross_scale_range = [1, 5]
 
     grossness = renormalize(
         float(grossness), user_gross_scale_range, output_gross_scale_range
     )
 
     # Calculate the brownie points
-    brownie_points = completion_time_minutes + grossness
+    # The random factor is to scale the bp, so they feel more esoteric
+    brownie_points = completion_time_minutes + grossness * 13
+    logger.info(f"  Completion time: {completion_time_minutes}")
+    logger.info(f"  Grossness: {grossness}")
     logger.info(f"  Brownie points: {brownie_points}")
 
     return brownie_points
