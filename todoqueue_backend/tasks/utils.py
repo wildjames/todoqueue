@@ -88,15 +88,17 @@ def bp_function(
     # completion_time_minutes = piecewise_linear(completion_time_minutes, 2.0, 0.75, 30)
 
     random_factor = 1 #random.uniform(1.0, 1.1)
-    random_base = random.uniform(-50, 0)
+    random_base = random.uniform(0, 50)
 
     # Calculate the brownie points
     # The sigmoid scales are just hand tuned to make the graph look nice
-    brownie_points = 200 * sigmoid(completion_time_minutes / 20) + grossness
+    brownie_points = 200 * sigmoid(completion_time_minutes / 20) + grossness - 100
     brownie_points = (brownie_points * random_factor) + random_base
     
-    # logger.info(f"  Completion time: {completion_time_minutes}")
-    # logger.info(f"  Grossness: {grossness}")
-    # logger.info(f"  Brownie points: {brownie_points}")
+    logger.info(f"  Completion time: {completion_time_minutes}")
+    logger.info(f"  Grossness: {grossness}")
+    logger.info(f"  Random factor: {random_factor:.2f}")
+    logger.info(f"  Random base: {random_base:.2f}")
+    logger.info(f"  Brownie points: {brownie_points}")
 
     return int(brownie_points)
