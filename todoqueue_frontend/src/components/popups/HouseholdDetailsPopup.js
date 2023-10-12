@@ -22,6 +22,7 @@ const HouseholdDetailsPopup = React.forwardRef((props, ref) => {
             setUsers(users);
         } catch (error) {
             console.error("An error occurred while fetching data:", error);
+            props.closePopup();
         }
     }
 

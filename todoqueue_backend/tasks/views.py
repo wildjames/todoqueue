@@ -1,4 +1,3 @@
-import typing
 from datetime import timedelta
 from logging import INFO, basicConfig, getLogger
 
@@ -317,11 +316,14 @@ class RemoveUserFromHouseholdView(APIView):
         logger.info("Got user")
         household.users.remove(user)
 
+        logger.info(f"Household has {household.users.count()} users")
         if household.users.count() == 0:
+            logger.info("Deleting household")
             household.delete()
+        else:
+            household.save()
 
         user.save()
-        household.save()
 
         return Response("OK", 200)
 
