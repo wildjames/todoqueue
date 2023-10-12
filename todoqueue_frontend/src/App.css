@@ -367,6 +367,7 @@ h1 {
   transform: scale(0.85);
   cursor: default;
 }
+
 .button.enabled {
   opacity: 1;
   transform: scale(1.0);
@@ -490,6 +491,35 @@ h1 {
   animation: bounce-bp 0.2s linear;
 }
 
+.input-pair-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.input-group {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.input-pair-container .input-group label {
+  text-align: left;
+}
+
+.input-group:last-child {
+  margin-right: 0;
+}
+
+.input-fullwidth-container {
+  display: flex;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.input-fullwidth-container .input-group {
+  flex: 1;
+}
+
 .input-group-horizontal {
   display: flex;
   align-items: center;
@@ -503,6 +533,11 @@ h1 {
 .input-group-horizontal.right-align label {
   text-align: right;
   padding-right: 1rem;
+}
+
+.input-group-horizontal.left-align label {
+  text-align: left;
+  padding-left: 1rem;
 }
 
 .input-group-horizontal input {
