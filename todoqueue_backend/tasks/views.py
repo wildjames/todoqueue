@@ -1,4 +1,3 @@
-from datetime import timedelta
 from logging import INFO, basicConfig, getLogger
 
 from accounts.serializers import CustomUserSerializer
@@ -28,6 +27,8 @@ from .models import (
     get_task_by_id,
     get_serializer_for_task,
 )
+
+from .utils import bp_function, parse_duration
 
 logger = getLogger(__name__)
 basicConfig(level=INFO)
@@ -328,107 +329,6 @@ class RemoveUserFromHouseholdView(APIView):
         return Response("OK", 200)
 
 
-def renormalize(value, old_range, new_range):
-    old_range_width = old_range[1] - old_range[0]
-    new_range_width = new_range[1] - new_range[0]
-    new_value = (
-        ((value - old_range[0]) * new_range_width) / old_range_width
-    ) + new_range[0]
-    return new_value
-
-
-def parse_duration(duration_str):
-    """Generate a timedelta object from a string formatted for a DurationField ("[-]DD HH:MM:SS")"""
-    # Split by days and time
-    if " " in duration_str:
-        days_str, time_str = duration_str.split(" ")
-        days = int(days_str)
-    else:
-        days = 0
-        time_str = duration_str
-
-    # Split time into hours, minutes, and seconds
-    hours, minutes, seconds = map(int, time_str.split(":"))
-
-    # Create a timedelta object
-    return timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
-
-
-def calculate_brownie_points(task_id, completion_time, grossness):
-    user_gross_scale_range = [0, 5]
-    output_gross_scale_range = [1, 2]
-
-    task = get_task_by_id(task_id)
-    if task is None:
-        logger.error("No task found with ID: {task_id}")
-        return None
-
-    logger.info(f"[Task {task_id}]  Completion time: {completion_time}")
-
-    # Convert completion time to a timedelta. It's a string formatted for a DurationField ("[-]DD HH:MM:SS")
-    completion_time = parse_duration(completion_time)
-
-    grossness = renormalize(
-        float(grossness), user_gross_scale_range, output_gross_scale_range
-    )
-
-    logger.info(f"[Task {task_id}]  Completion time as timedelta: {completion_time}")
-    logger.info(f"[Task {task_id}]  Grossness: {grossness}")
-
-    # Get all the work logs associated with this task
-    work_logs = WorkLog.objects.filter(object_id=task_id)
-    if work_logs is None or len(work_logs) == 0:
-        logger.info(
-            f"[Task {task_id}]  No work logs for this task. Using this work log as the first."
-        )
-        average_grossness = grossness
-        average_completion_time = completion_time
-
-    else:
-        # Calculate the average completion time (This is a timedelta)
-        total_completion_time = timedelta(seconds=0)
-        for work_log in work_logs:
-            total_completion_time += work_log.completion_time
-        logger.info(f"[Task {task_id}]  Work logs have {len(work_logs)} entries")
-        average_completion_time = total_completion_time / len(work_logs)
-
-        # Calculate the average grossness.
-        # Grossness as rated ranges from 0 to 5, but we need to map these values to the range 1 to 2
-        total_grossness = 0
-        for work_log in work_logs:
-            total_grossness += renormalize(
-                work_log.grossness, user_gross_scale_range, output_gross_scale_range
-            )
-        average_grossness = total_grossness / len(work_logs)
-
-    completion_time_minutes = completion_time.seconds / 60
-    average_completion_time_minutes = average_completion_time.seconds / 60
-
-    # Compute the bonus scale factor. If something took longer, or was more gross than usual, the user
-    # gets a bonus for that. They don't get penalised for being quick, though.
-    if average_grossness * average_completion_time_minutes == 0:
-        # Catch div 0 error
-        bonus_scale_factor = 1
-    else:
-        bonus_scale_factor = (grossness * completion_time_minutes) / (
-            average_grossness * average_completion_time_minutes
-        )
-    if bonus_scale_factor < 1:
-        bonus_scale_factor = 1.0
-
-    # Calculate the brownie points
-    brownie_points = bonus_scale_factor * completion_time_minutes * grossness
-
-    logger.info(
-        f"[Task {task_id}]  Average completion time (minutes): {average_completion_time_minutes}"
-    )
-    logger.info(f"[Task {task_id}]  Average grossness: {average_grossness}")
-    logger.info(f"[Task {task_id}]  Bonus factor: {bonus_scale_factor}")
-    logger.info(f"[Task {task_id}]  Brownie points: {brownie_points}")
-
-    return brownie_points
-
-
 @api_view(["POST"])
 def calculate_brownie_points_view(request):
     if request.method == "POST":
@@ -443,8 +343,18 @@ def calculate_brownie_points_view(request):
 
         brownie_points = None
         try:
-            brownie_points = calculate_brownie_points(
-                task_id, completion_time, grossness
+            # Get all the work logs associated with this task
+            work_logs = WorkLog.objects.filter(object_id=task_id)
+            grossnesses = [work_log.grossness for work_log in work_logs]
+            completion_times = [work_log.completion_time.seconds/60 for work_log in work_logs]
+                        
+            # Convert completion time to a timedelta. It's a string formatted for a DurationField ("[-]DD HH:MM:SS")
+            completion_time_td = parse_duration(completion_time)
+            completion_time_minutes = completion_time_td.seconds / 60
+
+
+            brownie_points = bp_function(
+                completion_time_minutes, grossness, grossnesses, completion_times
             )
         except Exception as e:
             logger.info(f"Failed to calcualte brownie points. Error: {e}")
