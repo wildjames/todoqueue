@@ -85,9 +85,17 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
     };
 
 
+    const closePopup = () => {
+        console.log("Closing popup");
+        setCurrentPopup(PopupType.NONE);
+        setSelectedHousehold(null);
+    };
+
+
     const propsForHouseholdDetails = {
         selectedHousehold,
         handleOverlayClick,
+        closePopup,
     };
 
 
