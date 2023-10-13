@@ -297,6 +297,49 @@ export const createScheduledTask = async (
 };
 
 
+export const updateScheduledTask = async (
+    taskId,
+    task_name,
+    household,
+    cronString,
+    max_interval,
+    description,
+) => {
+    const updateTaskUrl = `/api/scheduled-tasks/${taskId}/?household=${household}`;
+
+    const updatedTask = {
+        task_name,
+        household,
+        cron_schedule: cronString,
+        max_interval,
+    };
+
+    // Description is optional
+    if (description) {
+        updatedTask.description = description;
+    }
+
+    console.log("Updating the scheduled task");
+    console.log("updatedTask: ", updatedTask);
+
+    const res = await axios.put(
+        updateTaskUrl,
+        JSON.stringify(updatedTask),
+        {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+    if (res.status !== 200) {
+        console.log("Failed to update scheduled task.");
+        return;
+    }
+
+    return res.data;
+};
+
+
 export const deleteScheduledTask = async (
     taskId,
     selectedHousehold,

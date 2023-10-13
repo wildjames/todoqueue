@@ -10,6 +10,7 @@ import CompleteTaskPopup from './popups/CompleteTaskPopup';
 import CreateFlexibleTaskPopup from './popups/CreateFlexibleTaskPopup';
 import EditFlexibleTaskPopup from './popups/EditFlexibleTaskPopup';
 import CreateScheduledTaskPopup from './popups/CreateScheduledTaskPopup';
+import EditScheduledTaskPopup from './popups/EditScheduledTaskPopup';
 
 import { fetchTasks } from '../api/tasks';
 import { fetchUsers } from '../api/users';
@@ -36,6 +37,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         CREATE_SCHEDULED_TASK: 'CREATE_SCHEDULED_TASK',
         CREATE_FLEXIBLE_TASK: 'CREATE_FLEXIBLE_TASK',
         EDIT_FLEXIBLE_TASK: 'EDIT_FLEXIBLE_TASK',
+        EDIT_SCHEDULED_TASK: 'EDIT_SCHEDULED_TASK',
     };
     // State variable for the current popup
     const [currentPopup, setCurrentPopup] = useState(PopupType.NONE);
@@ -217,7 +219,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     };
 
 
-    const propsForEditFlexibleTask = {
+    const propsForEditTask = {
         handleOverlayClick: handleOverlayClick,
         setCurrentPopup: setCurrentPopup,
         PopupType: PopupType,
@@ -265,7 +267,10 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                             return <CreateScheduledTaskPopup ref={popupInnerRef} {...propsForCreateScheduledTask} />;
 
                         case PopupType.EDIT_FLEXIBLE_TASK:
-                            return <EditFlexibleTaskPopup ref={popupInnerRef} {...propsForEditFlexibleTask} />;
+                            return <EditFlexibleTaskPopup ref={popupInnerRef} {...propsForEditTask} />;
+
+                        case PopupType.EDIT_SCHEDULED_TASK:
+                            return <EditScheduledTaskPopup ref={popupInnerRef} {...propsForEditTask} />;
 
                         default:
                             return null;
