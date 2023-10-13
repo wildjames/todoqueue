@@ -80,6 +80,10 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
             case "flexibletask":
                 selectedType = props.PopupType.EDIT_FLEXIBLE_TASK;
                 break;
+
+            case "scheduledtask":
+                selectedType = props.PopupType.EDIT_SCHEDULED_TASK;
+                break;
          
             default:
                 selectedType = props.PopupType.NONE;

@@ -1,12 +1,15 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import BasePopup from './BasePopup';
-import { createScheduledTask } from '../../api/tasks'; // Make sure to implement this function in your API
+import { updateScheduledTask, fetchSelectedTask } from '../../api/tasks';
 
-const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
-    const [newTask, setNewTask] = useState({
+const EditScheduledTaskPopup = React.forwardRef((props, ref) => {
+    const [task, setTask] = useState({
         task_name: '',
         description: '',
         max_interval: '0:0',
+        max_interval_days: '0',
+        max_interval_hours: '0',
+        max_interval_minutes: '0',
         minutes: "0",
         hours: "*",
         DoM: "*",
@@ -15,13 +18,59 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
     });
     const [inputError, setInputError] = useState(false);
 
-    const handleCreateTask = async (event) => {
+    useEffect(() => {
+        const fetchTaskDetails = async () => {
+            const taskData = await fetchSelectedTask(props.selectedTaskId, props.selectedHousehold);
+            setTask(taskData);
+
+            // Helper function to parse intervals
+            const parseInterval = (interval) => {
+                const parts = interval.split(' ');
+                let days = 0;
+                let time = parts[0];
+
+                // If there are two parts, it means days are included
+                if (parts.length === 2) {
+                    days = parseInt(parts[0]);
+                    time = parts[1];
+                }
+
+                const [hours, minutes] = time.split(':').map(Number);
+                return { days, hours, minutes };
+            };
+            
+            
+            const maxInterval = parseInterval(taskData.max_interval);
+            
+            // The cron_schedule needs to be split into the individual fields.
+            // Replace any "*" with "All" so that it can be displayed in the input field.
+            const cron_schedule = taskData.cron_schedule.split(' ').map((field) => {
+                if (field === '*') {
+                    return 'All';
+                }
+                return field;
+            });
+            setTask({
+                ...taskData,
+                minutes: cron_schedule[0],
+                hours: cron_schedule[1],
+                DoM: cron_schedule[2],
+                months: cron_schedule[3],
+                DoW: cron_schedule[4],
+                max_interval_days: maxInterval.days,
+                max_interval_hours: maxInterval.hours,
+                max_interval_minutes: maxInterval.minutes,
+            });
+        };
+
+        fetchTaskDetails();
+    }, [props.selectedTaskId]);
+
+    const handleEditTask = async (event) => {
         event.preventDefault();
 
-        console.log("Checking inputs", newTask);
-
         // Check for invalid inputs
-        if (newTask.task_name === "") {
+        if (task.task_name === "") {
             setInputError(true);
             console.log("Task name may not be blank");
             return;
@@ -29,9 +78,9 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
 
         // Convert max_interval to minutes
         const max_interval_in_minutes =
-            (newTask.max_interval_days || 0) * 24 * 60 +
-            (newTask.max_interval_hours || 0) * 60 +
-            (newTask.max_interval_minutes || 0);
+            (task.max_interval_days || 0) * 24 * 60 +
+            (task.max_interval_hours || 0) * 60 +
+            (task.max_interval_minutes || 0);
 
         // integers only
         if (max_interval_in_minutes % 1 !== 0) {
@@ -47,80 +96,67 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
         }
 
         // Convert max_interval and min_interval to Django DurationField format "[-]DD HH:MM:SS"
-        const max_interval = `${newTask.max_interval_days || 0} ${newTask.max_interval_hours || 0}:${newTask.max_interval_minutes || 0}:00`;
+        const max_interval = `${task.max_interval_days || 0} ${task.max_interval_hours || 0}:${task.max_interval_minutes || 0}:00`;
 
-        const cronString = `${newTask.minutes} ${newTask.hours} ${newTask.DoM} ${newTask.months} ${newTask.DoW}`
+        let cronString = `${task.minutes} ${task.hours} ${task.DoM} ${task.months} ${task.DoW}`
+        // Replace any "All" with "*"
+        cronString = cronString.toLowerCase().split(' ').map((field) => {
+            if (field === 'all') {
+                return '*';
+            }
+            return field;
+        }).join(' ');
+
         // Validate cron expression
         const regex = /^(\*|([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])|\*\/([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])) (\*|([0-9]|1[0-9]|2[0-3])|\*\/([0-9]|1[0-9]|2[0-3])) (\*|([1-9]|1[0-9]|2[0-9]|3[0-1])|\*\/([1-9]|1[0-9]|2[0-9]|3[0-1])) (\*|([1-9]|1[0-2])|\*\/([1-9]|1[0-2])) (\*|([0-6])|\*\/([0-6]))$/;
         if (!regex.test(cronString)) {
             console.error("The cron expression is not valid!", cronString);
-            console.error("This is the task it was build from:", newTask);
+            console.error("This is the task it was build from:", task);
             setInputError(true);
             return;
         }
 
         setInputError(false);
 
-        const response_data = await createScheduledTask(
-            newTask.task_name,
+        const response_data = await updateScheduledTask(
+            props.selectedTaskId,
+            task.task_name,
             props.selectedHousehold,
             cronString,
             max_interval,
-            newTask.description,
+            task.description,
         );
 
-        console.log("Created scheduled task. Response:", response_data);
+        console.log("Updated scheduled task. Response:", response_data);
         await props.fetchSetTasks();
-        props.closeCurrentPopup();
-
-        // Reset the newTask state
-        console.log("Resetting task")
-        setNewTask({
-            task_name: '',
-            description: '',
-            max_interval: '0:0',
-            minutes: "*",
-            hours: "*",
-            DoM: "*",
-            months: "*",
-            DoW: "*",
-        });
+        // props.closeCurrentPopup();
+        props.setCurrentPopup(props.PopupType.TASK_DETAILS);
     };
 
-    const handleCreateInputChange = (e) => {
+    const handleInputChange = (e) => {
         const { name, value } = e.target;
 
-        console.log("Setting new task in handleCreateInputChange");
-        setNewTask((prevTask) => {
+        setTask((prevTask) => {
             const updatedTask = { ...prevTask, [name]: value };
 
             return updatedTask;
         });
     };
 
-
-    const handlePopupTypeChange = (e) => {
-        const selectedType = e.target.value;
-        props.setCurrentPopup(selectedType);
-    };
-
-
     return (
         <BasePopup onClick={props.handleOverlayClick} ref={ref}>
             <div>
-                <div className="popup-type-selector">
-                    <label>Task Type: </label>
-                    <select value={props.currentPopup} onChange={handlePopupTypeChange} style={{ margin: "1rem" }}>
-                        <option value={props.PopupType.CREATE_SCHEDULED_TASK}>Scheduled Task</option>
-                        <option value={props.PopupType.CREATE_FLEXIBLE_TASK}>Flexible Task</option>
-                    </select>
-                </div>
-
-                <h2>Create a New Scheduled Task</h2>
+                <h2>Edit Scheduled Task</h2>
                 <form className="task-form">
 
                     <div className="task-input-group" >
-                        <input type="text" name="task_name" placeholder="Task Name" onChange={handleCreateInputChange} />
+                        <input
+                            type="text"
+                            name="task_name"
+                            placeholder="Task Name"
+                            onChange={handleInputChange}
+                            value={task.task_name}
+                        />
                     </div>
 
                     <div className="input-pair-container">
@@ -130,7 +166,8 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
                                 type="text"
                                 name="minutes"
                                 placeholder="'0', or '15,45', or '20-30'"
-                                onChange={handleCreateInputChange}
+                                onChange={handleInputChange}
+                                value={task.minutes}
                             />
                         </div>
                         <div className={`task-input-group no-max-width left-align ${inputError ? "input-error" : ""}`}>
@@ -139,7 +176,8 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
                                 type="text"
                                 name="hours"
                                 placeholder="'12', or '9,18', or '10-14'"
-                                onChange={handleCreateInputChange}
+                                onChange={handleInputChange}
+                                value={task.hours}
                             />
                         </div>
                     </div>
@@ -151,7 +189,8 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
                                 type="text"
                                 name="DoM"
                                 placeholder="'1', or '1,15' or '10-20'"
-                                onChange={handleCreateInputChange}
+                                onChange={handleInputChange}
+                                value={task.DoM}
                             />
                         </div>
                         <div className={`task-input-group no-max-width left-align ${inputError ? "input-error" : ""}`}>
@@ -160,7 +199,8 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
                                 type="text"
                                 name="DoW"
                                 placeholder="'7', or '6,7', or '1-5'"
-                                onChange={handleCreateInputChange}
+                                onChange={handleInputChange}
+                                value={task.DoW}
                             />
                         </div>
                     </div>
@@ -172,7 +212,8 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
                                 type="text"
                                 name="months"
                                 placeholder="'6', or '1,3,6,9', or '3-9'"
-                                onChange={handleCreateInputChange}
+                                onChange={handleInputChange}
+                                value={task.months}
                             />
                         </div>
                     </div>
@@ -185,7 +226,8 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
                             min="0"
                             name="max_interval_days"
                             placeholder="Days"
-                            onChange={handleCreateInputChange}
+                            onChange={handleInputChange}
+                            value={task.max_interval_days}
                         />
                         <input
                             className={inputError ? "input-error" : ""}
@@ -193,7 +235,8 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
                             min="0"
                             name="max_interval_hours"
                             placeholder="Hours"
-                            onChange={handleCreateInputChange}
+                            onChange={handleInputChange}
+                            value={task.max_interval_hours}
                         />
                         <input
                             className={inputError ? "input-error" : ""}
@@ -201,26 +244,34 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
                             min="0"
                             name="max_interval_minutes"
                             placeholder="Minutes"
-                            onChange={handleCreateInputChange}
+                            onChange={handleInputChange}
+                            value={task.max_interval_minutes}
                         />
                     </div>
 
                     <div className="task-input-group">
-                        <input type="text" name="description" placeholder="Description" onChange={handleCreateInputChange} />
+                        <input
+                            type="text"
+                            name="description"
+                            placeholder="Description"
+                            onChange={handleInputChange}
+                            value={task.description}
+                        />
 
                     </div>
 
                     <div>
-                        <button className="button create-button" onClick={handleCreateTask}>
-                            Create Task
+                        <button
+                            className="button edit-button"
+                            onClick={handleEditTask}
+                        >
+                            Update Task
                         </button>
                     </div>
-
-
                 </form>
             </div>
         </BasePopup>
     );
 });
 
-export default CreateScheduledTaskPopup;
+export default EditScheduledTaskPopup;
