@@ -3,17 +3,20 @@ from time import sleep
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
+from django.http import HttpResponseRedirect
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+
 from rest_framework import status, viewsets
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.http import HttpResponseRedirect
+
 from .serializers import (
     CustomUserSerializer,
     CustomUserRegistrationSerializer,
@@ -28,6 +31,20 @@ user_model = get_user_model()
 class CustomUserViewSet(viewsets.ModelViewSet):
     queryset = user_model.objects.all().order_by("-date_joined")
     serializer_class = CustomUserSerializer
+
+    def get_queryset(self, *args, **kwargs):
+        user = self.request.user
+        # If user is admin, they can see all users
+        if user.is_staff:
+            return user_model.objects.all().order_by("-date_joined")
+        # Otherwise, just show the logged in user
+        return user_model.objects.filter(pk=user.pk)
+
+    def check_permissions(self, request):
+        super().check_permissions(request)
+        # If it's a 'list' action and user is not admin, deny access
+        if self.action == 'list' and not request.user.is_staff:
+            raise PermissionDenied("You do not have permission to view the list of users.")
 
 
 class AuthView(APIView):
