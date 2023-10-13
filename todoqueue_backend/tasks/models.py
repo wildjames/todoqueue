@@ -107,6 +107,9 @@ class ScheduledTask(models.Model):
     # Calculate the staleness of this task
     @property
     def staleness(self):
+        if self.frozen:
+            return 0
+        
         last_due = self.last_due
         now = timezone.now()
         logger.debug(f"Time is now: {now.astimezone()}")

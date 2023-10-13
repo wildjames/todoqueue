@@ -35,7 +35,7 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
 
     const handleDeleteTask = async (taskId) => {
         const succeeded = await deleteTask(taskId, props.selectedHousehold);
-        
+
         if (succeeded) {
             props.closeCurrentPopup();
         } else {
@@ -56,23 +56,38 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
     function toHumanFriendlyDate(datetimeStr) {
         // Parse the datetime string into a Date object
         const dateObj = new Date(datetimeStr);
-    
+
         // Extract date components
         const day = dateObj.getDate();
         const month = dateObj.getMonth() + 1; // Months are 0-based in JavaScript
         const year = dateObj.getFullYear();
-    
+
         // Extract time components
         const hours = dateObj.getHours();
         const minutes = dateObj.getMinutes();
-    
+
         // Convert to human-friendly format
         const humanFriendlyDate = `${day}/${month}/${year}`;
         const humanFriendlyTime = `${hours}:${minutes < 10 ? '0' + minutes : minutes}`;
-    
+
         return `${humanFriendlyDate} at ${humanFriendlyTime}`;
     }
-    
+
+
+    const handleOpenEditTaskPopup = (e) => {
+        let selectedType = props.PopupType.NONE;
+        switch (props.selectedTask.type) {
+            case "flexibletask":
+                selectedType = props.PopupType.EDIT_FLEXIBLE_TASK;
+                break;
+         
+            default:
+                selectedType = props.PopupType.NONE;
+                break;
+        }
+        props.setCurrentPopup(selectedType);
+    };
+
 
     return (
         <BasePopup onClick={props.handleOverlayClick} innerClass={innerClass} ref={ref}>
@@ -144,6 +159,7 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
                     <button className="button complete-button" onClick={() => props.handleOpenCompleteTaskPopup(props.selectedTask)}>Complete Task</button>
                     <button className="button freeze-button" onClick={() => handleFreezeTask(props.selectedTask.id)}>{props.selectedTask.frozen ? "Unfreeze Task" : "Freeze Task"}</button>
                     <button className="button delete-button" onClick={() => handleDeleteTask(props.selectedTask.id)}>Delete Task</button>
+                    <button className="button edit-button" onClick={() => handleOpenEditTaskPopup()}>Edit Task</button>
                 </div>
             </div>
         </BasePopup>
