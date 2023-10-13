@@ -95,10 +95,10 @@ def bp_function(
     brownie_points = 200 * sigmoid(completion_time_minutes / 20) + grossness - 100
     brownie_points = (brownie_points * random_factor) + random_base
     
-    logger.info(f"  Completion time: {completion_time_minutes}")
-    logger.info(f"  Grossness: {grossness}")
-    logger.info(f"  Random factor: {random_factor:.2f}")
-    logger.info(f"  Random base: {random_base:.2f}")
-    logger.info(f"  Brownie points: {brownie_points}")
+    logger.debug(f"  Completion time: {completion_time_minutes}")
+    logger.debug(f"  Grossness: {grossness}")
+    logger.debug(f"  Random factor: {random_factor:.2f}")
+    logger.debug(f"  Random base: {random_base:.2f}")
+    logger.debug(f"  Brownie points: {brownie_points}")
 
     return int(brownie_points)

@@ -8,6 +8,7 @@ import { SimpleFlipper } from './flipper/flipper';
 import TaskDetailsPopup from './popups/TaskDetailsPopup';
 import CompleteTaskPopup from './popups/CompleteTaskPopup';
 import CreateFlexibleTaskPopup from './popups/CreateFlexibleTaskPopup';
+import EditFlexibleTaskPopup from './popups/EditFlexibleTaskPopup';
 import CreateScheduledTaskPopup from './popups/CreateScheduledTaskPopup';
 
 import { fetchTasks } from '../api/tasks';
@@ -34,6 +35,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         COMPLETE_TASK: 'COMPLETE_TASK',
         CREATE_SCHEDULED_TASK: 'CREATE_SCHEDULED_TASK',
         CREATE_FLEXIBLE_TASK: 'CREATE_FLEXIBLE_TASK',
+        EDIT_FLEXIBLE_TASK: 'EDIT_FLEXIBLE_TASK',
     };
     // State variable for the current popup
     const [currentPopup, setCurrentPopup] = useState(PopupType.NONE);
@@ -156,6 +158,12 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         setCurrentPopup(PopupType.CREATE_FLEXIBLE_TASK);
     };
 
+    const handleOpenEditFlexibleTaskPopup = (task) => {
+        setSelectedTask(task);
+        setSelectedTaskId(task.id);
+        setCurrentPopup(PopupType.EDIT_FLEXIBLE_TASK);
+    };
+
     const handleOverlayClick = (e) => {
         if (popupInnerRef.current && !popupInnerRef.current.contains(e.target)) {
             closeCurrentPopup();
@@ -180,6 +188,8 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         handleOverlayClick: handleOverlayClick,
         handleOpenCompleteTaskPopup: handleOpenCompleteTaskPopup,
         setSelectedTask: setSelectedTask,
+        setCurrentPopup: setCurrentPopup,
+        PopupType: PopupType,
         selectedHousehold: selectedHousehold,
         selectedTask: selectedTask,
         selectedTaskId: selectedTaskId,
@@ -204,6 +214,17 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         PopupType: PopupType,
         setCurrentPopup: setCurrentPopup,
         currentPopup: currentPopup,
+    };
+
+
+    const propsForEditFlexibleTask = {
+        handleOverlayClick: handleOverlayClick,
+        setCurrentPopup: setCurrentPopup,
+        PopupType: PopupType,
+        closeCurrentPopup: closeCurrentPopup,
+        fetchSetTasks: fetchSetTasks,
+        selectedHousehold: selectedHousehold,
+        selectedTaskId: selectedTaskId,
     };
 
 
@@ -233,12 +254,19 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                     switch (currentPopup) {
                         case PopupType.TASK_DETAILS:
                             return <TaskDetailsPopup ref={popupInnerRef} {...propsForTaskDetails} />;
+
                         case PopupType.COMPLETE_TASK:
                             return <CompleteTaskPopup ref={popupInnerRef} {...propsForCompleteTask} />;
+
                         case PopupType.CREATE_FLEXIBLE_TASK:
                             return <CreateFlexibleTaskPopup ref={popupInnerRef} {...propsForCreateFlexibleTask} />;
+
                         case PopupType.CREATE_SCHEDULED_TASK:
                             return <CreateScheduledTaskPopup ref={popupInnerRef} {...propsForCreateScheduledTask} />;
+
+                        case PopupType.EDIT_FLEXIBLE_TASK:
+                            return <EditFlexibleTaskPopup ref={popupInnerRef} {...propsForEditFlexibleTask} />;
+
                         default:
                             return null;
                     }

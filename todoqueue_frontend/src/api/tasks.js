@@ -186,6 +186,48 @@ export const createFlexibleTask = async (
     return res.data;
 };
 
+export const updateFlexibleTask = async (
+    taskId,
+    task_name,
+    household,
+    max_interval,
+    min_interval,
+    description,
+) => {
+    const updateTaskUrl = `/api/flexible-tasks/${taskId}/?household=${household}`;
+
+    const updatedTask = {
+        task_name,
+        household,
+        max_interval,
+        min_interval,
+    };
+
+    // Description is optional
+    if (description) {
+        updatedTask.description = description;
+    }
+
+    console.log("Updating the task");
+    console.log("updatedTask: ", updatedTask);
+
+    const res = await axios.put(
+        updateTaskUrl,
+        JSON.stringify(updatedTask),
+        {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+    if (res.status !== 200) {
+        console.log("Failed to update task.");
+        return;
+    }
+
+    return res.data;
+};
+
 export const deleteFlexibleTask = async (
     taskId,
     selectedHousehold,

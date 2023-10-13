@@ -138,11 +138,11 @@ const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
 
                 <h2>Create a New Task</h2>
                 <form className="task-form">
-                    <div className="input-group">
+                    <div className="task-input-group">
                         <input type="text" name="task_name" placeholder="Task Name" onChange={handleCreateInputChange} />
                     </div>
 
-                    <div className="input-group input-group-horizontal">
+                    <div className="task-input-group task-input-group-horizontal">
                         <label>Max Interval: </label>
                         <input
                             className={inputError ? "input-error" : ""}
@@ -169,7 +169,7 @@ const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
                             onChange={handleCreateInputChange}
                         />
                     </div>
-                    <div className="input-group input-group-horizontal">
+                    <div className="task-input-group task-input-group-horizontal">
                         <label>Min Interval: </label>
                         <input
                             className={inputError ? "input-error" : ""}
@@ -196,13 +196,15 @@ const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
                             onChange={handleCreateInputChange}
                         />
                     </div>
-                    <div className="input-group">
+                    <div className="task-input-group">
                         <input
                             type="text"
                             name="description"
                             placeholder="Description"
                             onChange={handleCreateInputChange}
                         />
+                    </div>
+                    <div>
                         <button
                             className={`button create-button ${inputError ? "disabled" : "enabled"}`}
                             onClick={handleCreateTask}

@@ -119,12 +119,12 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
                 <h2>Create a New Scheduled Task</h2>
                 <form className="task-form">
 
-                    <div className="input-group" >
+                    <div className="task-input-group" >
                         <input type="text" name="task_name" placeholder="Task Name" onChange={handleCreateInputChange} />
                     </div>
 
                     <div className="input-pair-container">
-                        <div className={`input-group no-max-width left-align ${inputError ? "input-error" : ""}`}>
+                        <div className={`task-input-group no-max-width left-align ${inputError ? "input-error" : ""}`}>
                             <label>Minutes: </label>
                             <input
                                 type="text"
@@ -133,7 +133,7 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
                                 onChange={handleCreateInputChange}
                             />
                         </div>
-                        <div className={`input-group no-max-width left-align ${inputError ? "input-error" : ""}`}>
+                        <div className={`task-input-group no-max-width left-align ${inputError ? "input-error" : ""}`}>
                             <label>Hours: </label>
                             <input
                                 type="text"
@@ -145,7 +145,7 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
                     </div>
 
                     <div className="input-pair-container">
-                        <div className={`input-group no-max-width left-align ${inputError ? "input-error" : ""}`}>
+                        <div className={`task-input-group no-max-width left-align ${inputError ? "input-error" : ""}`}>
                             <label>Day of the month: </label>
                             <input
                                 type="text"
@@ -154,7 +154,7 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
                                 onChange={handleCreateInputChange}
                             />
                         </div>
-                        <div className={`input-group no-max-width left-align ${inputError ? "input-error" : ""}`}>
+                        <div className={`task-input-group no-max-width left-align ${inputError ? "input-error" : ""}`}>
                             <label>Day of the week: </label>
                             <input
                                 type="text"
@@ -166,7 +166,7 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
                     </div>
 
                     <div className="input-pair-container">
-                        <div className={`input-group no-max-width left-align ${inputError ? "input-error" : ""}`}>
+                        <div className={`task-input-group no-max-width left-align ${inputError ? "input-error" : ""}`}>
                             <label>Months: </label>
                             <input
                                 type="text"
@@ -177,7 +177,7 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
                         </div>
                     </div>
 
-                    <div className="input-group input-group-horizontal">
+                    <div className="task-input-group task-input-group-horizontal">
                         <label>Max Interval: </label>
                         <input
                             className={inputError ? "input-error" : ""}
@@ -205,9 +205,12 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
                         />
                     </div>
 
-
-                    <div className="input-group">
+                    <div className="task-input-group">
                         <input type="text" name="description" placeholder="Description" onChange={handleCreateInputChange} />
+
+                    </div>
+
+                    <div>
                         <button className="button create-button" onClick={handleCreateTask}>
                             Create Task
                         </button>
