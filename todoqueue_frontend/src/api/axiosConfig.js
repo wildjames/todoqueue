@@ -33,17 +33,6 @@ axios.interceptors.response.use(
     if (error.response.status === 401 && !refresh) {
       refresh = true;
 
-      const token = localStorage.getItem('access_token');
-      if (token) {
-        const decodedToken = jwtDecode(token);
-        const currentTime = Date.now() / 1000; // Convert to seconds
-
-        if (decodedToken.exp < currentTime) {
-          handleLogout();
-          return;
-        }
-      }
-
       if (localStorage.getItem('refresh_token') === null) {
         handleLogout();
         return;
