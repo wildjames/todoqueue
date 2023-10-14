@@ -1,8 +1,13 @@
+from datetime import timedelta
 from logging import INFO, basicConfig, getLogger
 
-from accounts.serializers import CustomUserSerializer
+from accounts.serializers import CustomUserWithBrowniePointsSerializer
 from django.contrib.auth import get_user_model
+from django.db.models import Sum, Q
+from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
+
 from rest_framework import status, viewsets
 from rest_framework.decorators import (
     action,
@@ -217,8 +222,22 @@ class HouseholdViewSet(viewsets.ModelViewSet):
                 {"detail": "Not allowed."}, status=status.HTTP_403_FORBIDDEN
             )
 
+        # Date calculations
+        start_datetime = timezone.now() - timedelta(minutes=5)
+
+        # Prefetch worklogs from the last 7 days and annotate the sum of brownie points
+        users = household.users.annotate(
+            rolling_brownie_points=Coalesce(
+                Sum(
+                    "worklog__brownie_points",
+                    filter=Q(worklog__timestamp__gte=start_datetime),
+                ),
+                0,
+            )
+        )
+
         # Serialize the users of the household
-        user_serializer = CustomUserSerializer(household.users.all(), many=True)
+        user_serializer = CustomUserWithBrowniePointsSerializer(users, many=True)
 
         return Response(user_serializer.data)
 
@@ -393,7 +412,7 @@ def award_brownie_points(request, pk):
     logger.info(f"Awarding brownie points")
     logger.info(f"Household PK: {pk}")
     # Retrieve brownie_points from query parameters
-    brownie_points = request.GET.get('brownie_points')
+    brownie_points = request.GET.get("brownie_points")
     logger.info(f"Brownie points: {brownie_points}")
     if brownie_points is None:
         return Response(
@@ -405,17 +424,22 @@ def award_brownie_points(request, pk):
         brownie_points = int(brownie_points)
     except ValueError:
         return Response(
-            {"error": "Invalid brownie_points value"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "Invalid brownie_points value"},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     user = request.user
-    household = get_object_or_404(Household, pk=pk) # It'll return 404 if the household does not exist
+    household = get_object_or_404(
+        Household, pk=pk
+    )  # It'll return 404 if the household does not exist
 
     if user not in household.users.all():
         return Response({"error": "Not allowed"}, status=status.HTTP_403_FORBIDDEN)
 
     try:
-        user.brownie_point_credit.setdefault(str(household.id), 0) # This ensures the key exists
+        user.brownie_point_credit.setdefault(
+            str(household.id), 0
+        )  # This ensures the key exists
         user.brownie_point_credit[str(household.id)] += brownie_points
         user.save()
     except:
@@ -424,6 +448,4 @@ def award_brownie_points(request, pk):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
-    return Response(
-        {"success": "Credited brownie points"}, status=status.HTTP_200_OK
-    )
+    return Response({"success": "Credited brownie points"}, status=status.HTTP_200_OK)

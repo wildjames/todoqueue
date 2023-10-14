@@ -10,11 +10,10 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models.signals import m2m_changed, pre_delete
+from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
 from django.utils import timezone
 from rest_framework import serializers
-from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.validators import UniqueValidator
 

@@ -3,7 +3,9 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
 from logging import getLogger
+
 logger = getLogger(__name__)
+
 
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,6 +18,13 @@ class CustomUserSerializer(serializers.ModelSerializer):
             "brownie_point_credit",
             "brownie_point_debit",
         )
+
+
+class CustomUserWithBrowniePointsSerializer(CustomUserSerializer):
+    rolling_brownie_points = serializers.IntegerField(read_only=True, default=0)
+
+    class Meta(CustomUserSerializer.Meta):
+        fields = CustomUserSerializer.Meta.fields + ("rolling_brownie_points",)
 
 
 class CustomUserRegistrationSerializer(serializers.ModelSerializer):
@@ -46,6 +55,8 @@ class ResetPasswordSerializer(serializers.Serializer):
     confirm_new_password = serializers.CharField(write_only=True)
 
     def validate(self, data):
-        if data['new_password'] != data['confirm_new_password']:
-            raise serializers.ValidationError({"confirm_new_password": "Passwords do not match"})
+        if data["new_password"] != data["confirm_new_password"]:
+            raise serializers.ValidationError(
+                {"confirm_new_password": "Passwords do not match"}
+            )
         return data
