@@ -147,15 +147,17 @@ const EditFlexibleTaskPopup = React.forwardRef((props, ref) => {
         setTask((prevTask) => {
             const updatedTask = { ...prevTask, [name]: value };
 
-            const max_interval_in_minutes =
+            let max_interval_in_minutes =
                 (updatedTask.max_interval_days || 0) * 24 * 60 +
                 (updatedTask.max_interval_hours || 0) * 60 +
                 (updatedTask.max_interval_minutes || 0);
+            max_interval_in_minutes = parseInt(max_interval_in_minutes);
 
-            const min_interval_in_minutes =
+            let min_interval_in_minutes =
                 (updatedTask.min_interval_days || 0) * 24 * 60 +
                 (updatedTask.min_interval_hours || 0) * 60 +
                 (updatedTask.min_interval_minutes || 0);
+            min_interval_in_minutes = parseInt(min_interval_in_minutes);
 
             if (max_interval_in_minutes < min_interval_in_minutes) {
                 setInputError(true);

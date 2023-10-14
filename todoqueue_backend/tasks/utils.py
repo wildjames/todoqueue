@@ -77,6 +77,11 @@ def bp_function(
     Returns:
         float: The brownie points
     """
+    
+    if completion_time_minutes == 0:
+        logger.debug("Completion time is 0, returning 0 brownie points")
+        return 0
+    
     user_gross_scale_range = [0, 5]
     output_gross_scale_range = [0, 100]
 
