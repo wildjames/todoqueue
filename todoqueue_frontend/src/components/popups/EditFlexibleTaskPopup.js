@@ -191,7 +191,7 @@ const EditFlexibleTaskPopup = React.forwardRef((props, ref) => {
                     </div>
 
                     <div className="task-input-group task-input-group-horizontal">
-                        <label style={{marginTop: "1.5rem"}}>Max Interval: </label>
+                        <label style={{marginTop: "1.5rem"}}>Overdue after: </label>
                         <div className="task-input-group-vertical">
                             <label>Days</label>
                             <input
@@ -230,7 +230,7 @@ const EditFlexibleTaskPopup = React.forwardRef((props, ref) => {
                         </div>
                     </div>
                     <div className="task-input-group task-input-group-horizontal">
-                        <label>Min Interval: </label>
+                        <label>Stale after: </label>
                         <div>
                         <input
                             className={inputError ? "input-error" : ""}
