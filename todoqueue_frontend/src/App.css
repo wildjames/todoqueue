@@ -578,6 +578,12 @@ h1 {
   padding: 7px;
 }
 
+.user-stats-container:hover {
+  background-color: #333;
+  transform: translateX(-50%) scale(1.05); /* combined transform */
+  cursor: pointer;
+}
+
 .user-stats-flex {
   display: flex;
   flex-direction: row;

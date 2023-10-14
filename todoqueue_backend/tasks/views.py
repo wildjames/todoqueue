@@ -30,7 +30,6 @@ from .models import (
     WorkLog,
     WorkLogSerializer,
     get_task_by_id,
-    get_serializer_for_task,
 )
 
 from .utils import bp_function, parse_duration
@@ -179,7 +178,7 @@ class HouseholdViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         # Only return households where the user is a member
         user = self.request.user
-        logger.info(f"Getting households for user: {user}")
+        logger.debug(f"Getting households for user: {user}")
         return Household.objects.filter(users__in=[user])
 
     def perform_create(self, serializer):
@@ -252,6 +251,8 @@ class HouseholdViewSet(viewsets.ModelViewSet):
 
 
 class CreateHouseholdView(APIView):
+    permission_classes = (IsAuthenticated,)
+
     def post(self, request):
         logger.info(f"Creating a household: {request.data}")
         serializer = CreateHouseholdSerializer(data=request.data)
@@ -266,6 +267,8 @@ class CreateHouseholdView(APIView):
 
 
 class AddUserToHouseholdView(APIView):
+    permission_classes = (IsAuthenticated,)
+
     def post(self, request, pk):
         logger.info(f"Adding user to household")
         # If the household doesn't exist, return a meaningful error
@@ -313,6 +316,8 @@ class AddUserToHouseholdView(APIView):
 
 
 class RemoveUserFromHouseholdView(APIView):
+    permission_classes = (IsAuthenticated,)
+
     def post(self, request, pk):
         logger.info(f"Removing user from household")
         household = Household.objects.get(pk=pk)
@@ -339,33 +344,35 @@ class RemoveUserFromHouseholdView(APIView):
 
 
 @api_view(["POST"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def calculate_brownie_points_view(request):
     if request.method == "POST":
         task_id = request.data.get("task_id")
         completion_time = request.data.get("completion_time")
         grossness = request.data.get("grossness")
 
-        if task_id is None or completion_time is None or grossness is None:
+        if completion_time is None or grossness is None:
             return Response(
                 {"error": "Missing parameters"}, status=status.HTTP_400_BAD_REQUEST
             )
 
         brownie_points = None
+        grossnesses = None
+        completion_times = None
         try:
-            # Get all the work logs associated with this task
-            work_logs = WorkLog.objects.filter(object_id=task_id)
-            grossnesses = [work_log.grossness for work_log in work_logs]
-            completion_times = [
-                work_log.completion_time.seconds / 60 for work_log in work_logs
-            ]
+            if task_id is not None:
+                # Get all the work logs associated with this task
+                work_logs = WorkLog.objects.filter(object_id=task_id)
+                grossnesses = [work_log.grossness for work_log in work_logs]
+                completion_times = [
+                    work_log.completion_time.seconds / 60 for work_log in work_logs
+                ]
 
             # Convert completion time to a timedelta. It's a string formatted for a DurationField ("[-]DD HH:MM:SS")
             completion_time_td = parse_duration(completion_time)
             completion_time_minutes = completion_time_td.seconds / 60
 
-            brownie_points = bp_function(
-                completion_time_minutes, grossness, grossnesses, completion_times
-            )
         except Exception as e:
             logger.info(f"Failed to calcualte brownie points. Error: {e}")
             return Response(
@@ -373,4 +380,50 @@ def calculate_brownie_points_view(request):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
+        brownie_points = bp_function(
+            completion_time_minutes, grossness, grossnesses, completion_times
+        )
         return Response({"brownie_points": brownie_points}, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def award_brownie_points(request, pk):
+    logger.info(f"Awarding brownie points")
+    logger.info(f"Household PK: {pk}")
+    # Retrieve brownie_points from query parameters
+    brownie_points = request.GET.get('brownie_points')
+    logger.info(f"Brownie points: {brownie_points}")
+    if brownie_points is None:
+        return Response(
+            {"error": "Missing parameters"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Convert brownie_points to integer
+    try:
+        brownie_points = int(brownie_points)
+    except ValueError:
+        return Response(
+            {"error": "Invalid brownie_points value"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    user = request.user
+    household = get_object_or_404(Household, pk=pk) # It'll return 404 if the household does not exist
+
+    if user not in household.users.all():
+        return Response({"error": "Not allowed"}, status=status.HTTP_403_FORBIDDEN)
+
+    try:
+        user.brownie_point_credit.setdefault(str(household.id), 0) # This ensures the key exists
+        user.brownie_point_credit[str(household.id)] += brownie_points
+        user.save()
+    except:
+        return Response(
+            {"error": "Failed to credit brownie points"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+    return Response(
+        {"success": "Credited brownie points"}, status=status.HTTP_200_OK
+    )

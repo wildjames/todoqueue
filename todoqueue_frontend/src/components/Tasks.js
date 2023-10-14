@@ -7,6 +7,7 @@ import { SimpleFlipper } from './flipper/flipper';
 
 import TaskDetailsPopup from './popups/TaskDetailsPopup';
 import CompleteTaskPopup from './popups/CompleteTaskPopup';
+import AwardBrowniePointsPopup from './popups/AwardBrowniePoints';
 import CreateFlexibleTaskPopup from './popups/CreateFlexibleTaskPopup';
 import EditFlexibleTaskPopup from './popups/EditFlexibleTaskPopup';
 import CreateScheduledTaskPopup from './popups/CreateScheduledTaskPopup';
@@ -34,11 +35,13 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         NONE: 'NONE',
         TASK_DETAILS: 'TASK_DETAILS',
         COMPLETE_TASK: 'COMPLETE_TASK',
+        AWARD_BP: 'AWARD_BP',
         CREATE_SCHEDULED_TASK: 'CREATE_SCHEDULED_TASK',
         CREATE_FLEXIBLE_TASK: 'CREATE_FLEXIBLE_TASK',
         EDIT_FLEXIBLE_TASK: 'EDIT_FLEXIBLE_TASK',
         EDIT_SCHEDULED_TASK: 'EDIT_SCHEDULED_TASK',
     };
+
     // State variable for the current popup
     const [currentPopup, setCurrentPopup] = useState(PopupType.NONE);
     // This reference is used to detect when a user clicks off a popup
@@ -148,6 +151,10 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         setCurrentPopup(PopupType.COMPLETE_TASK);
     };
 
+    const handleOpenAwardBrowniePointsPopup = () => {
+        setCurrentPopup(PopupType.AWARD_BP);
+    };
+
     const handleOpenTaskDetails = (task) => {
         setSelectedTask(task);
         setSelectedTaskId(task.id);
@@ -158,12 +165,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         setSelectedTask(null);
         setSelectedTaskId(null);
         setCurrentPopup(PopupType.CREATE_FLEXIBLE_TASK);
-    };
-
-    const handleOpenEditFlexibleTaskPopup = (task) => {
-        setSelectedTask(task);
-        setSelectedTaskId(task.id);
-        setCurrentPopup(PopupType.EDIT_FLEXIBLE_TASK);
     };
 
     const handleOverlayClick = (e) => {
@@ -205,6 +206,15 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         selectedHousehold: selectedHousehold,
         selectedTask: selectedTask,
         users: users,
+    };
+
+
+    const propsForAwardBrowniePoints = {
+        closeCurrentPopup,
+        handleOverlayClick,
+        setBrowniePoints,
+        selectedHousehold,
+        users,
     };
 
 
@@ -262,6 +272,9 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
                         case PopupType.CREATE_FLEXIBLE_TASK:
                             return <CreateFlexibleTaskPopup ref={popupInnerRef} {...propsForCreateFlexibleTask} />;
+
+                        case PopupType.AWARD_BP:
+                            return <AwardBrowniePointsPopup ref={popupInnerRef} {...propsForAwardBrowniePoints} />;
 
                         case PopupType.CREATE_SCHEDULED_TASK:
                             return <CreateScheduledTaskPopup ref={popupInnerRef} {...propsForCreateScheduledTask} />;
@@ -361,8 +374,10 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
 
             {selectedHousehold ? (
-                // <Link to="/user_statistics" style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div className="user-stats-container">
+                <div
+                    className="user-stats-container"
+                    onClick={handleOpenAwardBrowniePointsPopup}
+                >
                     <div className="user-stats-flex">
                         {
                             users.sort((a, b) =>
@@ -383,7 +398,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                         }
                     </div>
                 </div>
-                // </Link>
             ) : null}
 
 

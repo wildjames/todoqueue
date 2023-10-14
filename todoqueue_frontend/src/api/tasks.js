@@ -57,28 +57,18 @@ export const fetchSelectedTask = async (selectedTaskId, selectedHousehold) => {
 };
 
 
-
-export const createWorkLog = async (
-    selectedHousehold,
-    selectedTaskId,
+export const fetchBrowniePointValue = async (
+    taskId,
     completionTimeString,
-    completionUsers,
     grossness,
 ) => {
-
-    if (!selectedHousehold) {
-        console.log("No household selected");
-        return;
-    }
-
-
     const calculate_brownie_points_url = "/api/calculate_brownie_points/";
     const payload = {
-        task_id: selectedTaskId,
+        task_id: taskId,
         completion_time: completionTimeString,
         grossness
     };
-    console.log("Creating work log");
+    console.log("Fetching brownie points from server");
     console.log("Payload: ", payload);
 
     // Get the value of this tasks' brownie_points from the server
@@ -98,13 +88,35 @@ export const createWorkLog = async (
 
     } catch (error) {
         console.error('Error:', error);
-        return;
+        return 0;
     }
 
     // Convert brownie points from a string of a float to an integer
     brownie_points = Math.round(parseFloat(brownie_points));
     console.log("Brownie points: ", brownie_points);
 
+    return brownie_points
+}
+
+
+export const createWorkLog = async (
+    selectedHousehold,
+    selectedTaskId,
+    completionTimeString,
+    completionUsers,
+    grossness,
+) => {
+
+    if (!selectedHousehold) {
+        console.log("No household selected");
+        return;
+    }
+
+    const brownie_points = await fetchBrowniePointValue(
+        selectedTaskId,
+        completionTimeString,
+        grossness,
+    );
 
     // pop each user off the list of completionUsers and create a worklog for each
     for (const completionUser of completionUsers) {
@@ -415,4 +427,23 @@ export const deleteTask = async (taskId, selectedHousehold) => {
     }
     console.log("Deleted task with ID: ", taskId);
     return true;
+};
+
+export const awardBrowniePoints = async (householdId, browniePoints) => {
+    try {
+        const response = await axios.get(
+            `/api/households/${householdId}/award_brownie_points/`,
+            {
+                params: {
+                    brownie_points: browniePoints
+                },
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        console.error("Error awarding brownie points:", error);
+        
+        return error.response ? error.response.data : error.message;
+    }
 };
