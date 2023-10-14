@@ -29,6 +29,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     const isInitialRender = useRef(true);
     const [browniePoints, setBrowniePoints] = useState(0);
     const [showFlipAnimation, setShowFlipAnimation] = useState(false);
+    const [viewMode, setViewMode] = useState('total');  // Toggle scoreboard between 'total' or 'rolling'
 
     // Define an enumeration for the popups
     const PopupType = {
@@ -63,7 +64,6 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     // Fetch tasks, and users at regular intervals
     // TODO: Is it wise to make these requests so often? Can it be offloaded to the client?
     useEffect(() => {
-        // run immediately, then start a timer that runs every 1000ms
         try {
             fetchSetTasks();
             fetchSetUsers();
@@ -132,7 +132,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
             setUsers([]);
             return;
         }
-        console.log("Setting users: ", users);
+        console.log("Setting users: ", data);
         setUsers(data);
     };
 
@@ -370,30 +370,46 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
 
             {selectedHousehold ? (
-                <div
-                    className="user-stats-container"
-                    onClick={handleOpenAwardBrowniePointsPopup}
-                >
-                    <div className="user-stats-flex">
-                        {
+                <div className="user-stats-container">
+                    <div className="toggle-switch">
+                        <input
+                            type="checkbox"
+                            id="viewModeSwitch"
+                            checked={viewMode === 'rolling'}
+                            onChange={() => setViewMode(prevMode => prevMode === 'total' ? 'rolling' : 'total')}
+                        />
+                        <label htmlFor="viewModeSwitch">
+                            {viewMode === "total" ? "All Time" : "Last 7 days"}
+                        </label>
+                    </div>
+                    <div className="user-stats-flex" onClick={handleOpenAwardBrowniePointsPopup}>
+                        {viewMode === 'total' ?
                             users.sort((a, b) =>
                                 (b.brownie_point_credit[selectedHousehold] - b.brownie_point_debit[selectedHousehold])
                                 - (a.brownie_point_credit[selectedHousehold] - a.brownie_point_debit[selectedHousehold])
                             )
                                 .slice(0, 5)
-                                .map((user, index) => {
-                                    return (
-                                        <div key={index} className="user-row">
-                                            <span className="user-name">{user.username}</span>
-                                            <SimpleFlipper
-                                                value={user.brownie_point_credit[selectedHousehold] - user.brownie_point_debit[selectedHousehold]}
-                                            />
-                                        </div>
-                                    );
-                                })
+                                .map((user, index) => (
+                                    <div key={index} className="user-row">
+                                        <span className="user-name">{user.username}</span>
+                                        <SimpleFlipper
+                                            value={user.brownie_point_credit[selectedHousehold] - user.brownie_point_debit[selectedHousehold]}
+                                        />
+                                    </div>
+                                ))
+                            :
+                            users.sort((a, b) => b.rolling_brownie_points - a.rolling_brownie_points)
+                                .slice(0, 5)
+                                .map((user, index) => (
+                                    <div key={index} className="user-row">
+                                        <span className="user-name">{user.username}</span>
+                                        <SimpleFlipper value={user.rolling_brownie_points} />
+                                    </div>
+                                ))
                         }
                     </div>
                 </div>
+
             ) : null}
 
 
