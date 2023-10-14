@@ -61,6 +61,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
 
     // Fetch tasks, and users at regular intervals
+    // TODO: Is it wise to make these requests so often? Can it be offloaded to the client?
     useEffect(() => {
         // run immediately, then start a timer that runs every 1000ms
         try {
@@ -93,12 +94,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
         }
 
         console.log("Brownie points changed");
-        const timeout = setTimeout(() => {
-            setShowFlipAnimation(true);
-        }, 500);
-
-        // Clean up timeout when the component is unmounted
-        return () => clearTimeout(timeout);
+        setShowFlipAnimation(true);
     }, [browniePoints]);
 
 

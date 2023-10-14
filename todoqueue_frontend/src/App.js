@@ -24,7 +24,7 @@ const App = () => {
   const [selectedHousehold, setSelectedHousehold] = useState(null);
   const [showHouseholdSelector, setShowHouseholdSelector] = useState(false);
 
-  // Try and prevent chrom from translating the page when there are few words on screen
+  // Try and prevent chrome from translating the page when there are few words on screen
   useEffect(() => {
     document.documentElement.lang = 'en';
     document.documentElement.setAttribute('xml:lang', 'en');
@@ -47,9 +47,8 @@ const App = () => {
       }
     };
 
-    // run immediately, then start a timer that runs every 1000ms
     updateHouseholds();
-    const interval = setInterval(updateHouseholds, 1000);
+    const interval = setInterval(updateHouseholds, 10000);
     return () => clearInterval(interval);
   }, [selectedHousehold]);
 
