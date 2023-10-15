@@ -43,6 +43,21 @@ class Household(models.Model):
             logger.debug("saving user")
             user.save()
 
+        # If this household has NO dummy task associated with it, create one
+        if self.dummy_tasks.count() == 0:
+            logger.debug("Creating dummy task for household")
+            DummyTask.objects.create(household=self)
+            logger.debug("OK")
+
+    def get_dummy_task(self):
+        """Returns the first dummy task for this household, or None if it doesn't exist."""
+        try:
+            logger.debug(f" Getting dummy task for household {self.name}")
+            return self.dummy_tasks.first()
+        except DummyTask.DoesNotExist:
+            logger.debug(f" No dummy task found for household {self.name}")
+            return None
+
 
 @receiver(m2m_changed, sender=Household.users.through)
 def update_brownie_points(sender, instance, action, **kwargs):
@@ -94,13 +109,17 @@ class ScheduledTask(models.Model):
     @property
     def last_due(self):
         """Returns the previous time this task was due, as a datetime object."""
-        cron = croniter.croniter(self.cron_schedule, timezone.now().astimezone(), ret_type=datetime)
+        cron = croniter.croniter(
+            self.cron_schedule, timezone.now().astimezone(), ret_type=datetime
+        )
         return cron.get_prev()
 
     @property
     def next_due(self):
         """Returns the next time this task will occur, as a datetime object."""
-        cron = croniter.croniter(self.cron_schedule, timezone.now().astimezone(), ret_type=datetime)
+        cron = croniter.croniter(
+            self.cron_schedule, timezone.now().astimezone(), ret_type=datetime
+        )
         return cron.get_next()
 
     # Calculate the staleness of this task
@@ -108,7 +127,7 @@ class ScheduledTask(models.Model):
     def staleness(self):
         if self.frozen:
             return 0
-        
+
         last_due = self.last_due
         now = timezone.now()
         logger.debug(f"Time is now: {now.astimezone()}")
@@ -201,6 +220,26 @@ class FlexibleTask(models.Model):
         return self.task_name
 
 
+class DummyTask(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    household = models.ForeignKey(
+        Household, on_delete=models.CASCADE, related_name="dummy_tasks"
+    )
+    last_completed = models.DateTimeField(auto_now_add=True)
+    frozen = models.BooleanField(default=False)
+
+    @property
+    def staleness(self):
+        return 0.0
+
+    @property
+    def mean_completion_time(self):
+        return 0.0
+
+    def __str__(self):
+        return "Dummy task for household {}".format(self.household.name)
+
+
 class WorkLog(models.Model):
     # Link to the User model
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -261,7 +300,7 @@ class WorkLog(models.Model):
 def get_task_by_id(task_id):
     """Returns both the Task object, and the ContentType object for the given task ID, as a tuple."""
     # Add other task models to this list as needed
-    task_models = [FlexibleTask, ScheduledTask]
+    task_models = [DummyTask, FlexibleTask, ScheduledTask]
 
     for model in task_models:
         try:
@@ -321,14 +360,31 @@ class FlexibleTaskSerializer(serializers.ModelSerializer):
         return obj.mean_completion_time
 
 
+class DummyTaskSerializer(serializers.ModelSerializer):
+    staleness = serializers.SerializerMethodField()
+    mean_completion_time = serializers.SerializerMethodField()
+
+    class Meta:
+        model = DummyTask
+        fields = "__all__"
+
+    def get_staleness(self, obj):
+        return obj.staleness
+
+    def get_mean_completion_time(self, obj):
+        return obj.mean_completion_time
+
+
 def get_serializer_for_task(
-    task_instance: FlexibleTask | ScheduledTask,
-) -> FlexibleTaskSerializer | ScheduledTaskSerializer:
+    task_instance: FlexibleTask | ScheduledTask | DummyTask,
+) -> FlexibleTaskSerializer | ScheduledTaskSerializer | DummyTaskSerializer:
     # Return the appropriate serializer based on the type of task_instance
     if isinstance(task_instance, FlexibleTask):
         return FlexibleTaskSerializer
     if isinstance(task_instance, ScheduledTask):
         return ScheduledTaskSerializer
+    if isinstance(DummyTask):
+        return DummyTaskSerializer
 
     # Add other conditions for other task types. Don't forget!!
 

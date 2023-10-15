@@ -37,7 +37,7 @@ const AwardBrowniePointsPopup = React.forwardRef((props, ref) => {
         }
 
         // Award the brownie points
-        const response = await awardBrowniePoints(props.selectedHousehold, browniePoints);
+        const response = await awardBrowniePoints(props.selectedHousehold, browniePoints, completionUsers);
         console.log("Response from awarding brownie points: ", response);
 
         props.setBrowniePoints(browniePoints);
