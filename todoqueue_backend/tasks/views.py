@@ -408,6 +408,27 @@ def calculate_brownie_points_view(request):
 @api_view(["GET"])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
+def get_dummy_task_id(request, pk):
+    logger.info(f"Getting dummy task id")
+    household = get_object_or_404(Household, pk=pk)
+    logger.info(f"Household: {household}")
+
+    dummy_task = household.get_dummy_task()
+    task_id = dummy_task.id
+    logger.info(f"Task id: {task_id}")
+
+    if task_id is None:
+        return Response(
+            {"error": "Failed to get dummy task"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+    return Response({"task_id": task_id}, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def award_brownie_points(request, pk):
     logger.info(f"Awarding brownie points")
     logger.info(f"Household PK: {pk}")

@@ -17,9 +17,9 @@ urlpatterns = [
         name="calculate_brownie_points",
     ),
     path(
-        "households/<int:pk>/award_brownie_points/",
-        views.award_brownie_points,
-        name="award_brownie_points",
+        "households/<int:pk>/get_dummy_task_id/",
+        views.get_dummy_task_id,
+        name="get_dummy_task_id",
     ),
     path(
         "user_statistics/", views.UserStatisticsView.as_view(), name="user_statistics"

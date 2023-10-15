@@ -156,6 +156,65 @@ export const createWorkLog = async (
     return brownie_points;
 };
 
+export const awardBrowniePoints = async (
+    householdId,
+    browniePoints,
+    completionUsers,
+) => {
+    let task_id = null;
+    try {
+        const response = await axios.get(
+            `/api/households/${householdId}/get_dummy_task_id/`,
+        );
+
+        if (response.status === 200) {
+            task_id = response.data.task_id;
+        } else {
+            throw new Error("Failed to get dummy task id");
+        }
+    } catch (error) {
+        console.error("Error fetching :", error);
+        return error.response ? error.response.data : error.message;
+    }
+
+    // pop each user off the list of completionUsers and create a worklog for each
+    for (const completionUser of completionUsers) {
+        const worklog = {
+            task_id,
+            user: completionUser,
+            completion_time: "0:00:00",
+            grossness: 0,
+            brownie_points: browniePoints,
+        };
+
+        console.log("Creating dummy worklog: ", worklog);
+
+        // Make a POST request to create a new WorkLog entry
+        try {
+            const response = await axios.post(
+                '/api/worklogs/',
+                JSON.stringify(worklog),
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+            if (response.status !== 201) {
+                console.log("Failed to create dummy worklog.");
+                return;
+            }
+            console.log('Dummy workLog created: ', response.data);
+        } catch (error) {
+            console.error('Error: ', error);
+        }
+    }
+
+    // Clear the list of completionUsers and close the popup
+    completionUsers.length = 0;
+
+    return browniePoints;
+};
+
 export const createFlexibleTask = async (
     task_name,
     household,
@@ -427,23 +486,4 @@ export const deleteTask = async (taskId, selectedHousehold) => {
     }
     console.log("Deleted task with ID: ", taskId);
     return true;
-};
-
-export const awardBrowniePoints = async (householdId, browniePoints) => {
-    try {
-        const response = await axios.get(
-            `/api/households/${householdId}/award_brownie_points/`,
-            {
-                params: {
-                    brownie_points: browniePoints
-                },
-            }
-        );
-
-        return response.data;
-    } catch (error) {
-        console.error("Error awarding brownie points:", error);
-        
-        return error.response ? error.response.data : error.message;
-    }
 };
