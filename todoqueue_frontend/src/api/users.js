@@ -47,6 +47,7 @@ export const loginUser = async (email, password) => {
 
 
 export const logOutUser = async () => {
+    console.log("Logging out user");
     try {
       await axios.post(
         '/api/logout/',

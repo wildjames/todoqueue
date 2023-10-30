@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-// import { Link } from 'react-router-dom';
-import '../App.css';
 import useAuthCheck from '../hooks/authCheck';
 
 import { SimpleFlipper } from './flipper/flipper';
@@ -17,7 +15,7 @@ import { fetchTasks } from '../api/tasks';
 import { fetchUsers } from '../api/users';
 
 
-const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
+const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseholdSelector }) => {
     const [tasks, setTasks] = useState([]);
     const [users, setUsers] = useState([]);
 
@@ -58,7 +56,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     // Show the household selector on first render
     useEffect(() => {
         setShowHouseholdSelector(true);
-    }, []);
+    }, [showSelectedHouseholdSelector]);
 
 
     // Fetch tasks, and users at regular intervals

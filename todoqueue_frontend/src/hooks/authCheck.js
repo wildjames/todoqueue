@@ -15,6 +15,7 @@ const useAuthCheck = () => {
             const currentTime = Date.now() / 1000; // Convert to seconds
 
             if (decodedToken.exp < currentTime) {
+                console.log("Token has expired, logging out");
                 handleLogout();
             }
         } else {
@@ -22,13 +23,17 @@ const useAuthCheck = () => {
             handleLogout();
         }
 
+        console.log("Token is OK!");
+
         // Add an interceptor to axios to catch 401 responses
         const interceptor = axios.interceptors.response.use(
             (response) => response,
             (error) => {
                 if (error.response && error.response.status === 401) {
+                    console.log("Tried to supply an access token. Got an error response: ", error);
                     handleLogout();
                 }
+                console.log("Got an error response: ", error);
                 return Promise.reject(error);
             }
         );

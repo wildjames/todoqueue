@@ -2,10 +2,13 @@ import axios from './axiosConfig';
 
 
 export const fetchHouseholds = async () => {
+  console.log("Getting household list");
   // Only do this if we are logged in
   if (localStorage.getItem('access_token') === null) {
+    console.log("No access token.");
     return [];
   }
+  console.log("We are logged in - getting household list");
 
   const list_households_url = "/api/households/";
   try {
