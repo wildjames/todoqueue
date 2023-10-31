@@ -6,6 +6,7 @@ import { addUserToHousehold, removeUserFromHousehold, fetchSelectedHousehold } f
 
 import Spinner from '../spinner/Spinner';
 import AlertMessage from "./AlertPopup";
+import './popups.css';
 
 
 const HouseholdDetailsPopup = React.forwardRef((props, ref) => {
@@ -117,16 +118,18 @@ const HouseholdDetailsPopup = React.forwardRef((props, ref) => {
 
                 {showSpinner && <Spinner />}
 
-                <ul className="users-list">
+                <ul className="household-users-list">
                     {users.map((user) => (
-                        <li key={user.id}>
-                            {user.username}
-                            <button
-                                className="button remove-user-button"
-                                onClick={() => handleRemoveUser(user.email)}
-                            >
-                                Remove
-                            </button>
+                        <li key={user.id} className="household-user-item">
+                            <div className="household-user-content">
+                                <span className='household-user-name'>{user.username}</span>
+                                <button
+                                    className="button remove-user-button"
+                                    onClick={() => handleRemoveUser(user.email)}
+                                >
+                                    Remove
+                                </button>
+                            </div>
                         </li>
                     ))}
                 </ul>

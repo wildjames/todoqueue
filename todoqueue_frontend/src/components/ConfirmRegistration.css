@@ -1,0 +1,31 @@
+.ConfirmRegistration {
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+    margin-top: 0px;
+    display: flex;
+}
+
+.confirm-registration-container {
+    left: 50%;
+    transform: translateX(-50%);
+    position: absolute;
+    top: calc(50px + 2.5em);
+    width: 30%;
+    font-family: 'Arial', sans-serif;
+}
+
+.FailedRegistration {
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+    margin-top: 0px;
+    display: flex;
+}
+
+.failed-registration-container {
+    left: 50%;
+    transform: translateX(-50%);
+    position: absolute;
+    top: calc(50px + 2.5em);
+    width: 30%;
+    font-family: 'Arial', sans-serif;
+}

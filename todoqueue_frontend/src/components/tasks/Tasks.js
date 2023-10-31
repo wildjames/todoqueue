@@ -1,18 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
-import useAuthCheck from '../hooks/authCheck';
+import useAuthCheck from '../../hooks/authCheck';
 
-import { SimpleFlipper } from './flipper/flipper';
+import './Tasks.css';
+import './bp_counter_flipper.css';
 
-import TaskDetailsPopup from './popups/TaskDetailsPopup';
-import CompleteTaskPopup from './popups/CompleteTaskPopup';
-import AwardBrowniePointsPopup from './popups/AwardBrowniePoints';
-import CreateFlexibleTaskPopup from './popups/CreateFlexibleTaskPopup';
-import EditFlexibleTaskPopup from './popups/EditFlexibleTaskPopup';
-import CreateScheduledTaskPopup from './popups/CreateScheduledTaskPopup';
-import EditScheduledTaskPopup from './popups/EditScheduledTaskPopup';
+import { SimpleFlipper } from '../flipper/flipper';
 
-import { fetchTasks } from '../api/tasks';
-import { fetchUsers } from '../api/users';
+import TaskDetailsPopup from '../popups/TaskDetailsPopup';
+import CompleteTaskPopup from '../popups/CompleteTaskPopup';
+import AwardBrowniePointsPopup from '../popups/AwardBrowniePoints';
+import CreateFlexibleTaskPopup from '../popups/CreateFlexibleTaskPopup';
+import EditFlexibleTaskPopup from '../popups/EditFlexibleTaskPopup';
+import CreateScheduledTaskPopup from '../popups/CreateScheduledTaskPopup';
+import EditScheduledTaskPopup from '../popups/EditScheduledTaskPopup';
+
+import { fetchTasks } from '../../api/tasks';
+import { fetchUsers } from '../../api/users';
 
 
 const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseholdSelector }) => {
@@ -250,7 +253,7 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
 
             <div className={`empty-state ${selectedHousehold ? 'hide' : 'show'}`}>
                 <div className="arrow-up bounce"></div>
-                <div className="text">Select a household</div>
+                <div className="task-select-text">Select a household</div>
             </div>
 
 
@@ -284,6 +287,7 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
                     }
                 })()
             }
+
 
             <div className={`brownie-points-popup ${showFlipAnimation ? 'show' : ''}`}>
                 <div className={`brownie-points-animation ${showFlipAnimation ? 'show' : ''}`}>

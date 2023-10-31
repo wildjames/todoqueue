@@ -1,0 +1,375 @@
+.Tasks {
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+    margin-top: 0px;
+    overflow-x: auto;
+    display: flex;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    left: 50%;
+    position: absolute;
+    transform: translateX(-50%);
+    top: 100px;
+    transition: top 0.5s ease;
+}
+
+.arrow-up {
+    width: 0;
+    height: 0;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-bottom: 50px solid #b0b0b0;
+}
+
+.task-select-text {
+    font-size: 1.2em;
+    margin-top: 20px;
+}
+
+.empty-state.hide {
+    top: -100px;
+}
+
+.empty-state.show {
+    top: 100px;
+}
+
+@keyframes bounce-select-prompt {
+
+    0%,
+    40%,
+    60%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.arrow-up.bounce {
+    animation: bounce-select-prompt 4s ease-in-out infinite;
+}
+
+
+.sidebar {
+    width: 250px;
+    background-color: #727272;
+}
+
+.task-container {
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;
+    gap: 16px;
+    overflow-x: auto;
+    overflow-y: visible;
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    position: absolute;
+    /* Change from relative to absolute */
+    top: 55px;
+    /* Start from where it is initially placed */
+    bottom: 120px;
+    /* 100px from the bottom of the viewport */
+    width: 100%;
+    transition: left 0.5s ease;
+    z-index: -1000;
+}
+
+.task-card {
+    background: #f9f9f9;
+    width: 170px;
+    min-width: 170px;
+    height: 100px;
+    margin: 10px;
+    border: 2px solid #e0e0e0;
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: bottom 0.75s cubic-bezier(0.68, -0.55, 0.27, 1.55), left 0.75s cubic-bezier(0.68, -0.55, 0.27, 1.55), transform 0.2s ease, box-shadow 0.2s ease;
+    position: absolute;
+    overflow: hidden;
+
+    &:hover {
+        transform: scale(1.05);
+        box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);
+    }
+}
+
+.frozen {
+    background-color: #27caef;
+    border: 2px solid #125361;
+}
+
+.popup-inner.frozen {
+    background-color: #a8efff;
+    border: 2px solid #125361;
+}
+
+.task-wrapper {
+    position: relative;
+    display: inline-block;
+    align-items: center;
+    width: 210px;
+}
+
+.task-wrapper::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 1px;
+    background-color: lightgrey;
+}
+
+@keyframes flash-stale {
+
+    0%,
+    100% {
+        background-color: rgb(140, 0, 0);
+        box-shadow: 0px 4px 16px rgb(211, 0, 0);
+        color: rgb(255, 255, 255);
+    }
+
+    50% {
+        background-color: rgb(255, 255, 255);
+        box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);
+        color: black;
+    }
+}
+
+.task-card.stale {
+    background-color: red;
+    color: white;
+    animation: flash-stale 2s infinite;
+}
+
+.task-card.fresh {
+    opacity: 0.55;
+}
+
+.task-content {
+    text-align: center;
+    width: 100%;
+    color: black;
+    min-width: 0;
+}
+
+.task-text {
+    display: block;
+    margin-bottom: 10px;
+    /* Force the text to wrap??? */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    /* Make sure the text can actually break */
+    min-width: 0;
+    width: 100%;
+}
+
+.task-button {
+    display: block;
+}
+
+.task-sidebar {
+    position: fixed;
+    right: 0;
+    top: 55px;
+    bottom: 0px;
+    width: 250px;
+    overflow-y: auto;
+    background-color: #212529;
+    z-index: -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: right 0.5s ease;
+}
+
+.task-sidebar.show {
+    right: 0;
+}
+
+.task-sidebar.hide {
+    right: -250px;
+}
+
+.task-sidebar .task-card {
+    position: relative;
+    /* Switch from absolute to relative */
+    bottom: auto !important;
+    left: auto !important;
+}
+
+/* Differentiate task-wrapper in the sidebar */
+.sidebar-wrapper {
+    width: 100%;
+    /* take up the full width of the sidebar */
+    display: flex;
+    justify-content: center;
+    /* center the task card horizontally */
+}
+
+.sidebar-wrapper::after {
+    display: none;
+}
+
+.task-popup-header {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.task-popup-description {
+    font-size: 1rem;
+    color: #666;
+    margin-top: 1rem;
+}
+
+.task-popup-text {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.task-popup-actions {
+    margin-top: 2rem;
+}
+
+.task-popup-table {
+    width: 100%;
+}
+
+.task-popup-label {
+    text-align: right;
+    padding: 5px;
+}
+
+.task-popup-content {
+    text-align: left;
+    padding: 5px;
+}
+
+.task-popup-description {
+    margin-top: 15px;
+}
+
+
+.input-pair-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.task-input-group {
+    flex: 1;
+    margin-right: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    padding: 0.5rem;
+}
+
+.input-pair-container .task-input-group label {
+    text-align: left;
+}
+
+.task-input-group:last-child {
+    margin-right: 0;
+}
+
+.input-fullwidth-container {
+    display: flex;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.input-fullwidth-container .task-input-group {
+    flex: 1;
+}
+
+.task-input-group-horizontal {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+}
+
+.task-input-group-vertical {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.task-input-group-horizontal label {
+    flex: 1;
+}
+
+.task-input-group-horizontal.right-align label {
+    text-align: right;
+    padding-right: 1rem;
+}
+
+.task-input-group-horizontal.left-align label {
+    text-align: left;
+    padding-left: 1rem;
+}
+
+.task-input-group-horizontal input {
+    flex: 1;
+    margin: 0 5px;
+    max-width: 90px;
+}
+
+.task-input-group-horizontal.no-max-width input {
+    max-width: none;
+}
+
+.input-error {
+    border: red;
+    box-shadow: 0px 0px 5px 2px red;
+}
+
+.time-slider {
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+    border-radius: 7px;
+}
+
+.time-slider.input-error {
+    background-color: rgba(255, 0, 0, 0.145);
+}
+
+.grossness-scale {
+    display: flex;
+    cursor: pointer;
+    /* Center the emojis */
+    justify-content: center;
+}
+
+.poop-emoji {
+    font-size: 2rem;
+    margin: 0.2rem;
+    opacity: 0.7;
+    transition: transform 0.2s ease;
+
+    &:hover {
+        transform: scale(1.5);
+    }
+}
+
+.poop-emoji.selected {
+    opacity: 1;
+    transform: scale(1.2);
+
+    &:hover {
+        transform: scale(1.5);
+    }
+}

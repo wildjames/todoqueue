@@ -1,0 +1,96 @@
+.user-stats-container {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #232323;
+  color: #c1c8ce;
+  border-radius: 15px;
+  padding: 7px;
+}
+
+.user-stats-container:hover {
+  background-color: #333;
+  cursor: pointer;
+}
+
+.user-stats-flex {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.user-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 1rem;
+}
+
+.user-stats-flex:hover {
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+.user-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: -0.25em
+}
+
+.user-points {
+  margin: 0.2rem;
+}
+
+.toggle-switch {
+  position: absolute;
+  left: -130px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.toggle-switch input[type="checkbox"] {
+  display: none;
+}
+
+.toggle-switch label {
+  cursor: pointer;
+  background-color: #224d76;
+  width: 7em;
+  padding: 5px 10px;
+  border-radius: 15px;
+}
+
+.brownie-points-animation {
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  font-size: 3em;
+  color: rgb(37, 37, 37);
+  z-index: -1000;
+}
+
+.brownie-points-animation.show {
+  opacity: 1;
+  z-index: 2000;
+}
+
+.brownie-points-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  z-index: -1000;
+}
+
+.brownie-points-popup.show {
+  opacity: 1;
+  z-index: 2000;
+}

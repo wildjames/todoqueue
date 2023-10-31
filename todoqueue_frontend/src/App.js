@@ -6,7 +6,7 @@ import { BrowserRouter as Router, Route, Routes, BrowserRouter } from 'react-rou
 
 import { Helmet } from 'react-helmet';
 
-import Tasks from './components/Tasks';
+import Tasks from './components/tasks/Tasks';
 import ConfirmRegistration from './components/ConfirmRegistration';
 import FailedRegistration from './components/FailedRegistration';
 import ForgotPassword from './components/forgotPassword';
@@ -16,7 +16,7 @@ import { fetchHouseholds } from './api/households';
 import { Navigation } from './components/navbar/navigation';
 import { ResetPassword } from './components/resetPassword';
 import { SignUp } from './components/signup';
-import { ManageHouseholds } from './components/households';
+import { ManageHouseholds } from './households/households';
 
 
 const App = () => {

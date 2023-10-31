@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import moment from 'moment';
 import BasePopup from './BasePopup';
 import { formatDuration, getTimeSince } from '../../utils';
 import { deleteTask, freezeTask, fetchSelectedTask } from '../../api/tasks';
+import './popups.css';
 
 const TaskDetailsPopup = React.forwardRef((props, ref) => {
     const updateSelectedTaskTimer = useRef(null);

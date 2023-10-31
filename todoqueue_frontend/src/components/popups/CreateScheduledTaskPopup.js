@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import BasePopup from './BasePopup';
 import { createScheduledTask } from '../../api/tasks'; // Make sure to implement this function in your API
+import './popups.css';
 
 const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
     const [newTask, setNewTask] = useState({

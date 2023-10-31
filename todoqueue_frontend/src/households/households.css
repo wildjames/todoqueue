@@ -1,0 +1,49 @@
+.Households {
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+    display: block;
+    width: 40vw;
+    font-family: 'Arial', sans-serif;
+    margin: calc(56px + 3vh) auto;
+}
+
+.household-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px;
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.household-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* For lists of users in a household */
+.household-users-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.household-user-item {
+    padding: 5px 0;
+}
+
+.household-user-name {
+    padding-left: 2rem;
+    font-weight: normal;
+    font-size: 1.2rem;
+}
+
+.household-user-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #e8e8e8;
+    border-radius: 8px;
+}
