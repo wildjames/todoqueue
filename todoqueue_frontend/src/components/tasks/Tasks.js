@@ -380,7 +380,7 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
                 </button>
             ) : null}
 
-            {selectedHousehold ? (
+            {selectedHousehold && (windowWidth > 800) ? (
                 <div className="user-stats-container">
                     <div className="toggle-switch">
                         <input
