@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import BasePopup from './BasePopup';
 import { createFlexibleTask } from '../../api/tasks';
+import './popups.css';
 
 const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
     const [newTask, setNewTask] = useState({

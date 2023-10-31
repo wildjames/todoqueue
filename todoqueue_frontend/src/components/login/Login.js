@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react"; // Define the Login function.
 
-import { loginUser } from "../api/users";
-import AlertMessage from "./popups/AlertPopup";
-import Spinner from "./spinner/Spinner";
+import "./Login.css";
+import "../../utils/buttons.css";
+
+import { loginUser } from "../../api/users";
+import AlertMessage from "../popups/AlertPopup";
+import Spinner from "../spinner/Spinner";
 
 
 const Login = ({ setShowHouseholdSelector }) => {
@@ -29,6 +32,7 @@ const Login = ({ setShowHouseholdSelector }) => {
             setLoginError(data.error);
         } else if (data.success) {
             setShowSpinner(false);
+            console.log("Login successful. Redirecting to /");
             window.location.href = "/";
         }
     }

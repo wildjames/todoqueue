@@ -6,17 +6,17 @@ import { BrowserRouter as Router, Route, Routes, BrowserRouter } from 'react-rou
 
 import { Helmet } from 'react-helmet';
 
-import Tasks from './components/Tasks';
+import Tasks from './components/tasks/Tasks';
 import ConfirmRegistration from './components/ConfirmRegistration';
 import FailedRegistration from './components/FailedRegistration';
 import ForgotPassword from './components/forgotPassword';
-import Login from './components/Login';
+import Login from './components/login/Login';
 import { Logout } from './components/logout';
 import { fetchHouseholds } from './api/households';
 import { Navigation } from './components/navbar/navigation';
 import { ResetPassword } from './components/resetPassword';
 import { SignUp } from './components/signup';
-import { ManageHouseholds } from './components/households';
+import { ManageHouseholds } from './households/households';
 
 
 const App = () => {
@@ -33,21 +33,25 @@ const App = () => {
 
 
   // Fetch households at regular intervals
-  useEffect(() => {
-    const updateHouseholds = async () => {
-      try {
-        const fetchedHouseholds = await fetchHouseholds();
-        setHouseholds(fetchedHouseholds);
-        if (selectedHousehold === null && fetchedHouseholds.length === 1) {
-          console.log("Setting selected household to: ", fetchedHouseholds[0].id);
-          setSelectedHousehold(fetchedHouseholds[0].id);
-        }
-      } catch (error) {
-        console.error("An error occurred while fetching data:", error);
-      }
-    };
+  const updateHouseholds = async () => {
+    try {
+      const fetchedHouseholds = await fetchHouseholds();
 
+      setHouseholds(fetchedHouseholds);
+      
+      if (selectedHousehold === null && fetchedHouseholds.length === 1) {
+        console.log("Setting selected household to: ", fetchedHouseholds[0].id);
+        setSelectedHousehold(fetchedHouseholds[0].id);
+      }
+    
+    } catch (error) {
+      console.error("An error occurred while fetching data:", error);
+    }
+  };
+
+  useEffect(() => {
     updateHouseholds();
+
     const interval = setInterval(updateHouseholds, 10000);
     return () => clearInterval(interval);
   }, [selectedHousehold]);
@@ -70,7 +74,8 @@ const App = () => {
 
       <div className="App">
         <Routes>
-          <Route path="/" element={<Tasks selectedHousehold={selectedHousehold} setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/" element={
+            <Tasks selectedHousehold={selectedHousehold} showSelectedHouseholdSelector={showHouseholdSelector} setShowHouseholdSelector={setShowHouseholdSelector} />} />
           <Route path="/login" element={<Login setShowHouseholdSelector={setShowHouseholdSelector} />} />
           <Route path="/logout" element={<Logout setShowHouseholdSelector={setShowHouseholdSelector} />} />
           <Route path="/signup" element={<SignUp setShowHouseholdSelector={setShowHouseholdSelector} />} />

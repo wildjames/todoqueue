@@ -67,6 +67,8 @@ class LogoutView(APIView):
             token.blacklist()
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
+            logger.info(f"Ran into an error logging out")
+            logger.info(f"Error: {e}")
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 

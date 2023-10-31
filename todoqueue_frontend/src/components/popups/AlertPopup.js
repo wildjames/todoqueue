@@ -1,4 +1,5 @@
 import React from 'react';
+import './popups.css';
 
 const AlertMessage = ({ message }) => {
 

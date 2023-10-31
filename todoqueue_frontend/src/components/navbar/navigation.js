@@ -2,14 +2,15 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import React, { useState, useEffect } from 'react';
 
-// App CSS
-import '../../App.css';
 // My component CSS
 import './navigation.css';
 
 export function Navigation({ households, selectedHousehold, setSelectedHousehold, showHouseholdSelector }) {
-    const [isAuth, setIsAuth] = useState(false); useEffect(() => {
+    const [isAuth, setIsAuth] = useState(false);
+
+    useEffect(() => {
         if (localStorage.getItem('access_token') !== null) {
+            console.log("Navbar detected an access token");
             setIsAuth(true);
         }
     }, [isAuth]);

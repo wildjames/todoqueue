@@ -1,4 +1,5 @@
 import React from 'react';
+import './popups.css';
 
 const BasePopup = React.forwardRef((props, ref) => {
     return (

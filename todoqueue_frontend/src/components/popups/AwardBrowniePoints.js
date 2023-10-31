@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import BasePopup from './BasePopup';
 import { awardBrowniePoints, fetchBrowniePointValue } from '../../api/tasks';
+import './popups.css';
 
 
 const AwardBrowniePointsPopup = React.forwardRef((props, ref) => {

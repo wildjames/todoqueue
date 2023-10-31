@@ -1,23 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
-// import { Link } from 'react-router-dom';
-import '../App.css';
-import useAuthCheck from '../hooks/authCheck';
+import useAuthCheck from '../../hooks/authCheck';
 
-import { SimpleFlipper } from './flipper/flipper';
+import './Tasks.css';
+import './bp_counter_flipper.css';
 
-import TaskDetailsPopup from './popups/TaskDetailsPopup';
-import CompleteTaskPopup from './popups/CompleteTaskPopup';
-import AwardBrowniePointsPopup from './popups/AwardBrowniePoints';
-import CreateFlexibleTaskPopup from './popups/CreateFlexibleTaskPopup';
-import EditFlexibleTaskPopup from './popups/EditFlexibleTaskPopup';
-import CreateScheduledTaskPopup from './popups/CreateScheduledTaskPopup';
-import EditScheduledTaskPopup from './popups/EditScheduledTaskPopup';
+import { SimpleFlipper } from '../flipper/flipper';
 
-import { fetchTasks } from '../api/tasks';
-import { fetchUsers } from '../api/users';
+import TaskDetailsPopup from '../popups/TaskDetailsPopup';
+import CompleteTaskPopup from '../popups/CompleteTaskPopup';
+import AwardBrowniePointsPopup from '../popups/AwardBrowniePoints';
+import CreateFlexibleTaskPopup from '../popups/CreateFlexibleTaskPopup';
+import EditFlexibleTaskPopup from '../popups/EditFlexibleTaskPopup';
+import CreateScheduledTaskPopup from '../popups/CreateScheduledTaskPopup';
+import EditScheduledTaskPopup from '../popups/EditScheduledTaskPopup';
+
+import { fetchTasks } from '../../api/tasks';
+import { fetchUsers } from '../../api/users';
 
 
-const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
+const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseholdSelector }) => {
     const [tasks, setTasks] = useState([]);
     const [users, setUsers] = useState([]);
 
@@ -58,7 +59,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
     // Show the household selector on first render
     useEffect(() => {
         setShowHouseholdSelector(true);
-    }, []);
+    }, [showSelectedHouseholdSelector]);
 
 
     // Fetch tasks, and users at regular intervals
@@ -252,7 +253,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
 
             <div className={`empty-state ${selectedHousehold ? 'hide' : 'show'}`}>
                 <div className="arrow-up bounce"></div>
-                <div className="text">Select a household</div>
+                <div className="task-select-text">Select a household</div>
             </div>
 
 
@@ -286,6 +287,7 @@ const Tasks = ({ selectedHousehold, setShowHouseholdSelector }) => {
                     }
                 })()
             }
+
 
             <div className={`brownie-points-popup ${showFlipAnimation ? 'show' : ''}`}>
                 <div className={`brownie-points-animation ${showFlipAnimation ? 'show' : ''}`}>
