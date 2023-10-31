@@ -16,7 +16,7 @@ import { fetchHouseholds } from './api/households';
 import { Navigation } from './components/navbar/navigation';
 import { ResetPassword } from './components/resetPassword';
 import { SignUp } from './components/signup';
-import { ManageHouseholds } from './households/households';
+import { ManageHouseholds } from './components/households/households';
 
 
 const App = () => {
@@ -38,12 +38,12 @@ const App = () => {
       const fetchedHouseholds = await fetchHouseholds();
 
       setHouseholds(fetchedHouseholds);
-      
+
       if (selectedHousehold === null && fetchedHouseholds.length === 1) {
         console.log("Setting selected household to: ", fetchedHouseholds[0].id);
         setSelectedHousehold(fetchedHouseholds[0].id);
       }
-    
+
     } catch (error) {
       console.error("An error occurred while fetching data:", error);
     }

@@ -1,11 +1,11 @@
 import { useEffect, useState, useRef } from "react";
-import useAuthCheck from '../hooks/authCheck';
+import useAuthCheck from '../../hooks/authCheck';
 
-import Spinner from '../components/spinner/Spinner';
-import AlertMessage from "../components/popups/AlertPopup";
+import Spinner from '../spinner/Spinner';
+import AlertMessage from "../popups/AlertPopup";
 
-import { createHousehold, deleteHousehold } from '../api/households';
-import HouseholdDetailsPopup from "../components/popups/HouseholdDetailsPopup";
+import { createHousehold, deleteHousehold } from '../../api/households';
+import HouseholdDetailsPopup from "../popups/HouseholdDetailsPopup";
 import './households.css';
 
 export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
