@@ -1,0 +1,28 @@
+.input-field {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.form-section {
+    margin-bottom: 1rem;
+}
+
+.form-input {
+    padding: 0.5rem;
+    margin-top: 0.2rem;
+}
+
+.label-and-input {
+    display: flex;
+    align-items: center;
+}
+
+.label-and-input label {
+    margin-right: 0.5rem;
+    margin-left: 0.5rem;
+}
+
+.label-and-input span {
+    margin-left: 0.5rem;
+}

@@ -6,14 +6,15 @@ import AlertMessage from "../popups/AlertPopup";
 
 import { createHousehold, deleteHousehold } from '../../api/households';
 import HouseholdDetailsPopup from "../popups/HouseholdDetailsPopup";
+
 import './households.css';
+import '../../utils/inputs.css';
 
 export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
     const [selectedHousehold, setSelectedHousehold] = useState(null);
 
     const [name, setName] = useState("");
 
-    const [showSpinner, setShowSpinner] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
     const PopupType = {
@@ -36,10 +37,8 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
         console.log("Creating household:", name);
         const promise = createHousehold(name);
 
-        setShowSpinner(true);
         setErrorMessage("");
         const data = await promise;
-        setShowSpinner(false);
         setName("");
 
         if (data.error) {
@@ -54,10 +53,8 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
         console.log("Deleting household:", id);
         const promise = deleteHousehold(id);
 
-        setShowSpinner(true);
         setErrorMessage("");
         const data = await promise;
-        setShowSpinner(false);
 
 
         if (data.error) {
@@ -106,6 +103,11 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
             <h2>Manage Households</h2>
 
             {
+                errorMessage !== '' &&
+                <AlertMessage message={errorMessage} />
+            }
+
+            {
                 (() => {
                     switch (currentPopup) {
                         case PopupType.HOUSEHOLD_DETAILS:
@@ -150,13 +152,6 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
                     </div>
                 ))}
             </div>
-
-            {
-                errorMessage !== '' &&
-                <AlertMessage message={errorMessage} />
-            }
-
-            {showSpinner && <Spinner />}
 
         </div>
     );
