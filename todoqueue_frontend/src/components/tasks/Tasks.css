@@ -106,16 +106,6 @@
     }
 }
 
-.frozen {
-    background-color: #27caef;
-    border: 2px solid #125361;
-}
-
-.popup-inner.frozen {
-    background-color: #a8efff;
-    border: 2px solid #125361;
-}
-
 .task-wrapper {
     position: relative;
     display: inline-block;
@@ -131,6 +121,42 @@
     right: 0;
     width: 1px;
     background-color: lightgrey;
+}
+
+@media (max-width: 768px) {
+    .Tasks .task-container {
+        flex-direction: column;
+        /* Align tasks vertically */
+        align-items: center;
+        /* Center tasks horizontally */
+        gap: 120px;
+        /* Spacing between tasks */
+    }
+
+    .Tasks .task-wrapper {
+        display: block;
+        /* Stack tasks vertically */
+        width: 100%;
+    }
+
+    .Tasks .task-card {
+        left: calc(0px);
+        /* Initial position of the task cards */
+        bottom: auto;
+        /* Reset the bottom property */
+        transition: left 0.75s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        /* Transition effect for the left property */
+    }
+}
+
+.frozen {
+    background-color: #27caef;
+    border: 2px solid #125361;
+}
+
+.popup-inner.frozen {
+    background-color: #a8efff;
+    border: 2px solid #125361;
 }
 
 @keyframes flash-stale {

@@ -31,6 +31,7 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
     const [browniePoints, setBrowniePoints] = useState(0);
     const [showFlipAnimation, setShowFlipAnimation] = useState(false);
     const [viewMode, setViewMode] = useState('total');  // Toggle scoreboard between 'total' or 'rolling'
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
     // Define an enumeration for the popups
     const PopupType = {
@@ -111,6 +112,18 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
             return () => clearTimeout(timeout);
         }
     }, [showFlipAnimation]);
+
+
+    // Add and remove the event listener when the component mounts and unmounts
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowWidth(window.innerWidth);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
 
 
     // Data getters //
@@ -256,7 +269,6 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
                 <div className="task-select-text">Select a household</div>
             </div>
 
-
             {
                 // Popups
                 (() => {
@@ -288,13 +300,11 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
                 })()
             }
 
-
             <div className={`brownie-points-popup ${showFlipAnimation ? 'show' : ''}`}>
                 <div className={`brownie-points-animation ${showFlipAnimation ? 'show' : ''}`}>
-                    {`You earned ${browniePoints} brownie points!`}
+                    {`You earned ${browniePoints} BP!`}
                 </div>
             </div>
-
 
             <div className="task-container ">
                 {tasks
@@ -304,9 +314,11 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
                             <div
                                 className={`task-card ${task.staleness === 1 ? 'stale' : ''}`}
                                 onClick={() => handleOpenTaskDetails(task)}
-                                style={{
-                                    bottom: `calc(${(task.staleness) * 100}% - ${task.staleness * 120}px)`
-                                }}
+                                style={
+                                    windowWidth < 800
+                                        ? { left: `calc(${task.staleness} * (100% - 200px))` }
+                                        : { bottom: `calc(${(task.staleness) * 100}% - ${task.staleness * 120}px)` }
+                                }
                             >
                                 <div className="task-content">
                                     <span className="task-text">
@@ -323,7 +335,6 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
                         </div>
                     ))}
             </div>
-
 
             <div className={`task-sidebar ${showSidebar ? 'show' : 'hide'}`}>
                 <h2 style={{ marginTop: ".5em" }}>Fresh Tasks</h2>
@@ -359,7 +370,6 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
                     ))}
             </div>
 
-
             {selectedHousehold ? (
                 <button
                     className="button"
@@ -369,7 +379,6 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
                     Create Task
                 </button>
             ) : null}
-
 
             {selectedHousehold ? (
                 <div className="user-stats-container">
@@ -414,7 +423,6 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
 
             ) : null}
 
-
             {selectedHousehold ? (
                 <button
                     className="button"
@@ -425,11 +433,8 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
                 </button>
             ) : null}
 
-
         </div >
     );
-
-
 };
 
 export default Tasks;

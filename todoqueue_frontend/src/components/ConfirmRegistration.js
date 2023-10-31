@@ -8,7 +8,7 @@ const ConfirmRegistration = () => {
         <div className="ConfirmRegistration">
 
             <div className="confirm-registration-container">
-                <h1 style={{ marginLeft: "0px", textAlign: "center" }}>Account activated!</h1>
+                <h1 className="confirm-registration-heading">Account activated!</h1>
                 <h3>You many now log in.</h3>
             </div>
 

@@ -1,6 +1,36 @@
-
 .todoqueue-auth-form {
-    max-width: 400px;
-    margin: 10% auto;
+  max-width: 400px;
+  margin: 80px auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Styles for tablets and larger mobile devices */
+@media (max-width: 768px) {
+  .todoqueue-auth-form {
+      max-width: 350px;
+      margin: 80px auto;
   }
-  
+}
+
+/* Styles for smaller mobile devices */
+@media (max-width: 480px) {
+  .todoqueue-auth-form {
+      max-width: 300px;
+      margin: 80px auto;
+  }
+}
+
+/* Additional styles to make the form elements look better on mobile devices */
+.form-control {
+  font-size: 16px; /* Larger font size for better readability on small screens */
+}
+
+.button, .button-secondary {
+  font-size: 16px; /* Larger font size for better tap targets */
+  padding: 10px 20px; /* Increased padding for better touch experience */
+}
+
+.Auth-form-title {
+  font-size: 24px; /* Adjust the title size for smaller screens */
+}

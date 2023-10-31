@@ -2,25 +2,23 @@
     text-align: center;
     font-family: 'Arial', sans-serif;
     display: block;
-    width: 40vw;
-    font-family: 'Arial', sans-serif;
+    width: 90vw;
     margin: calc(56px + 3vh) auto;
 }
 
 .household-wrapper {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     align-items: center;
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 8px;
     margin-top: 10px;
-    margin-left: auto;
-    margin-right: auto;
 }
 
 .household-name {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: bold;
 }
 
@@ -35,15 +33,31 @@
 }
 
 .household-user-name {
-    padding-left: 2rem;
     font-weight: normal;
+    padding-left: 2rem;
     font-size: 1.2rem;
 }
 
 .household-user-content {
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
     align-items: center;
     background-color: #e8e8e8;
     border-radius: 8px;
+}
+
+/* Media query for larger screens */
+@media (min-width: 768px) {
+    .Households {
+        width: 40vw;
+    }
+
+    .household-wrapper {
+        flex-direction: row;
+    }
+
+    .household-name {
+        font-size: 1.5rem;
+    }
 }

@@ -10,10 +10,27 @@
 .navbar-center-panel {
     display: flex;
     align-items: center;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translateX(-50%) translateY(-50%);
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Adjustments for smaller screens (less than 800px) */
+@media (max-width: 800px) {
+    .navbar-center-panel {
+        margin-top: 10px;
+        /* Add some space above the household selector */
+    }
+}
+
+/* Adjustments for larger screens (more than 800px) */
+@media (min-width: 800px) {
+    .navbar-center-panel {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+    }
 }
 
 .fullscreen-icon {
@@ -27,7 +44,7 @@
 }
 
 .household-select {
-    width: 20vw;
+    width: 15rem;
     padding: 3px;
     border: 1px solid #8d8d8d;
     border-radius: 5px;
@@ -48,6 +65,34 @@
 }
 
 .navbar-link {
-    padding-left: 2vw !important;
-    padding-right: 2vw !important;
+    padding-left: 2vw;
+    padding-right: 2vw;
+}
+
+.navbar-logo-fullscreen-container {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-links-container {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Adjustments for large screens */
+@media (min-width: 800px) {
+    .navbar-links-container {
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 800px) {
+    .logout-link {
+        margin-top: 25px;
+    }
+}
+
+.burger-button {
+    margin-right: 0.75rem;
 }

@@ -29,3 +29,8 @@
     width: 30%;
     font-family: 'Arial', sans-serif;
 }
+
+.confirm-registration-heading {
+    margin-left: "0px"; 
+    text-align: "center" 
+}

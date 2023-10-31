@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import BasePopup from './BasePopup';
 import { createWorkLog } from '../../api/tasks';
+
 import './popups.css';
+import '../../utils/inputs.css';
 
 const CompleteTaskPopup = React.forwardRef((props, ref) => {
     const [completionUsers, setCompletionUsers] = useState([]);
