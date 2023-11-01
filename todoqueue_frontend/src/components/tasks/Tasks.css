@@ -131,6 +131,8 @@
         /* Center tasks horizontally */
         gap: 120px;
         /* Spacing between tasks */
+        bottom: 100px;
+        /* Lower bottom since the scores disappear */
     }
 
     .Tasks .task-wrapper {
@@ -305,6 +307,12 @@
     padding: 0.5rem;
 }
 
+@media (max-width: 800px) {
+    .input-pair-container .task-input-group input {
+        max-width: 125px;
+    }
+}
+
 .input-pair-container .task-input-group label {
     text-align: left;
 }
@@ -353,6 +361,12 @@
     flex: 1;
     margin: 0 5px;
     max-width: 90px;
+}
+
+@media (max-width: 800px) {
+    .task-input-group-horizontal input {
+        max-width: 50px;
+    }
 }
 
 .task-input-group-horizontal.no-max-width input {
