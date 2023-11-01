@@ -4,13 +4,13 @@ import useAuthCheck from '../../hooks/authCheck';
 import Spinner from '../spinner/Spinner';
 import AlertMessage from "../popups/AlertPopup";
 
-import { createHousehold, deleteHousehold } from '../../api/households';
+import { createHousehold, deleteHousehold, fetchHouseholds } from '../../api/households';
 import HouseholdDetailsPopup from "../popups/HouseholdDetailsPopup";
 
 import './households.css';
 import '../../utils/inputs.css';
 
-export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
+export const ManageHouseholds = ({ households, updateHouseholds, setShowHouseholdSelector }) => {
     const [selectedHousehold, setSelectedHousehold] = useState(null);
 
     const [name, setName] = useState("");
@@ -46,6 +46,9 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
         } else if (data.success) {
             console.log("Successfully created household");
         }
+
+        console.log("Updating household list");
+        updateHouseholds();
     };
 
 
@@ -62,6 +65,9 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
         } else if (data.success) {
             console.log("Successfully deleted household");
         }
+
+        console.log("Updating household list");
+        updateHouseholds();
     };
 
 
@@ -78,6 +84,9 @@ export const ManageHouseholds = ({ households, setShowHouseholdSelector }) => {
             setCurrentPopup(PopupType.NONE);
 
             setSelectedHousehold(null);
+
+            console.log("Updating household list");
+            updateHouseholds();
         }
         console.log("Clicked inside of popup");
     };

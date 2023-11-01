@@ -106,11 +106,11 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
                                         return (
                                             <>
                                                 <tr>
-                                                    <td className="task-popup-label">Do this at most every:</td>
+                                                    <td className="task-popup-label">Overdue after:</td>
                                                     <td className="task-popup-content">{formatDuration(props.selectedTask.max_interval)}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td className="task-popup-label">and at least every:</td>
+                                                    <td className="task-popup-label">Stale after:</td>
                                                     <td className="task-popup-content">{formatDuration(props.selectedTask.min_interval)}</td>
                                                 </tr>
                                             </>
@@ -127,7 +127,7 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
                                                     <td className="task-popup-content">{props.selectedTask.cron_schedule}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td className="task-popup-label">And you have this long to do it:</td>
+                                                    <td className="task-popup-label">Stale after:</td>
                                                     <td className="task-popup-content">{formatDuration(props.selectedTask.max_interval)}</td>
                                                 </tr>
                                             </>
@@ -142,7 +142,7 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
                             <td className="task-popup-content">{getTimeSince(props.selectedTask.last_completed)}</td>
                         </tr>
                         <tr>
-                            <td className="task-popup-label">This takes on average:</td>
+                            <td className="task-popup-label">Takes on average:</td>
                             <td className="task-popup-content">{(props.selectedTask.mean_completion_time / 60).toFixed(1)} minutes</td>
                         </tr>
                         <tr>

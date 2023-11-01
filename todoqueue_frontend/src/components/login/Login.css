@@ -6,7 +6,7 @@
 }
 
 /* Styles for tablets and larger mobile devices */
-@media (max-width: 768px) {
+@media (max-width: 800px) {
   .todoqueue-auth-form {
       max-width: 350px;
       margin: 80px auto;

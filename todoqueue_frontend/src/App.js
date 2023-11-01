@@ -83,7 +83,7 @@ const App = () => {
           <Route path="/registration_failed" element={<FailedRegistration />} />
           <Route path="/forgot_password" element={<ForgotPassword setShowHouseholdSelector={setShowHouseholdSelector} />} />
           <Route path="/reset_password/:uid/:token" element={<ResetPassword setShowHouseholdSelector={setShowHouseholdSelector} />} />
-          <Route path="/manage_households" element={<ManageHouseholds households={households} setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/manage_households" element={<ManageHouseholds households={households} updateHouseholds={updateHouseholds} setShowHouseholdSelector={setShowHouseholdSelector} />} />
         </Routes>
       </div>
     </BrowserRouter>

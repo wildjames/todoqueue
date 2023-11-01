@@ -82,6 +82,12 @@
 
 /* Adjustments for large screens */
 @media (min-width: 800px) {
+    .navbar-expand-lg .navbar-toggler {
+        display: none;
+    }
+}
+
+@media (min-width: 800px) {
     .navbar-links-container {
         justify-content: space-between;
     }
@@ -95,4 +101,10 @@
 
 .burger-button {
     margin-right: 0.75rem;
+}
+
+@media (min-width: 800px) {
+    .navbar-links-right {
+        margin-right: 1em;
+    }
 }
