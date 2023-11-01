@@ -188,7 +188,7 @@ export const signUp = async (email, username, password) => {
         }
         else {
             console.log("Error during registration:", res);
-            return {"error": "Error during registration."};
+            return {"error": res.data.detail};
         }
 
     } catch (error) {
