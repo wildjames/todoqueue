@@ -16,6 +16,15 @@ export const SignUp = ({ setShowHouseholdSelector }) => {
         setShowHouseholdSelector(false);
     }, []);
 
+    function getFirstErrorMessage(response) {
+        for (let key in response) {
+            if (response[key] instanceof Array && response[key].length > 0) {
+                return response[key][0];
+            }
+        }
+        return "Error during signup"; // Default error message
+    }
+
     const submit = async e => {
         e.preventDefault();
         
@@ -28,7 +37,8 @@ export const SignUp = ({ setShowHouseholdSelector }) => {
         if (data.success) {
             setFeedbackMessage(data.success);
         } else {
-            setFeedbackMessage(data.error);
+            console.log("Got error during signup:", data);
+            setFeedbackMessage(getFirstErrorMessage(data.error));
         }
 
     }

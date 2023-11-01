@@ -45,7 +45,7 @@ export const createHousehold = async (name) => {
 
     if (res.status !== 201) {
       console.log("Failed to create household.");
-      return { error: "Failed to create household." };
+      return { error: res.data.name };
     }
     return { success: "Successfully created household." };
 

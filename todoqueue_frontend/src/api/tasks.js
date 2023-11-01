@@ -251,10 +251,10 @@ export const createFlexibleTask = async (
 
     if (res.status !== 201) {
         console.log("Failed to create task.");
-        return;
+        return res;
     }
 
-    return res.data;
+    return res;
 };
 
 export const updateFlexibleTask = async (

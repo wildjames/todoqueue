@@ -68,15 +68,20 @@ const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
         const max_interval = `${newTask.max_interval_days || 0} ${newTask.max_interval_hours || 0}:${newTask.max_interval_minutes || 0}:00`;
         const min_interval = `${newTask.min_interval_days || 0} ${newTask.min_interval_hours || 0}:${newTask.min_interval_minutes || 0}:00`;
 
-        const response_data = await createFlexibleTask(
+        const response = await createFlexibleTask(
             newTask.task_name,
             props.selectedHousehold,
             max_interval,
             min_interval,
             newTask.description,
         );
+        if (response.status !== 201) {
+            console.error("Error creating task. Response:", response.data);
+            setInputError(true);
+            return;
+        }
 
-        console.log("Created task. Response:", response_data);
+        console.log("Created task. Response:", response.data);
         await props.fetchSetTasks();
         props.closeCurrentPopup();
 
@@ -144,7 +149,13 @@ const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
                 <h2>Create a New Task</h2>
                 <form className="task-form">
                     <div className="task-input-group">
-                        <input type="text" name="task_name" placeholder="Task Name" onChange={handleCreateInputChange} />
+                        <input
+                            className={inputError ? "input-error" : ""}
+                            type="text"
+                            name="task_name"
+                            placeholder="Task Name"
+                            onChange={handleCreateInputChange}
+                        />
                     </div>
 
                     <div className="task-input-group task-input-group-horizontal">
@@ -203,6 +214,7 @@ const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
                     </div>
                     <div className="task-input-group">
                         <input
+                            className={inputError ? "input-error" : ""}
                             type="text"
                             name="description"
                             placeholder="Description"

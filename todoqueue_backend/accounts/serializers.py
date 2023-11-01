@@ -1,10 +1,17 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
+from rest_framework.validators import UniqueValidator, ValidationError
 
+from profanity_check import predict as is_profane
 from logging import getLogger
 
 logger = getLogger(__name__)
+
+
+def validate_profanity(value):
+    logger.info("Validating profanity")
+    if is_profane([value])[0] == 1:
+        raise ValidationError("Profanity is not allowed")
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -29,10 +36,10 @@ class CustomUserWithBrowniePointsSerializer(CustomUserSerializer):
 
 class CustomUserRegistrationSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
-        validators=[UniqueValidator(queryset=get_user_model().objects.all())]
+        validators=[UniqueValidator(queryset=get_user_model().objects.all()), validate_profanity]
     )
     username = serializers.CharField(
-        validators=[UniqueValidator(queryset=get_user_model().objects.all())]
+        validators=[UniqueValidator(queryset=get_user_model().objects.all()), validate_profanity]
     )
     password = serializers.CharField(write_only=True)
 

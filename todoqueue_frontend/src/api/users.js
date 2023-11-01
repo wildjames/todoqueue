@@ -192,7 +192,7 @@ export const signUp = async (email, username, password) => {
         }
         else {
             console.log("The registration response contains an error:", res);
-            return {"error": res.data.detail};
+            return {"error": res.data};
         }
 
     } catch (error) {

@@ -17,7 +17,7 @@ from decouple import config
 
 from logging import getLogger, INFO, DEBUG, basicConfig
 
-basicConfig(level=INFO)
+basicConfig(level=DEBUG)
 logger = getLogger(__name__)
 
 

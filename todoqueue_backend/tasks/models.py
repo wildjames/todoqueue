@@ -4,6 +4,7 @@ from logging import getLogger
 
 import croniter
 from profanity_check import predict as is_profane
+from profanity_check import predict_prob as how_profane
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -24,8 +25,11 @@ usermodel = get_user_model()
 
 
 def validate_profanity(value):
+    logger.debug(f"Validating profanity for value: {value}")
     if is_profane([value])[0] == 1:
+        logger.debug("Profanity detected!")
         raise ValidationError("Profanity is not allowed")
+    logger.debug(f"Value {value} is OK - profanity score: {how_profane([value])[0]}")
 
 
 class Household(models.Model):
@@ -332,7 +336,7 @@ class ScheduledTaskSerializer(serializers.ModelSerializer):
     next_due = serializers.SerializerMethodField()
     last_due = serializers.SerializerMethodField()
     mean_completion_time = serializers.SerializerMethodField()
-    description = serializers.CharField(required=False, allow_blank=True)
+    description = serializers.CharField(required=False, allow_blank=True, validators=[validate_profanity])
 
     class Meta:
         model = ScheduledTask
@@ -354,7 +358,7 @@ class ScheduledTaskSerializer(serializers.ModelSerializer):
 class FlexibleTaskSerializer(serializers.ModelSerializer):
     staleness = serializers.SerializerMethodField()
     mean_completion_time = serializers.SerializerMethodField()
-    description = serializers.CharField(required=False, allow_blank=True)
+    description = serializers.CharField(required=False, allow_blank=True, validators=[validate_profanity])
 
     class Meta:
         model = FlexibleTask
@@ -484,7 +488,7 @@ class HouseholdSerializer(serializers.ModelSerializer):
 
 class CreateHouseholdSerializer(serializers.ModelSerializer):
     name = serializers.CharField(
-        max_length=255, validators=[UniqueValidator(queryset=Household.objects.all())]
+        max_length=255, validators=[UniqueValidator(queryset=Household.objects.all()), validate_profanity]
     )
 
     class Meta:

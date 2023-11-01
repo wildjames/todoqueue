@@ -37,7 +37,7 @@ from .models import (
     get_task_by_id,
 )
 
-from .utils import bp_function, parse_duration, is_profane
+from .utils import bp_function, parse_duration
 
 logger = getLogger(__name__)
 basicConfig(level=INFO)
