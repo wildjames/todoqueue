@@ -1,10 +1,12 @@
 from logging import getLogger
 from time import sleep
+from profanity_check import predict as is_profane
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.http import HttpResponseRedirect
 from django.contrib.sites.shortcuts import get_current_site
+from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_str
@@ -26,6 +28,11 @@ from .serializers import (
 logger = getLogger(__name__)
 
 user_model = get_user_model()
+
+
+def validate_profanity(value):
+    logger.info("Validating profanity")
+    return is_profane([value])[0] == 1
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -76,6 +83,12 @@ class RegisterView(APIView):
     def post(self, request):
         logger.info(f"Registering user with email: {request.data['email']}")
         serializer = CustomUserRegistrationSerializer(data=request.data)
+
+        if validate_profanity(request.data["username"]):
+            return Response(
+                {"detail": "Username contains profanity."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         # If the user already exists, and is not activated, then delete the user and create a new one
         try:

@@ -2,6 +2,7 @@ from datetime import timedelta
 from typing import List
 from logging import getLogger, INFO, basicConfig
 import math
+from profanity_check import predict as is_profane
 import random
 
 logger = getLogger(__name__)
@@ -107,3 +108,9 @@ def bp_function(
     logger.debug(f"  Brownie points: {brownie_points}")
 
     return int(brownie_points)
+
+
+def validate_profanity(value):
+    logger.info("Validating profanity")
+    return is_profane([value])[0] == 1
+

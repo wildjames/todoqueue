@@ -3,11 +3,13 @@ import uuid
 from logging import getLogger
 
 import croniter
+from profanity_check import predict as is_profane
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.signals import m2m_changed
@@ -21,9 +23,14 @@ logger = getLogger(__name__)
 usermodel = get_user_model()
 
 
+def validate_profanity(value):
+    if is_profane([value])[0] == 1:
+        raise ValidationError("Profanity is not allowed")
+
+
 class Household(models.Model):
     users = models.ManyToManyField(get_user_model(), related_name="households")
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, validators=[validate_profanity])
 
     def __str__(self):
         return self.name
@@ -94,8 +101,8 @@ class ScheduledTask(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    task_name = models.CharField(max_length=255)
-    description = models.TextField(default="")
+    task_name = models.CharField(max_length=255, validators=[validate_profanity])
+    description = models.TextField(default="", validators=[validate_profanity])
     last_completed = models.DateTimeField(auto_now_add=True)
     household = models.ForeignKey(
         Household, on_delete=models.CASCADE, related_name="scheduled_tasks"
@@ -175,8 +182,8 @@ class ScheduledTask(models.Model):
 class FlexibleTask(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    task_name = models.CharField(max_length=255)
-    description = models.TextField(default="")
+    task_name = models.CharField(max_length=255, validators=[validate_profanity])
+    description = models.TextField(default="", validators=[validate_profanity])
     max_interval = models.DurationField(default="0:0")
     min_interval = models.DurationField(default="0:0")
     last_completed = models.DateTimeField(auto_now_add=True)
