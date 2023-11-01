@@ -1,12 +1,14 @@
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 // My component CSS
 import './navigation.css';
 
 export function Navigation({ households, selectedHousehold, setSelectedHousehold, showHouseholdSelector }) {
     const [isAuth, setIsAuth] = useState(false);
+    const [expanded, setExpanded] = useState(false);
+    const navRef = useRef();
 
     useEffect(() => {
         if (localStorage.getItem('access_token') !== null) {
@@ -15,6 +17,18 @@ export function Navigation({ households, selectedHousehold, setSelectedHousehold
         }
     }, [isAuth]);
 
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (navRef.current && !navRef.current.contains(event.target)) {
+                setExpanded(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [navRef]);
 
     function toggleFullScreen() {
         if (!document.fullscreenElement) {
@@ -41,8 +55,15 @@ export function Navigation({ households, selectedHousehold, setSelectedHousehold
     }
 
     return (
-        <div>
-            <Navbar className="navbar" bg="dark" variant="dark" sticky="left" expand="lg">
+        <div ref={navRef}>
+            <Navbar
+                className="navbar"
+                bg="dark"
+                variant="dark"
+                sticky="left"
+                expand="lg"
+                expanded={expanded}
+            >
                 <div className="navbar-logo-fullscreen-container">
                     <Navbar.Brand href="/" style={{ paddingLeft: '1rem' }}>ToDoQu</Navbar.Brand>
 
@@ -54,7 +75,11 @@ export function Navigation({ households, selectedHousehold, setSelectedHousehold
                     </button>
                 </div>
 
-                <Navbar.Toggle aria-controls="responsive-navbar-nav" className="burger-button" />
+                <Navbar.Toggle
+                    aria-controls="responsive-navbar-nav"
+                    className="burger-button"
+                    onClick={() => setExpanded(!expanded)}
+                />
 
                 <Navbar.Collapse id="responsive-navbar-nav">
                     <Nav className="me-auto navbar-links-container">
