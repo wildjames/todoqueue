@@ -111,6 +111,7 @@
     display: inline-block;
     align-items: center;
     width: 210px;
+    flex-shrink: 0;
 }
 
 .task-wrapper::after {
@@ -123,7 +124,7 @@
     background-color: lightgrey;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 800px) {
     .Tasks .task-container {
         flex-direction: column;
         /* Align tasks vertically */
