@@ -96,3 +96,9 @@
 .burger-button {
     margin-right: 0.75rem;
 }
+
+@media (min-width: 800px) {
+    .navbar-links-right {
+        margin-right: 1em;
+    }
+}

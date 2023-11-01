@@ -77,7 +77,7 @@ export function Navigation({ households, selectedHousehold, setSelectedHousehold
                         )}
                     </Nav>
 
-                    <Nav className="me-right navbar-links-container">
+                    <Nav className="me-right navbar-links-container navbar-links-right">
                         {!isAuth && <Nav.Link href="/signup" className="navbar-link">Sign Up</Nav.Link>}
                         {isAuth ?
                             <Nav.Link href="/logout" className="navbar-link logout-link">Log Out</Nav.Link> :
