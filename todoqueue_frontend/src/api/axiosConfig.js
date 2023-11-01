@@ -61,12 +61,14 @@ axios.interceptors.response.use(
 
         return axios(error.config);
       } else {
+        console.log("Failed to refresh token. Logging out.");
         handleLogout();
       }
     }
 
     refresh = false;
-    return Promise.reject(error);
+    console.log("Failed to refresh token.", error.response);
+    return error.response;
   }
 );
 

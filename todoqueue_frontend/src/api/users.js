@@ -80,21 +80,25 @@ export const fetchUsers = async (selectedHousehold) => {
     const list_users_url = `/api/households/${selectedHousehold}/users/`;
 
     console.log("Fetching household users");
-    const res = await axios.get(
-        list_users_url,
-        {
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
+    try {
+        const res = await axios.get(
+            list_users_url,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
 
-    if (res.status !== 200) {
-        console.log("Failed to fetch users.");
+        if (res.status !== 200) {
+            console.log("Failed to fetch users.");
+            return null;
+        }
+        console.log("Fetched users: ", res.data);
+        return res.data;
+    } catch (error) {
+        console.error("An error occurred while fetching users:", error);
         return null;
     }
-    console.log("Fetched users: ", res.data);
-
-    return res.data;
 };
 
 
@@ -187,7 +191,7 @@ export const signUp = async (email, username, password) => {
             return { "success": "New user created. Please check your email for a verification link."};
         }
         else {
-            console.log("Error during registration:", res);
+            console.log("The registration response contains an error:", res);
             return {"error": res.data.detail};
         }
 
