@@ -81,7 +81,7 @@
 }
 
 /* Adjustments for large screens */
-@media (min-width: 800px) {
+@media (min-width: 1000px) {
     .navbar-expand-lg .navbar-toggler {
         display: none;
     }
