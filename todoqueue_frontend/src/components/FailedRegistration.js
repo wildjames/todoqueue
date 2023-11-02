@@ -1,17 +1,14 @@
 import React from 'react';
+import './simple_page.css';
 
 
 const FailedRegistration = () => {
 
 
     return (
-        <div className="FailedRegistration">
-
-            <div className="failed-registration-container">
-                <h1 style={{ marginLeft: "0px", textAlign: "center" }}>Account activation failed!</h1>
-                <h3>Please retry account creation, or double-check you've used the correct email.</h3>
-            </div>
-
+        <div className="todoqu-simple-text">
+            <h3>Account activation failed!</h3>
+            <h3>Please retry account creation, or double-check you've used the correct email.</h3>
         </div>
     );
 }

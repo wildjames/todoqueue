@@ -1,0 +1,13 @@
+.todoqu-simple-text {
+    max-width: 95vw;
+    margin: 80px auto;
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.todoqu-simple-text h1,
+.todoqu-simple-text h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}

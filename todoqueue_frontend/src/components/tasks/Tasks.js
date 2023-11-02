@@ -22,6 +22,9 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
     const [tasks, setTasks] = useState([]);
     const [users, setUsers] = useState([]);
 
+    const [noTasks, setNoTasks] = useState(true);
+    const [noStaleTasks, setNoStaleTasks] = useState(true);
+
     const [selectedTask, setSelectedTask] = useState(null);
     const [selectedTaskId, setSelectedTaskId] = useState(null);
 
@@ -55,6 +58,26 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
 
 
     // useEffects //
+
+
+    // Track the number of tasks
+    useEffect(() => {
+        if (tasks.length === 0) {
+            setNoTasks(true);
+        } else {
+            setNoTasks(false);
+        }
+    }, [tasks]);
+
+
+    // Track the number of stale tasks (tasks with non-zero staleness)
+    useEffect(() => {
+        if (tasks.filter(task => task.staleness !== 0).length === 0) {
+            setNoStaleTasks(true);
+        } else {
+            setNoStaleTasks(false);
+        }
+    }, [tasks]);
 
 
     // Show the household selector on first render
@@ -334,6 +357,15 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
                             </div>
                         </div>
                     ))}
+
+                <div className={`empty-state ${noTasks && selectedHousehold ? "show" : "hide"}`} >
+                    <h3>You have no tasks!</h3>
+                    <h3>Try creating some using the button at the bottom of the screen.</h3>
+                </div>
+
+                <div className={`empty-state ${!noTasks && noStaleTasks && selectedHousehold ? "show" : "hide"}`}>
+                    <h3>You've completed all your tasks!</h3>
+                </div>
             </div>
 
             <div className={`task-sidebar ${showSidebar ? 'show' : 'hide'}`}>
