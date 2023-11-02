@@ -5,22 +5,24 @@ import "./simple_page.css";
 export const Help = () => {
     return (
         <div className="todoqu-simple-text" style={{ textAlign: "left" }}>
-            <h1>An atomized approach cleaning</h1>
-
             <p>
-                Life's little tasks, when batched, become chores. ToDoQu offers a way to spread these tasks out, doing a little each day to avoid losing a whole day to cleaning. It's a flexible queue that reminds you to do tasks at your pace, marking them as done and highlighting when they become stale or overdue.
+                Juggling infrequent tasks is easier when they're broken down and spread out. Instead of losing a whole day to chores, ToDoQu lets you tackle them in brief, manageable moments. This way, your Saturdays are saved, and your home stays orderly.
             </p>
 
-            <h2 id="an-example">An Example</h2>
+            <h2 id="an-example">How It Works</h2>
 
             <p>
-                Cleaning a house is daunting and often leads to cutting corners. With ToDoQu, you can set reminders for each task, like vacuuming every 5-9 days, or clearing the coffee table daily with a week's leeway. This method ensures regular maintenance without overwhelming spring-cleaning sessions.
+                Take cleaning a living room: it's not one task, but many. With ToDoQu, you can schedule each part—like vacuuming or dusting skirting boards—on its own timeline. Get reminders for vacuuming every 5 to 9 days, or nudge yourself to declutter the coffee table daily. ToDoQu allows you to set the frequency each task needs.
             </p>
 
-            <h2 id="brownie-points">Brownie Points</h2>
+            <p>
+                The key is to keep tasks as small as possible, while keeping them distinct but not fragmented. "Do the laundry" is a single, clear task, whereas "Put the laundry in" and "Take the laundry out" are unnecessarily split.
+            </p>
+
+            <h2 id="brownie-points">Tracking Effort</h2>
 
             <p>
-                ToDoQu also tracks contributions using brownie points, which are awarded based on the task's duration, unpleasantness, and an element of randomness. You can also set a task as done without awarding points, or set a task as being done by several people - each person will get full credit!
+                ToDoQu also keeps score, awarding brownie points for task completion based on time spent, difficulty, and a touch of randomness. Tasks can be shared or solo, and if a task stops needing to be done without anyone's intervention, they can be dismissed without crediting anyone at all.
             </p>
 
         </div>
