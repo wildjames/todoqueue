@@ -9,6 +9,7 @@ export const SignUp = ({ setShowHouseholdSelector }) => {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [passwordConfirm, setPasswordConfirm] = useState('');
     const [showSpinner, setShowSpinner] = useState(false);
     const [feedbackMessage, setFeedbackMessage] = useState('');
 
@@ -19,7 +20,8 @@ export const SignUp = ({ setShowHouseholdSelector }) => {
     function getFirstErrorMessage(response) {
         for (let key in response) {
             if (response[key] instanceof Array && response[key].length > 0) {
-                return response[key][0];
+                key = key[0].toUpperCase() + key.slice(1);
+                return key + ": " + response[key][0];
             }
         }
         return "Error during signup"; // Default error message
@@ -27,6 +29,11 @@ export const SignUp = ({ setShowHouseholdSelector }) => {
 
     const submit = async e => {
         e.preventDefault();
+
+        if (password !== passwordConfirm) {
+            setFeedbackMessage("Passwords do not match");
+            return;
+        }
         
         const promise = signUp(email, username, password);
         setShowSpinner(true);
@@ -66,7 +73,7 @@ export const SignUp = ({ setShowHouseholdSelector }) => {
                     </div>
                     
                     <div className="form-group mt-3">
-                        <label>Username</label>
+                        <label>Display Name</label>
                         <input className="form-control mt-1"
                             placeholder="Enter username"
                             name='username'
@@ -85,6 +92,17 @@ export const SignUp = ({ setShowHouseholdSelector }) => {
                             value={password}
                             required
                             onChange={e => setPassword(e.target.value)} />
+                    </div>
+                    
+                    <div className="form-group mt-3">
+                        <label>Confirm password</label>
+                        <input name='password'
+                            type="password"
+                            className="form-control mt-1"
+                            placeholder="Enter password"
+                            value={passwordConfirm}
+                            required
+                            onChange={e => setPasswordConfirm(e.target.value)} />
                     </div>
                     
                     <div className="d-grid gap-2 mt-3">
