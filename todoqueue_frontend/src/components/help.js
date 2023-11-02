@@ -12,7 +12,7 @@ export const Help = () => {
             <h2 id="an-example">How It Works</h2>
 
             <p>
-                Take cleaning a living room: it's not one task, but many. With ToDoQu, you can schedule each part—like vacuuming or dusting skirting boards—on its own timeline. Get reminders for vacuuming every 5 to 9 days, or nudge yourself to declutter the coffee table daily. ToDoQu allows you to set the frequency each task needs.
+                Take cleaning a living room: it's not one task, but many. With ToDoQu, you can schedule each part—like vacuuming or dusting skirting boards—on its own timeline. Get reminders for vacuuming every 5 to 9 days, or nudge yourself to declutter the coffee table daily. ToDoQu allows you to set the frequency each task needs, and complete them on your own time.
             </p>
 
             <p>
