@@ -17,6 +17,7 @@ import { Navigation } from './components/navbar/navigation';
 import { ResetPassword } from './components/resetPassword';
 import { SignUp } from './components/signup';
 import { ManageHouseholds } from './components/households/households';
+import { Help } from './components/help';
 
 
 const App = () => {
@@ -76,6 +77,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={
             <Tasks selectedHousehold={selectedHousehold} showSelectedHouseholdSelector={showHouseholdSelector} setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/help" element={<Help />} />
           <Route path="/login" element={<Login setShowHouseholdSelector={setShowHouseholdSelector} />} />
           <Route path="/logout" element={<Logout setShowHouseholdSelector={setShowHouseholdSelector} />} />
           <Route path="/signup" element={<SignUp setShowHouseholdSelector={setShowHouseholdSelector} />} />
