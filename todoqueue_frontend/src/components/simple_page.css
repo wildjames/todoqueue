@@ -1,0 +1,29 @@
+.todoqu-simple-text {
+    max-width: 400px;
+    margin: 80px auto;
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+/* Styles for tablets and larger mobile devices */
+@media (max-width: 800px) {
+    .todoqu-simple-text {
+        max-width: 350px;
+        margin: 80px auto;
+    }
+}
+
+/* Styles for smaller mobile devices */
+@media (max-width: 480px) {
+    .todoqu-simple-text {
+        max-width: 300px;
+        margin: 80px auto;
+    }
+}
+
+.todoqu-simple-text h1,
+.todoqu-simple-text h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
