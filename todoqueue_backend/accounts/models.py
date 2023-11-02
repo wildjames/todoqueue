@@ -32,14 +32,13 @@ class CustomUserManager(BaseUserManager):
 
 
 def validate_profanity(value):
-    logger.info("Validating profanity")
     if is_profane([value])[0] == 1:
         raise ValidationError("Profanity is not allowed")
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
-    username = models.CharField(max_length=30, unique=True, validators=[validate_profanity])
+    username = models.CharField(max_length=30, validators=[validate_profanity])
     date_joined = models.DateTimeField(default=timezone.now)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
