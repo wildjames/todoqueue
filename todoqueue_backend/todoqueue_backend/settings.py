@@ -21,8 +21,6 @@ basicConfig(level=DEBUG)
 logger = getLogger(__name__)
 
 
-
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -33,7 +31,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("DJANGO_SECRET", default=os.urandom(32))
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DJANGO_DEBUG", "false").lower() == "true"
 
 web_port = config("DJANGO_HOST_PORT", default=8000, cast=int)
 logger.info("Whilelisting host for CSRF: {}".format(config("FRONTEND_URL", default=None)))
@@ -129,11 +127,24 @@ DATABASES = {
     }
 }
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+if os.environ.get("DJANGO_CACHE_BACKEND", None) == "redis":
+    logger.info("Using RedisCache")
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": os.environ.get("DJANGO_CACHE_LOCATION", "redis://127.0.0.1:6379/1"),
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            }
+        }
     }
-}
+else:
+    logger.info("Using LocMemCache")
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        }
+    }
 
 AUTH_USER_MODEL = "accounts.CustomUser"
 
