@@ -11,7 +11,7 @@ import './households.css';
 import '../../utils/inputs.css';
 
 export const ManageHouseholds = ({ households, updateHouseholds, setShowHouseholdSelector }) => {
-    const [selectedHousehold, setSelectedHousehold] = useState(null);
+    const [selectedHousehold, setSelectedHousehold] = useState("");
 
     const [name, setName] = useState("");
 
@@ -83,7 +83,7 @@ export const ManageHouseholds = ({ households, updateHouseholds, setShowHousehol
             console.log("Clicked outside of popup");
             setCurrentPopup(PopupType.NONE);
 
-            setSelectedHousehold(null);
+            setSelectedHousehold("");
 
             console.log("Updating household list");
             updateHouseholds();
@@ -95,7 +95,8 @@ export const ManageHouseholds = ({ households, updateHouseholds, setShowHousehol
     const closePopup = () => {
         console.log("Closing popup");
         setCurrentPopup(PopupType.NONE);
-        setSelectedHousehold(null);
+        setSelectedHousehold("");
+        updateHouseholds();
     };
 
 
@@ -149,17 +150,19 @@ export const ManageHouseholds = ({ households, updateHouseholds, setShowHousehol
             </div>
 
             <div>
-                {households.map((household) => (
-                    <div className="household-wrapper" key={household.id}>
-                        <span className="household-name">
-                            {household.name}
-                        </span>
-                        <div>
-                            <button className="button delete-button" onClick={() => handleDelete(household.id)}>Delete</button>
-                            <button className="button manage-users-button" onClick={() => handleOpenUsersPopup(household)}>Manage Users</button>
+                {
+                    households.map((household) => (
+                        <div className="household-wrapper" key={household.id}>
+                            <span className="household-name">
+                                {household.name}
+                            </span>
+                            <div>
+                                <button className="button delete-button" onClick={() => handleDelete(household.id)}>Delete</button>
+                                <button className="button manage-users-button" onClick={() => handleOpenUsersPopup(household)}>Manage Users</button>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))
+                }
             </div>
 
         </div>
