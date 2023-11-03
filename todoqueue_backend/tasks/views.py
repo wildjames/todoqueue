@@ -1,5 +1,5 @@
 from datetime import timedelta
-from logging import INFO, basicConfig, getLogger
+from logging import getLogger
 
 from accounts.serializers import CustomUserWithBrowniePointsSerializer
 from django.contrib.auth import get_user_model
@@ -40,7 +40,6 @@ from .models import (
 from .utils import bp_function, parse_duration
 
 logger = getLogger(__name__)
-basicConfig(level=INFO)
 
 
 class ScheduledTaskViewSet(viewsets.ModelViewSet):
