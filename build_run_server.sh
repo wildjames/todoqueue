@@ -5,7 +5,7 @@ export EMAIL_HOST_USER=
 export DEFAULT_FROM_EMAIL=
 export EMAIL_HOST_PASSWORD=
 
-export DEBUG=0
+export DJANGO_DEBUG=0
 export DJANGO_HOST_PORT=8000
 
 export DJANGO_DB_NAME=todoqueue
@@ -13,6 +13,9 @@ export DJANGO_DB_USER=root
 export DJANGO_DB_PASSWORD=password
 export DJANGO_DB_HOST=localhost
 export DJANGO_DB_PORT=3306
+
+export DJANGO_CACHE_BACKEND="redis"
+export DJANGO_CACHE_LOCATION="redis://127.0.0.1:6379/1"
 
 export DJANGO_SUPERUSER_EMAIL=
 export DJANGO_SUPERUSER_USERNAME=
