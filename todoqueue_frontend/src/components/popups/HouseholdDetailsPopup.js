@@ -19,7 +19,12 @@ const HouseholdDetailsPopup = React.forwardRef((props, ref) => {
 
     const updateUsers = async (id) => {
         try {
+            console.log("Fetching users");
             const users = await fetchUsers(id);
+            if (users === null) {
+                console.log("Closing popup");
+                props.closePopup();
+            }
             setUsers(users);
         } catch (error) {
             console.error("An error occurred while fetching data:", error);
@@ -82,6 +87,8 @@ const HouseholdDetailsPopup = React.forwardRef((props, ref) => {
         else if (data.success) {
             console.log("Successfully removed user from household");
         }
+
+
     };
 
 

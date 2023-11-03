@@ -38,6 +38,7 @@ const App = () => {
     try {
       const fetchedHouseholds = await fetchHouseholds();
 
+      console.log("Setting households:", fetchedHouseholds);
       setHouseholds(fetchedHouseholds);
 
       if (selectedHousehold === null && fetchedHouseholds.length === 1) {
