@@ -118,6 +118,10 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
             return;
         }
 
+        if (browniePoints === 0) {
+            return;
+        }
+
         console.log("Brownie points changed");
         setShowFlipAnimation(true);
     }, [browniePoints]);

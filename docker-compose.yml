@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      EMAIL_HOST: smtp-mail.outlook.com
+      EMAIL_PORT: 587
+      EMAIL_USE_TLS: "1"
+      EMAIL_HOST_USER: polyhymnia.wild@outlook.com
+      DEFAULT_FROM_EMAIL: polyhymnia.wild@outlook.com
+      EMAIL_HOST_PASSWORD: password
+      DEBUG: "0"
+      DJANGO_HOST_PORT: "8000"
+      DJANGO_DB_NAME: todoqueue
+      DJANGO_DB_USER: root
+      DJANGO_DB_PASSWORD: password
+      DJANGO_DB_HOST: host.docker.internal
+      DJANGO_DB_PORT: "3306"
+      DJANGO_SUPERUSER_EMAIL: wild.james343@gmail.com
+      DJANGO_SUPERUSER_USERNAME: James
+      DJANGO_SUPERUSER_PASSWORD: password
+    volumes:
+      - .:/app

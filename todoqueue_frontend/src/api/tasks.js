@@ -1,4 +1,5 @@
 import axios from './axiosConfig';
+import { backend_url } from './backend_url';
 
 
 // Get all the tasks for this household
@@ -7,7 +8,7 @@ export const fetchTasks = async (selectedHousehold) => {
         return [];
     }
 
-    const list_tasks_url = `/api/all-tasks/?household=${selectedHousehold}`;
+    const list_tasks_url = `${backend_url}/api/all-tasks/?household=${selectedHousehold}`;
     console.log("Fetching Tasks...");
 
     try {
@@ -43,7 +44,7 @@ export const fetchTasks = async (selectedHousehold) => {
 
 // Get information about a specific task
 export const fetchSelectedTask = async (selectedTaskId, selectedHousehold) => {
-    const list_tasks_url = `/api/all-tasks/${selectedTaskId}/?household=${selectedHousehold}`;
+    const list_tasks_url = `${backend_url}/api/all-tasks/${selectedTaskId}/?household=${selectedHousehold}`;
     console.log("Fetching selected task...");
 
     const response = await axios.get(list_tasks_url, {
@@ -62,7 +63,7 @@ export const fetchBrowniePointValue = async (
     completionTimeString,
     grossness,
 ) => {
-    const calculate_brownie_points_url = "/api/calculate_brownie_points/";
+    const calculate_brownie_points_url = backend_url + "/api/calculate_brownie_points/";
     const payload = {
         task_id: taskId,
         completion_time: completionTimeString,
@@ -133,7 +134,7 @@ export const createWorkLog = async (
         // Make a POST request to create a new WorkLog entry
         try {
             const response = await axios.post(
-                '/api/worklogs/',
+                `${backend_url}/api/worklogs/`,
                 JSON.stringify(worklog),
                 {
                     headers: {
@@ -164,7 +165,7 @@ export const awardBrowniePoints = async (
     let task_id = null;
     try {
         const response = await axios.get(
-            `/api/households/${householdId}/get_dummy_task_id/`,
+            `${backend_url}/api/households/${householdId}/get_dummy_task_id/`,
         );
 
         if (response.status === 200) {
@@ -192,7 +193,7 @@ export const awardBrowniePoints = async (
         // Make a POST request to create a new WorkLog entry
         try {
             const response = await axios.post(
-                '/api/worklogs/',
+                `${backend_url}/api/worklogs/`,
                 JSON.stringify(worklog),
                 {
                     headers: {
@@ -222,7 +223,7 @@ export const createFlexibleTask = async (
     min_interval,
     description,
 ) => {
-    const createTaskUrl = `/api/flexible-tasks/`;
+    const createTaskUrl = `${backend_url}/api/flexible-tasks/`;
 
     const newTask = {
         task_name,
@@ -265,7 +266,7 @@ export const updateFlexibleTask = async (
     min_interval,
     description,
 ) => {
-    const updateTaskUrl = `/api/flexible-tasks/${taskId}/?household=${household}`;
+    const updateTaskUrl = `${backend_url}/api/flexible-tasks/${taskId}/?household=${household}`;
 
     const updatedTask = {
         task_name,
@@ -303,7 +304,7 @@ export const deleteFlexibleTask = async (
     taskId,
     selectedHousehold,
 ) => {
-    const deleteTaskUrl = `/api/flexible-tasks/${taskId}/?household=${selectedHousehold}`;
+    const deleteTaskUrl = `${backend_url}/api/flexible-tasks/${taskId}/?household=${selectedHousehold}`;
 
     console.log("Deleting task");
     console.log("deleteTaskUrl: ", deleteTaskUrl);
@@ -334,7 +335,7 @@ export const createScheduledTask = async (
     max_interval,
     description,
 ) => {
-    const createTaskUrl = `/api/scheduled-tasks/`;
+    const createTaskUrl = `${backend_url}/api/scheduled-tasks/`;
 
     const newTask = {
         task_name,
@@ -376,7 +377,7 @@ export const updateScheduledTask = async (
     max_interval,
     description,
 ) => {
-    const updateTaskUrl = `/api/scheduled-tasks/${taskId}/?household=${household}`;
+    const updateTaskUrl = `${backend_url}/api/scheduled-tasks/${taskId}/?household=${household}`;
 
     const updatedTask = {
         task_name,
@@ -415,7 +416,7 @@ export const deleteScheduledTask = async (
     taskId,
     selectedHousehold,
 ) => {
-    const deleteTaskUrl = `/api/scheduled-tasks/${taskId}/?household=${selectedHousehold}`;
+    const deleteTaskUrl = `${backend_url}/api/scheduled-tasks/${taskId}/?household=${selectedHousehold}`;
 
     console.log("Deleting scheduled task");
     console.log("deleteTaskUrl: ", deleteTaskUrl);
@@ -440,7 +441,7 @@ export const deleteScheduledTask = async (
 
 
 export const freezeTask = async (taskId) => {
-    const freezeTaskUrl = `/api/toggle_frozen/${taskId}/`;
+    const freezeTaskUrl = `${backend_url}/api/toggle_frozen/${taskId}/`;
 
     console.log("Freezing task");
     console.log("freezeTaskUrl: ", freezeTaskUrl);
@@ -465,7 +466,7 @@ export const freezeTask = async (taskId) => {
 
 
 export const deleteTask = async (taskId, selectedHousehold) => {
-    const deleteTaskUrl = `/api/all-tasks/${taskId}/?household=${selectedHousehold}`;
+    const deleteTaskUrl = `${backend_url}/api/all-tasks/${taskId}/?household=${selectedHousehold}`;
 
     console.log("Deleting task");
     console.log("deleteTaskUrl: ", deleteTaskUrl);
