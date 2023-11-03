@@ -1,4 +1,5 @@
 import axios from './axiosConfig';
+import { backend_url } from './backend_url';
 
 
 export const loginUser = async (email, password) => {
@@ -12,7 +13,7 @@ export const loginUser = async (email, password) => {
     let data;
     try {
         const res = await axios.post(
-            '/api/token/',
+            `${backend_url}/api/token/`,
             user,
             {
                 headers:
@@ -31,7 +32,11 @@ export const loginUser = async (email, password) => {
 
 
     try {
-        console.log("Login successful, setting access token.");
+        if (data.access === undefined || data.refresh === undefined) {
+            console.log("Error during login, no access or refresh token returned.");
+            return { error: "Error logging in, please try again or reset your password." };
+        }
+        console.log("Login successful, setting access token.", data);
         // Initialize the access & refresh token in localstorage.      
         localStorage.clear();
         localStorage.setItem('access_token', data.access);
@@ -50,7 +55,7 @@ export const logOutUser = async () => {
     console.log("Logging out user");
     try {
       await axios.post(
-        '/api/logout/',
+        `${backend_url}/api/logout/`,
         {
           refresh_token: localStorage.getItem('refresh_token')
         },
@@ -77,7 +82,7 @@ export const fetchUsers = async (selectedHousehold) => {
         console.log("No household selected - skipping get users.");
         return null;
     }
-    const list_users_url = `/api/households/${selectedHousehold}/users/`;
+    const list_users_url = `${backend_url}/api/households/${selectedHousehold}/users/`;
 
     console.log("Fetching household users");
     try {
@@ -114,7 +119,7 @@ export const forgotPassword = async (email) => {
 
     try {
         const res = await axios.post(
-            '/api/forgot_password/',
+            `${backend_url}/api/forgot_password/`,
             payload,
             {
                 headers:
@@ -147,7 +152,7 @@ export const resetPassword = async (uid, token, newPassword, confirmPassword) =>
 
     try {
         const res = await axios.post(
-            `/api/complete_forgot_password/${uid}/${token}/`,
+            `${backend_url}/api/complete_forgot_password/${uid}/${token}/`,
             payload,
             {
                 headers: {
@@ -176,7 +181,7 @@ export const signUp = async (email, username, password) => {
 
     try {
         const res = await axios.post(
-            '/api/register/',
+            `${backend_url}/api/register/`,
             newUser,
             {
                 headers:

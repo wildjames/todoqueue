@@ -1,5 +1,5 @@
 import axios from "axios";
-import jwtDecode from 'jwt-decode';
+import { backend_url } from "./backend_url";
 
 let refresh = false;
 
@@ -41,7 +41,7 @@ axios.interceptors.response.use(
       console.log("Token out of date. Refreshing using token: ", localStorage.getItem('refresh_token'));
 
       const response = await axios.post(
-        '/api/token/refresh/',
+        backend_url + '/api/token/refresh/',
         {
           refresh: localStorage.getItem('refresh_token')
         },

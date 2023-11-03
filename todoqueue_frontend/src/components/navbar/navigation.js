@@ -90,8 +90,8 @@ export function Navigation({ households, selectedHousehold, setSelectedHousehold
 
                                 {showHouseholdSelector && (
                                     <a className="navbar-center-panel">
-                                        <select className="household-select" onChange={e => setSelectedHousehold(e.target.value === "Select a household" ? null : e.target.value)} value={selectedHousehold}>
-                                            <option value={null}>Select a household</option>
+                                        <select className="household-select" onChange={e => setSelectedHousehold(e.target.value === "Select a household" ? "" : e.target.value)} value={selectedHousehold}>
+                                            <option value={""}>Select a household</option>
                                             {households.map(household => (
                                                 <option key={household.id} value={household.id}>{household.name}</option>
                                             ))}

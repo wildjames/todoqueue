@@ -40,9 +40,10 @@ logger.info("Whilelisting host for CSRF: {}".format(config("FRONTEND_URL", defau
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 ALLOWED_HOSTS = ["*"]
-ALLOWED_CSRF_ORIGINS = [config("FRONTEND_URL", default=None), f"192.168.1.186:{web_port}", f"localhost:{web_port}"]
+ALLOWED_CSRF_ORIGINS = [config("FRONTEND_URL", default=None), f"192.168.1.186:{web_port}", f"localhost:{web_port}", "localhost:3000"]
 logger.info(f"Allowed CSRF origins: {ALLOWED_CSRF_ORIGINS}")
 
+CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = True
 
 # Static files configurations

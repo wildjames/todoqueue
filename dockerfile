@@ -25,7 +25,8 @@ COPY todoqueue_backend /app/todoqueue_backend
 # Copy frontend application, and build it
 COPY todoqueue_frontend /app/todoqueue_frontend
 WORKDIR /app/todoqueue_frontend
-RUN npm install && npm run build
+RUN npm install
+RUN npm run build
 
 WORKDIR /app/todoqueue_backend
 

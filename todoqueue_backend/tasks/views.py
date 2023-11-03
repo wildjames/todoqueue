@@ -223,7 +223,7 @@ class HouseholdViewSet(viewsets.ModelViewSet):
             )
 
         # Date calculations
-        start_datetime = timezone.now() - timedelta(minutes=5)
+        start_datetime = timezone.now() - timedelta(days=7)
 
         # Prefetch worklogs from the last 7 days and annotate the sum of brownie points
         users = household.users.annotate(

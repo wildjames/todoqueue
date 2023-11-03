@@ -22,7 +22,7 @@ import { Help } from './components/help';
 
 const App = () => {
   const [households, setHouseholds] = useState([]);
-  const [selectedHousehold, setSelectedHousehold] = useState(null);
+  const [selectedHousehold, setSelectedHousehold] = useState("");
   const [showHouseholdSelector, setShowHouseholdSelector] = useState(false);
 
   // Try and prevent chrome from translating the page when there are few words on screen

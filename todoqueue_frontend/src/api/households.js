@@ -1,5 +1,5 @@
 import axios from './axiosConfig';
-
+import { backend_url } from './backend_url';
 
 export const fetchHouseholds = async () => {
   console.log("Getting household list");
@@ -10,7 +10,7 @@ export const fetchHouseholds = async () => {
   }
   console.log("We are logged in - getting household list");
 
-  const list_households_url = "/api/households/";
+  const list_households_url = backend_url + "/api/households/";
   try {
     const res = await axios.get(list_households_url, {
       headers: {
@@ -33,7 +33,7 @@ export const createHousehold = async (name) => {
   try {
     // Get the logged in user
     const res = await axios.post(
-      "/api/create_household/",
+      backend_url + "/api/create_household/",
       {
         name: name
       },
@@ -59,7 +59,7 @@ export const createHousehold = async (name) => {
 export const deleteHousehold = async (id) => {
   try {
     await axios.delete(
-      `/api/households/${id}/`,
+      `${backend_url}/api/households/${id}/`,
       {
         withCredentials: true
       }
@@ -76,7 +76,7 @@ export const deleteHousehold = async (id) => {
 export const addUserToHousehold = async (householdId, userEmail) => {
   try {
     let response = await axios.post(
-      `/api/households/${householdId}/add_user/`,
+      `${backend_url}/api/households/${householdId}/add_user/`,
       {
         email: userEmail
       },
@@ -99,7 +99,7 @@ export const addUserToHousehold = async (householdId, userEmail) => {
 export const removeUserFromHousehold = async (householdId, userEmail) => {
   try {
     let response = await axios.post(
-      `/api/households/${householdId}/remove_user/`,
+      `${backend_url}/api/households/${householdId}/remove_user/`,
       {
         email: userEmail
       },
