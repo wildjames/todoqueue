@@ -1,3 +1,4 @@
+from datetime import timedelta
 from logging import getLogger
 from time import sleep
 
@@ -23,6 +24,7 @@ from .serializers import (
     CustomUserRegistrationSerializer,
     ResetPasswordSerializer,
 )
+from .utils import is_rate_limited
 
 logger = getLogger(__name__)
 
@@ -44,8 +46,10 @@ class CustomUserViewSet(viewsets.ModelViewSet):
     def check_permissions(self, request):
         super().check_permissions(request)
         # If it's a 'list' action and user is not admin, deny access
-        if self.action == 'list' and not request.user.is_staff:
-            raise PermissionDenied("You do not have permission to view the list of users.")
+        if self.action == "list" and not request.user.is_staff:
+            raise PermissionDenied(
+                "You do not have permission to view the list of users."
+            )
 
 
 class AuthView(APIView):
@@ -75,6 +79,15 @@ class LogoutView(APIView):
 
 class RegisterView(APIView):
     def post(self, request):
+        # Check if the rate limit has been exceeded
+        if is_rate_limited(
+            request.META['REMOTE_ADDR'], "init_registration", max_attempts=20, period=timedelta(hours=1)
+        ):
+            return Response(
+                {"detail": "Registration requests are limited to 20 per hour."},
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
+
         logger.info(f"Registering user with email: {request.data['email']}")
         serializer = CustomUserRegistrationSerializer(data=request.data)
 
@@ -156,6 +169,15 @@ class RegisterView(APIView):
 
 class ConfirmRegistrationView(APIView):
     def get(self, request, uidb64, token):
+        # Check if the rate limit has been exceeded
+        if is_rate_limited(
+            request.META['REMOTE_ADDR'], "confirm_registration", max_attempts=50, period=timedelta(hours=1)
+        ):
+            return Response(
+                {"detail": "Please stop spamming the confirmation endpoint."},
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
+
         logger.info(f"Confirming registration for user with uidb64: {uidb64}")
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
@@ -179,6 +201,15 @@ class ConfirmRegistrationView(APIView):
 
 class ForgotPasswordView(APIView):
     def post(self, request):
+        # Check if the rate limit has been exceeded
+        if is_rate_limited(
+            request.META['REMOTE_ADDR'], "forgot_password", max_attempts=5, period=timedelta(hours=1)
+        ):
+            return Response(
+                {"detail": "Password reset requests are limited to 5 per hour."},
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
+
         logger.info(
             f"Forgot password request for user with email: {request.data['email']}"
         )
@@ -245,6 +276,15 @@ class ForgotPasswordView(APIView):
 
 class CompleteForgotPasswordView(APIView):
     def post(self, request, uidb64, token):
+        # Check if the rate limit has been exceeded
+        if is_rate_limited(
+            request.META['REMOTE_ADDR'], "new_password", max_attempts=20, period=timedelta(hours=1)
+        ):
+            return Response(
+                {"detail": "Please stop spamming the password reset endpoint."},
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
+
         logger.info(f"Completing forgot password for user with uidb64: {uidb64}")
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
