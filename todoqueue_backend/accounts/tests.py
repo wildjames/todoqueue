@@ -8,8 +8,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from logging import getLogger, basicConfig, INFO
-basicConfig(level=INFO)
+from logging import getLogger
 logger = getLogger(__name__)
 
 from .serializers import CustomUserSerializer

@@ -1,12 +1,11 @@
 from datetime import timedelta
 from typing import List
-from logging import getLogger, INFO, basicConfig
+from logging import getLogger
 import math
 from profanity_check import predict as is_profane
 import random
 
 logger = getLogger(__name__)
-basicConfig(level=INFO)
 
 
 def renormalize(value, old_range, new_range):
