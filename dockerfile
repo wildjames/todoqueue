@@ -27,6 +27,8 @@ COPY todoqueue_frontend /app/todoqueue_frontend
 WORKDIR /app/todoqueue_frontend
 RUN npm install
 RUN npm run build
+# Make sure the output of npm run build is correctly placed where Django expects static files
+RUN cp -r build/* /app/todoqueue_backend/static/
 
 WORKDIR /app/todoqueue_backend
 
