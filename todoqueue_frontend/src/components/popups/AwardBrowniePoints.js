@@ -84,7 +84,7 @@ const AwardBrowniePointsPopup = React.forwardRef((props, ref) => {
                             </div>
                         </div>
                     </div>
-                    <div className={`form-section time-slider label-and-input ${completionTime == 0 ? "input-error" : ""}`}>
+                    <div className={`form-section time-slider label-and-input ${completionTime === 0 ? "input-error" : ""}`}>
                         <label htmlFor="completionTime">How long did it take?</label>
                         <input
                             id="completionTime"
@@ -95,7 +95,7 @@ const AwardBrowniePointsPopup = React.forwardRef((props, ref) => {
                             value={completionTime}
                             onChange={e => setCompletionTime(e.target.value)}
                         />
-                        <span>{completionTimeLookup[completionTime]} minute{completionTimeLookup[completionTime] == 1 ? "" : "s"}</span>
+                        <span>{completionTimeLookup[completionTime]} minute{completionTimeLookup[completionTime] === 1 ? "" : "s"}</span>
                     </div>
 
                     <div className="form-section label-and-input" style={{ display: "block" }}>

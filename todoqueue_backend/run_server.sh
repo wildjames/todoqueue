@@ -6,10 +6,6 @@ if [ ! -f "./manage.py" ]; then
     exit 1
 fi
 
-# Collect static files
-echo "Collecting static files..." && \
-python manage.py collectstatic --noinput && \
-
 # Run database migrations
 echo "Running database migrations..." && \
 python manage.py makemigrations tasks accounts && \
@@ -17,6 +13,10 @@ python manage.py migrate && \
 
 # Create a superuser from environment variables
 python manage.py createsuperuser --noinput
+
+# Collect static files
+echo "Collecting static files..." && \
+python manage.py collectstatic --noinput && \
 
 # Start the Django server
 echo "Starting the Django server..."
