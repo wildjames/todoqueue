@@ -19,6 +19,7 @@ from django.urls import path, include
 from django.views.generic import TemplateView
 from django.urls import re_path
 from django.contrib.staticfiles.views import serve
+from django.conf import settings
 
 urlpatterns = [
     # Backend routes
