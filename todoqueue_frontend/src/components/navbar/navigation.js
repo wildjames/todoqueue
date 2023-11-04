@@ -85,19 +85,26 @@ export function Navigation({ households, selectedHousehold, setSelectedHousehold
                     <Nav className="me-auto navbar-links-container">
                         {isAuth && (
                             <>
-                                <Nav.Link href="/" style={{ paddingLeft: '2vw', paddingRight: '2vw' }}>Tasks</Nav.Link>
+                                <Nav.Link href="/tasks" style={{ paddingLeft: '2vw', paddingRight: '2vw' }}>Tasks</Nav.Link>
                                 <Nav.Link href="/manage_households" style={{ paddingLeft: '2vw', paddingRight: '2vw' }}>Manage Households</Nav.Link>
 
                                 {showHouseholdSelector && (
-                                    <button className="navbar-center-panel">
-                                        <select className="household-select" onChange={e => setSelectedHousehold(e.target.value === "Select a household" ? "" : e.target.value)} value={selectedHousehold}>
-                                            <option value={""}>Select a household</option>
+                                    <div className="navbar-center-panel">
+                                        <select
+                                            id="household-select"
+                                            className="household-select"
+                                            onChange={e => setSelectedHousehold(e.target.value)}
+                                            value={selectedHousehold}
+                                            aria-label="Select a household"
+                                        >
+                                            <option value="" disabled hidden>Select a household</option>
                                             {households.map(household => (
                                                 <option key={household.id} value={household.id}>{household.name}</option>
                                             ))}
                                         </select>
-                                    </button>
+                                    </div>
                                 )}
+
                             </>
                         )}
                     </Nav>

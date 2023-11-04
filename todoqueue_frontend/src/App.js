@@ -18,6 +18,7 @@ import { ResetPassword } from './components/resetPassword';
 import { SignUp } from './components/signup';
 import { ManageHouseholds } from './components/households/households';
 import { Help } from './components/help';
+import { About } from './components/about';
 
 
 const App = () => {
@@ -41,7 +42,7 @@ const App = () => {
       console.log("Setting households:", fetchedHouseholds);
       setHouseholds(fetchedHouseholds);
 
-      if (selectedHousehold === null && fetchedHouseholds.length === 1) {
+      if (selectedHousehold === "" && fetchedHouseholds.length === 1) {
         console.log("Setting selected household to: ", fetchedHouseholds[0].id);
         setSelectedHousehold(fetchedHouseholds[0].id);
       }
@@ -76,7 +77,8 @@ const App = () => {
 
       <div className="App">
         <Routes>
-          <Route path="/" element={
+          <Route path="/" element={<About />} />
+          <Route path="/tasks" element={
             <Tasks selectedHousehold={selectedHousehold} showSelectedHouseholdSelector={showHouseholdSelector} setShowHouseholdSelector={setShowHouseholdSelector} />} />
           <Route path="/help" element={<Help />} />
           <Route path="/login" element={<Login setShowHouseholdSelector={setShowHouseholdSelector} />} />
