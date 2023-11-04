@@ -17,9 +17,6 @@ from decouple import config
 
 from logging import getLogger, INFO, DEBUG, basicConfig
 
-basicConfig(level=DEBUG)
-logger = getLogger(__name__)
-
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,7 +28,24 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("DJANGO_SECRET", default=os.urandom(32))
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DJANGO_DEBUG", "false").lower() == "true"
+env_debug = os.environ.get("DJANGO_DEBUG", "false").lower()
+if env_debug.isdigit():
+    env_debug = int(env_debug) == 1
+else:
+    env_debug = env_debug in ["true", "yes"]
+
+logging_level = os.environ.get("DJANGO_LOGGING_LEVEL", "info").lower()
+
+if logging_level.lower() == "debug":
+    basicConfig(level=DEBUG)
+else:
+    basicConfig(level=INFO)
+    
+logger = getLogger(__name__)
+logger.info(f"Logging level: {logging_level}")
+logger.info(f"Django is using DEBUG = {env_debug}")
+
+DEBUG = env_debug
 
 web_port = config("DJANGO_HOST_PORT", default=8000, cast=int)
 logger.info("Whilelisting host for CSRF: {}".format(config("FRONTEND_URL", default=None)))

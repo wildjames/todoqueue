@@ -11,6 +11,7 @@ class CustomUserAdmin(UserAdmin):
         "date_joined",
         "is_active",
         "is_staff",
+        "has_logged_in",
         "brownie_point_credit",
         "brownie_point_debit",
     )
@@ -35,7 +36,13 @@ class CustomUserAdmin(UserAdmin):
         ("Dates", {"fields": ("last_login", "date_joined")}),
         (
             "Additional Info",
-            {"fields": ("brownie_point_credit", "brownie_point_debit")},
+            {
+                "fields": (
+                    "brownie_point_credit",
+                    "brownie_point_debit",
+                    "has_logged_in",
+                )
+            },
         ),
     )
     add_fieldsets = (

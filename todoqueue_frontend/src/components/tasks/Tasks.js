@@ -15,7 +15,7 @@ import CreateScheduledTaskPopup from '../popups/CreateScheduledTaskPopup';
 import EditScheduledTaskPopup from '../popups/EditScheduledTaskPopup';
 
 import { fetchTasks } from '../../api/tasks';
-import { fetchUsers } from '../../api/users';
+import { fetchHouseholdUsers } from '../../api/users';
 
 
 const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseholdSelector }) => {
@@ -168,7 +168,7 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
 
 
     const fetchSetUsers = async () => {
-        const data = await fetchUsers(selectedHousehold);
+        const data = await fetchHouseholdUsers(selectedHousehold);
         if (data === null) {
             setUsers([]);
             return;

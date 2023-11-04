@@ -77,7 +77,7 @@ export const logOutUser = async () => {
   }
 
 
-export const fetchUsers = async (selectedHousehold) => {
+export const fetchHouseholdUsers = async (selectedHousehold) => {
     if (!selectedHousehold) {
         console.log("No household selected - skipping get users.");
         return null;
@@ -105,6 +105,31 @@ export const fetchUsers = async (selectedHousehold) => {
         return null;
     }
 };
+
+
+export const fetchUserData = async () => {
+    const get_user_url = `${backend_url}/api/user_info/`;
+
+    console.log("Getting my user data");
+    try {
+        const res = await axios.get(
+            get_user_url,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+        if (res.status !== 200) {
+            console.log("Failed to get my user data");
+            return null;
+        }
+        console.log("I got my user data!", res.data);
+        return res.data;
+    } catch (error) {
+        console.error("An error occurred while fetching my user data", error);
+        return null;
+    }
+}
 
 
 export const forgotPassword = async (email) => {

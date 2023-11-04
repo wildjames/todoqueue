@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 
 import BasePopup from './BasePopup';
-import { fetchUsers } from '../../api/users';
+import { fetchHouseholdUsers } from '../../api/users';
 import { addUserToHousehold, removeUserFromHousehold, fetchSelectedHousehold } from '../../api/households';
 
 import Spinner from '../spinner/Spinner';
@@ -20,7 +20,7 @@ const HouseholdDetailsPopup = React.forwardRef((props, ref) => {
     const updateUsers = async (id) => {
         try {
             console.log("Fetching users");
-            const users = await fetchUsers(id);
+            const users = await fetchHouseholdUsers(id);
             if (users === null) {
                 console.log("Closing popup");
                 props.closePopup();
