@@ -52,6 +52,19 @@ class CustomUserViewSet(viewsets.ModelViewSet):
             )
 
 
+class GetUserData(APIView):
+    permission_classes = (IsAuthenticated,)
+    
+    def get(self, request):
+        """Return the serialization of the user who authenticated this request"""
+        logger.info("Getting serialization of a single user")
+        user = request.user
+        serializer = CustomUserSerializer(user)
+        serialized_data = serializer.data
+        logger.info(f"User data: {serialized_data}")
+        
+        return Response(serialized_data)
+
 class AuthView(APIView):
     permission_classes = (IsAuthenticated,)
 

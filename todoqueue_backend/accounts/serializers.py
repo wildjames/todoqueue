@@ -22,6 +22,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
             "email",
             "username",
             "date_joined",
+            "has_logged_in",
             "brownie_point_credit",
             "brownie_point_debit",
         )

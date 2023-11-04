@@ -2,6 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     CustomUserViewSet,
+    GetUserData,
     AuthView,
     LogoutView,
     RegisterView,
@@ -19,6 +20,7 @@ urlpatterns = [
     path("auth/", AuthView.as_view(), name="auth"),
     path("token/", jwt_views.TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", jwt_views.TokenRefreshView.as_view(), name="token_refresh"),
+    path("user_info/", GetUserData.as_view(), name="user_info"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("register/", RegisterView.as_view(), name="register"),
     path(

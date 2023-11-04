@@ -42,6 +42,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(default=timezone.now)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    
+    has_logged_in = models.BooleanField(default=False)
 
     brownie_point_credit = models.JSONField(default=dict)
     brownie_point_debit = models.JSONField(default=dict)

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react"; // Define the Login function.
 import "./Login.css";
 import "../../utils/buttons.css";
 
-import { loginUser } from "../../api/users";
+import { loginUser, fetchUserData } from "../../api/users";
 import AlertMessage from "../popups/AlertPopup";
 import Spinner from "../spinner/Spinner";
 
@@ -26,14 +26,27 @@ const Login = ({ setShowHouseholdSelector }) => {
 
         setShowSpinner(true);
         const data = await response;
-        setShowSpinner(false);
 
         if (data.error) {
+            setShowSpinner(false);
             setLoginError(data.error);
         } else if (data.success) {
-            setShowSpinner(false);
-            console.log("Login successful. Redirecting to /");
-            window.location.href = "/";
+            const res = await fetchUserData();
+
+            if (res === null) {
+                setShowSpinner(false);
+                setLoginError("");
+            }
+
+            if (res.has_logged_in) {
+                setShowSpinner(false);
+                console.log("Login successful. Redirecting to /");
+                window.location.href = "/";
+            } else {
+                setShowSpinner(false);
+                console.log("This is my first login. Redirecting to help page.");
+                window.location.href = "/help";
+            }
         }
     }
 
