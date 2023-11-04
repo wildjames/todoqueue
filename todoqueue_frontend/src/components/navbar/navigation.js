@@ -89,14 +89,14 @@ export function Navigation({ households, selectedHousehold, setSelectedHousehold
                                 <Nav.Link href="/manage_households" style={{ paddingLeft: '2vw', paddingRight: '2vw' }}>Manage Households</Nav.Link>
 
                                 {showHouseholdSelector && (
-                                    <a className="navbar-center-panel">
+                                    <button className="navbar-center-panel">
                                         <select className="household-select" onChange={e => setSelectedHousehold(e.target.value === "Select a household" ? "" : e.target.value)} value={selectedHousehold}>
                                             <option value={""}>Select a household</option>
                                             {households.map(household => (
                                                 <option key={household.id} value={household.id}>{household.name}</option>
                                             ))}
                                         </select>
-                                    </a>
+                                    </button>
                                 )}
                             </>
                         )}
