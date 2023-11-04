@@ -59,9 +59,11 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = True
 
 # Static files configurations
+# Static files configurations
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "../todoqueue_frontend/build/static/")]
+logger.info(f"Static files dirs: {STATICFILES_DIRS}")
 
 
 # email settings

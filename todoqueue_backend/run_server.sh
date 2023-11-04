@@ -8,11 +8,10 @@ fi
 
 # Run database migrations
 echo "Running database migrations..." && \
-python manage.py makemigrations tasks accounts && \
 python manage.py migrate && \
 
 # Create a superuser from environment variables
-python manage.py createsuperuser --noinput
+python manage.py createsuperuser --noinput || true
 
 # Collect static files
 echo "Collecting static files..." && \
