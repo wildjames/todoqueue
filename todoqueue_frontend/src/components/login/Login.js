@@ -41,7 +41,7 @@ const Login = ({ setShowHouseholdSelector }) => {
             if (res.has_logged_in) {
                 setShowSpinner(false);
                 console.log("Login successful. Redirecting to /");
-                window.location.href = "/";
+                window.location.href = "/tasks";
             } else {
                 setShowSpinner(false);
                 console.log("This is my first login. Redirecting to help page.");
