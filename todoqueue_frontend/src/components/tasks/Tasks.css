@@ -84,7 +84,7 @@
     /* Change from relative to absolute */
     top: 55px;
     /* Start from where it is initially placed */
-    bottom: 120px;
+    bottom: 95px;
     /* 100px from the bottom of the viewport */
     width: 100%;
     transition: left 0.5s ease;

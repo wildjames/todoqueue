@@ -16,15 +16,15 @@
 }
 
 /* Adjustments for smaller screens (less than 800px) */
-@media (max-width: 800px) {
+@media (max-width: 1000px) {
     .navbar-center-panel {
-        margin-top: 10px;
-        /* Add some space above the household selector */
+        margin-top: 15px;
+        margin-bottom: 15px;
     }
 }
 
 /* Adjustments for larger screens (more than 800px) */
-@media (min-width: 800px) {
+@media (min-width: 1000px) {
     .navbar-center-panel {
         position: absolute;
         top: 50%;
@@ -87,13 +87,13 @@
     }
 }
 
-@media (min-width: 800px) {
+@media (min-width: 1000px) {
     .navbar-links-container {
         justify-content: space-between;
     }
 }
 
-@media (max-width: 800px) {
+@media (max-width: 1000px) {
     .logout-link {
         margin-top: 25px;
     }
@@ -103,7 +103,7 @@
     margin-right: 0.75rem;
 }
 
-@media (min-width: 800px) {
+@media (min-width: 1000px) {
     .navbar-links-right {
         margin-right: 1em;
     }

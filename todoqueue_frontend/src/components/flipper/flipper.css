@@ -16,14 +16,14 @@
 }
 
 .flip-clock__slot {
-    font-size: 3em;
+    font-size: 2em;
 }
 
 .card {
     display: block;
     position: relative;
     padding-bottom: 0.72em;
-    font-size: 2em;
+    font-size: 1.5em;
     line-height: 0.95;
 }
 
@@ -36,7 +36,7 @@
     color: #ccc;
     background: #222;
     padding: 0.25em 0.25em;
-    border-radius: 0.15em 0.15em 0 0;
+    border-radius: 0.2em 0.2em 0 0;
     backface-visiblity: hidden;
     transform-style: preserve-3d;
     width: 4em;
@@ -50,7 +50,7 @@
     left: 0;
     border-top: solid 1px #000;
     background: #393939;
-    border-radius: 0 0 0.15em 0.15em;
+    border-radius: 0 0 0.2em 0.2em;
     pointer-events: none;
     overflow: hidden;
 }
