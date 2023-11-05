@@ -2,9 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import useAuthCheck from '../../hooks/authCheck';
 
 import './Tasks.css';
-import './bp_counter_flipper.css';
 
-import { SimpleFlipper } from '../flipper/flipper';
+import UserStatsBox from '../user_stats_box/UserStatsBox';
 
 import TaskDetailsPopup from '../popups/TaskDetailsPopup';
 import CompleteTaskPopup from '../popups/CompleteTaskPopup';
@@ -416,48 +415,16 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
                 </button>
             ) : null}
 
-            {selectedHousehold && (windowWidth > 800) ? (
-                <div className="user-stats-container">
-                    <div className="toggle-switch">
-                        <input
-                            type="checkbox"
-                            id="viewModeSwitch"
-                            checked={viewMode === 'rolling'}
-                            onChange={() => setViewMode(prevMode => prevMode === 'total' ? 'rolling' : 'total')}
-                        />
-                        <label htmlFor="viewModeSwitch">
-                            {viewMode === "total" ? "All Time" : "Last 7 days"}
-                        </label>
-                    </div>
-                    <div className="user-stats-flex" onClick={handleOpenAwardBrowniePointsPopup}>
-                        {viewMode === 'total' ?
-                            users.sort((a, b) =>
-                                (b.brownie_point_credit[selectedHousehold] - b.brownie_point_debit[selectedHousehold])
-                                - (a.brownie_point_credit[selectedHousehold] - a.brownie_point_debit[selectedHousehold])
-                            )
-                                .slice(0, 5)
-                                .map((user, index) => (
-                                    <div key={index} className="user-row">
-                                        <span className="user-name">{user.username}</span>
-                                        <SimpleFlipper
-                                            value={user.brownie_point_credit[selectedHousehold] - user.brownie_point_debit[selectedHousehold]}
-                                        />
-                                    </div>
-                                ))
-                            :
-                            users.sort((a, b) => b.rolling_brownie_points - a.rolling_brownie_points)
-                                .slice(0, 5)
-                                .map((user, index) => (
-                                    <div key={index} className="user-row">
-                                        <span className="user-name">{user.username}</span>
-                                        <SimpleFlipper value={user.rolling_brownie_points} />
-                                    </div>
-                                ))
-                        }
-                    </div>
-                </div>
 
-            ) : null}
+            <UserStatsBox
+                selectedHousehold={selectedHousehold}
+                windowWidth={windowWidth}
+                viewMode={viewMode}
+                setViewMode={setViewMode}
+                users={users}
+                handleOpenAwardBrowniePointsPopup={handleOpenAwardBrowniePointsPopup}
+            />
+
 
             {selectedHousehold ? (
                 <button

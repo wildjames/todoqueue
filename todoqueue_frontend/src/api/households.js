@@ -110,7 +110,10 @@ export const inviteUserToHousehold = async (householdId, userEmail) => {
     if (response.status === 200) {
       return { success: "Invitation sent successfully." };
     }
-    return { error: response };
+    if (response.data.detail) {
+      return { error: response.data.detail };
+    }
+    return { error: `Failed to invite user, server responded with ${response.status}` }
   } catch (error) {
     console.error("Failed to send invitation:", error);
     return { error: `Failed to send invitation. ${error.response?.data?.detail || error.message}` };

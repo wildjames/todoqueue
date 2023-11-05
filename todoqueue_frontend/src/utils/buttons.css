@@ -45,6 +45,10 @@
     background-color: #4CAF50;
 }
 
+.dismiss-button {
+    background-color: #aeaeae
+}
+
 .freeze-button {
     background-color: #3695f4;
 }

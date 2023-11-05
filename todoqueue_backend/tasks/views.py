@@ -164,6 +164,23 @@ def toggle_frozen(request, taskId):
     return Response({"frozen": task.frozen}, status=status.HTTP_200_OK)
 
 
+@api_view(["POST"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def dismiss_task(request, taskId):
+    # Use the get_task_by_id function to retrieve the task
+    task, task_type = get_task_by_id(taskId)
+
+    if not task:
+        return Response({"detail": "Task not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    # Set the last_completed field to the current time
+    task.last_completed = timezone.now()
+    task.save(update_fields=["last_completed"])
+
+    return Response({"last_completed": task.last_completed}, status=status.HTTP_200_OK)
+
+
 class WorkLogViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = WorkLog.objects.all().order_by("-timestamp")

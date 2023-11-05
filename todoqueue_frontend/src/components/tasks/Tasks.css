@@ -16,7 +16,7 @@
     transform: translateX(-50%);
     top: 100px;
     transition: top 0.5s ease;
-    width: 95vw; 
+    width: 95vw;
     max-width: 95vw;
     white-space: initial;
 }
@@ -84,7 +84,7 @@
     /* Change from relative to absolute */
     top: 55px;
     /* Start from where it is initially placed */
-    bottom: 120px;
+    bottom: 95px;
     /* 100px from the bottom of the viewport */
     width: 100%;
     transition: left 0.5s ease;
@@ -421,4 +421,44 @@
     &:hover {
         transform: scale(1.5);
     }
+}
+
+.brownie-points-animation {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    font-size: 3em;
+    color: rgb(37, 37, 37);
+    z-index: -1000;
+}
+
+.brownie-points-animation.show {
+    opacity: 1;
+    z-index: 2000;
+}
+
+.brownie-points-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 2rem;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    font-size: 1rem;
+    transition: opacity 0.5s ease-in-out;
+    z-index: -1000;
+}
+
+@media (max-width: 800px) {
+    .brownie-points-popup {
+        width: 90%;
+    }
+}
+
+.brownie-points-popup.show {
+    opacity: 1;
+    z-index: 2000;
 }
