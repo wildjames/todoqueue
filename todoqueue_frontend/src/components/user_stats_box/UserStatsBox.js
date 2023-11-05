@@ -5,7 +5,7 @@ import './UserStatsBox.css';
 
 
 const UserStatsBox = ({ selectedHousehold, windowWidth, viewMode, setViewMode, users, handleOpenAwardBrowniePointsPopup }) => {
-    if (!selectedHousehold || windowWidth <= 800) {
+    if (!selectedHousehold || windowWidth <= 800 || users.length === 0) {
         return null;
     }
 
