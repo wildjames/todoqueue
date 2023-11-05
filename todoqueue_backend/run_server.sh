@@ -21,6 +21,11 @@ python manage.py collectstatic --noinput && \
 echo "Starting Nginx..."
 nginx &
 
+# Default to a host port of 8000, and if the environment variable is set then use that
+if [[ -z "$DJANGO_HOST_PORT" ]]; then
+   export DJANGO_HOST_PORT=8000
+fi
+
 # Start the Django server
 echo "Starting the Django server..."
 exec gunicorn todoqueue_backend.wsgi:application --bind 0.0.0.0:$DJANGO_HOST_PORT

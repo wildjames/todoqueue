@@ -18,6 +18,42 @@ from decouple import config
 from logging import getLogger, INFO, DEBUG, basicConfig
 
 
+# Fetch all the environment variables
+env_debug = os.environ.get("DJANGO_DEBUG", "false").lower()
+logging_level = os.environ.get("DJANGO_LOGGING_LEVEL", "info").lower()
+web_port = config("DJANGO_HOST_PORT", default=8000, cast=int)
+frontend_url = config("FRONTEND_URL", default=None)
+
+cache_engine = os.environ.get("DJANGO_CACHE_BACKEND", None)
+redis_cache_location = os.environ.get(
+    "DJANGO_CACHE_LOCATION", "redis://127.0.0.1:6379/1"
+)
+
+db_name = os.environ.get("DJANGO_DB_NAME", "mydatabase")
+db_user = os.environ.get("DJANGO_DB_USER", "myuser")
+db_pass = os.environ.get("DJANGO_DB_PASSWORD", "mypassword")
+db_host = os.environ.get("DJANGO_DB_HOST", "db")
+db_port = os.environ.get("DJANGO_DB_PORT", "3306")
+
+# Email credentials
+EMAIL_HOST = config("EMAIL_HOST", default="localhost")
+EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+
+
+# Logging verbosity
+if logging_level.lower() == "debug":
+    basicConfig(level=DEBUG)
+else:
+    basicConfig(level=INFO)
+
+logger = getLogger(__name__)
+logger.info(f"Logging level: {logging_level}")
+logger.info(f"Django is using DEBUG = {env_debug}")
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -28,31 +64,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("DJANGO_SECRET", default=os.urandom(32))
 
 # SECURITY WARNING: don't run with debug turned on in production!
-env_debug = os.environ.get("DJANGO_DEBUG", "false").lower()
 if env_debug.isdigit():
     env_debug = int(env_debug) == 1
 else:
     env_debug = env_debug in ["true", "yes"]
 
-logging_level = os.environ.get("DJANGO_LOGGING_LEVEL", "info").lower()
-
-if logging_level.lower() == "debug":
-    basicConfig(level=DEBUG)
-else:
-    basicConfig(level=INFO)
-    
-logger = getLogger(__name__)
-logger.info(f"Logging level: {logging_level}")
-logger.info(f"Django is using DEBUG = {env_debug}")
-
 DEBUG = env_debug
 
-web_port = config("DJANGO_HOST_PORT", default=8000, cast=int)
-logger.info("Whilelisting host for CSRF: {}".format(config("FRONTEND_URL", default=None)))
+logger.info("Whilelisting host for CSRF: {}".format(frontend_url))
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 ALLOWED_HOSTS = ["*"]
-ALLOWED_CSRF_ORIGINS = [config("FRONTEND_URL", default=None), f"192.168.1.186:{web_port}", f"localhost:{web_port}", "localhost:3000"]
+ALLOWED_CSRF_ORIGINS = [f"localhost:{web_port}", "localhost:3000"]
+if frontend_url:
+    ALLOWED_CSRF_ORIGINS.append(frontend_url)
 logger.info(f"Allowed CSRF origins: {ALLOWED_CSRF_ORIGINS}")
 
 CORS_ALLOW_CREDENTIALS = True
@@ -64,17 +89,7 @@ STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 
-# email settings
-
-# Load email configurations from .env file
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-
-EMAIL_HOST = config("EMAIL_HOST", default="localhost")
-EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
-EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
-EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
-DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="")
-EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
 
 
 # Application definition
@@ -105,20 +120,17 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "todoqueue_backend.urls"
 
-# React build files
 TEMPLATES = [
     {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [
-            os.path.join(BASE_DIR, "../todoqueue_frontend/build/")
-        ],
-        "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.template.context_processors.debug",
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
             ],
         },
     },
@@ -130,33 +142,34 @@ WSGI_APPLICATION = "todoqueue_backend.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": os.environ.get("DJANGO_DB_NAME", "mydatabase"),
-        "USER": os.environ.get("DJANGO_DB_USER", "myuser"),
-        "PASSWORD": os.environ.get("DJANGO_DB_PASSWORD", "mypassword"),
-        "HOST": os.environ.get("DJANGO_DB_HOST", "db"),
-        "PORT": os.environ.get("DJANGO_DB_PORT", "3306"),
+        "NAME": db_name,
+        "USER": db_user,
+        "PASSWORD": db_pass,
+        "HOST": db_host,
+        "PORT": db_port,
     }
 }
 
-if os.environ.get("DJANGO_CACHE_BACKEND", None) == "redis":
+if cache_engine == "redis":
     logger.info("Using RedisCache")
     CACHES = {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": os.environ.get("DJANGO_CACHE_LOCATION", "redis://127.0.0.1:6379/1"),
+            "LOCATION": redis_cache_location,
             "OPTIONS": {
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            }
+            },
         }
     }
 else:
     logger.info("Using LocMemCache")
     CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         }
     }
 
@@ -209,4 +222,3 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
