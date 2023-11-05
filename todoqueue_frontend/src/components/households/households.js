@@ -197,10 +197,10 @@ export const ManageHouseholds = ({ households, updateHouseholds, setShowHousehol
                 {invitations.map((invitation) => (
                     <div key={invitation.id} className="invitation-item">
                         <span>{invitation.household.name} invited by {invitation.sender.email}</span>
-                        <button className="button accept-button" onClick={() => handleAcceptInvitation(invitation.id)}>
+                        <button className="button complete-button" onClick={() => handleAcceptInvitation(invitation.id)}>
                             Accept
                         </button>
-                        <button className="button decline-button" onClick={() => handleDeclineInvitation(invitation.id)}>
+                        <button className="button unfreeze-button" onClick={() => handleDeclineInvitation(invitation.id)}>
                             Decline
                         </button>
                     </div>
