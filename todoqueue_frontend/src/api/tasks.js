@@ -460,7 +460,7 @@ export const freezeTask = async (taskId) => {
         console.log("Failed to freeze task.");
         return false;
     }
-    console.log("Freezed task with ID: ", taskId);
+    console.log("Froze task with ID: ", taskId);
     return true;
 };
 
@@ -488,3 +488,28 @@ export const deleteTask = async (taskId, selectedHousehold) => {
     console.log("Deleted task with ID: ", taskId);
     return true;
 };
+
+export const dismissTask = async (taskId, selectedHousehold) => {
+
+    const dismissTaskUrl = `${backend_url}/api/dismiss_task/${taskId}/`;
+
+    console.log("Dismissing task");
+    console.log("dismissTaskUrl: ", dismissTaskUrl);
+    console.log("taskId: ", taskId);
+
+    const res = await axios.post(
+        dismissTaskUrl,
+        {},
+        {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+    if (res.status !== 200) {
+        console.log("Failed to dismiss task.");
+        return false;
+    }
+    console.log("Freezed task with ID: ", taskId);
+    return true;
+}

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import BasePopup from './BasePopup';
 import { formatDuration, getTimeSince } from '../../utils';
-import { deleteTask, freezeTask, fetchSelectedTask } from '../../api/tasks';
+import { deleteTask, freezeTask, dismissTask, fetchSelectedTask } from '../../api/tasks';
 import './popups.css';
 
 const TaskDetailsPopup = React.forwardRef((props, ref) => {
@@ -53,6 +53,16 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
         }
     }
 
+    const handleDismissTask = async (taskId) => {
+        console.log("Dismissing task - setting as done by no user.");
+        const succeeded = dismissTask(taskId);
+        if (succeeded) {
+            fetchSelectedTask();
+        } else {
+            console.log("Failed to dismiss task", succeeded);
+        }
+    }
+
     function toHumanFriendlyDate(datetimeStr) {
         // Parse the datetime string into a Date object
         const dateObj = new Date(datetimeStr);
@@ -84,7 +94,7 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
             case "scheduledtask":
                 selectedType = props.PopupType.EDIT_SCHEDULED_TASK;
                 break;
-         
+
             default:
                 selectedType = props.PopupType.NONE;
                 break;
@@ -161,6 +171,9 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
                 </div>
                 <div className="task-popup-actions">
                     <button className="button complete-button" onClick={() => props.handleOpenCompleteTaskPopup(props.selectedTask)}>Complete Task</button>
+                    <button className="button dismiss-button" onClick={() => handleDismissTask(props.selectedTask.id)}>Dismiss Task</button>
+                </div>
+                <div className="task-popup-actions">
                     <button className="button freeze-button" onClick={() => handleFreezeTask(props.selectedTask.id)}>{props.selectedTask.frozen ? "Unfreeze Task" : "Freeze Task"}</button>
                     <button className="button delete-button" onClick={() => handleDeleteTask(props.selectedTask.id)}>Delete Task</button>
                     <button className="button edit-button" onClick={() => handleOpenEditTaskPopup()}>Edit Task</button>
