@@ -4,23 +4,36 @@ services:
   web:
     build: .
     ports:
-      - "8000:8000"
+      - "80:80"
     environment:
       EMAIL_HOST: smtp-mail.outlook.com
       EMAIL_PORT: 587
       EMAIL_USE_TLS: "1"
-      EMAIL_HOST_USER: polyhymnia.wild@outlook.com
-      DEFAULT_FROM_EMAIL: polyhymnia.wild@outlook.com
-      EMAIL_HOST_PASSWORD: password
-      DEBUG: "0"
+      EMAIL_HOST_USER: 
+      DEFAULT_FROM_EMAIL: 
+      EMAIL_HOST_PASSWORD: 
+      
+      DJANGO_DEBUG: true
+      DJANGO_LOGGING_LEVEL: debug
+
       DJANGO_HOST_PORT: "8000"
-      DJANGO_DB_NAME: todoqueue
-      DJANGO_DB_USER: root
-      DJANGO_DB_PASSWORD: password
-      DJANGO_DB_HOST: host.docker.internal
-      DJANGO_DB_PORT: "3306"
-      DJANGO_SUPERUSER_EMAIL: wild.james343@gmail.com
-      DJANGO_SUPERUSER_USERNAME: James
-      DJANGO_SUPERUSER_PASSWORD: password
-    volumes:
-      - .:/app
+      DJANGO_DB_NAME: 
+      DJANGO_DB_USER: 
+      DJANGO_DB_PASSWORD: 
+      DJANGO_DB_HOST: 
+      DJANGO_DB_PORT: 
+
+      DJANGO_CACHE_BACKEND: "redis"
+      DJANGO_CACHE_LOCATION: "redis://cache:8379/1"
+
+      DJANGO_SUPERUSER_EMAIL: 
+      DJANGO_SUPERUSER_USERNAME: 
+      DJANGO_SUPERUSER_PASSWORD: 
+    depends_on:
+      - cache
+
+  cache:
+    image: "redis:alpine"
+    ports:
+      - "8379:6379"
+    
