@@ -33,6 +33,8 @@ const HouseholdDetailsPopup = React.forwardRef((props, ref) => {
 
         const data = await inviteUserToHousehold(props.selectedHousehold.id, userEmail);
 
+        console.log("Tried to invite user. Got back: ", data);
+
         if (data.error) {
             setErrorMessage(data.error);
         } else if (data.success) {
