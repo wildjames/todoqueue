@@ -1,20 +1,50 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import BasePopup from './BasePopup';
 import { fetchHouseholdUsers } from '../../api/users';
-import { addUserToHousehold, removeUserFromHousehold, fetchSelectedHousehold } from '../../api/households';
+import { fetchPendingInvitations, inviteUserToHousehold, removeUserFromHousehold } from '../../api/households';
 
 import Spinner from '../spinner/Spinner';
 import AlertMessage from "./AlertPopup";
 import './popups.css';
 
-
 const HouseholdDetailsPopup = React.forwardRef((props, ref) => {
     const [users, setUsers] = useState([]);
     const [userEmail, setUserEmail] = useState('');
+    const [invitations, setInvitations] = useState([]);
 
     const [showSpinner, setShowSpinner] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+
+
+    const updateInvitations = async (id) => {
+        try {
+            const pendingInvitations = await fetchPendingInvitations();
+            setInvitations(pendingInvitations);
+        } catch (error) {
+            console.error("An error occurred while fetching data:", error);
+            setErrorMessage("Failed to fetch data.");
+        }
+    };
+
+
+    const handleInviteUser = async () => {
+        console.log("Inviting user:", userEmail);
+
+        const data = await inviteUserToHousehold(props.selectedHousehold.id, userEmail);
+
+        if (data.error) {
+            setErrorMessage(data.error);
+        } else if (data.success) {
+            console.log("Successfully sent invitation to user");
+            setUserEmail('');
+            setErrorMessage("Invitation sent!");
+            const interval = setInterval(() => {
+                setErrorMessage("");
+            }, 3000);
+            return () => clearInterval(interval);
+        }
+    };
 
 
     const updateUsers = async (id) => {
@@ -47,28 +77,6 @@ const HouseholdDetailsPopup = React.forwardRef((props, ref) => {
     }, [props.selectedHousehold]);
 
 
-    const handleAddUser = async () => {
-        console.log("Adding user:", userEmail);
-
-        const promise = addUserToHousehold(props.selectedHousehold.id, userEmail);
-
-        setShowSpinner(true);
-        setErrorMessage("");
-        const data = await promise;
-        setShowSpinner(false);
-        updateUsers(props.selectedHousehold.id);
-
-        if (data.error) {
-            setErrorMessage(data.error);
-        }
-        else if (data.success) {
-            console.log("Successfully added user to household");
-        }
-
-        setUserEmail('');
-    };
-
-
     const handleRemoveUser = async (email) => {
         // Logic to remove user with userId from props.selectedHousehold
         console.log("Removing user:", email);
@@ -87,8 +95,6 @@ const HouseholdDetailsPopup = React.forwardRef((props, ref) => {
         else if (data.success) {
             console.log("Successfully removed user from household");
         }
-
-
     };
 
 
@@ -100,21 +106,21 @@ const HouseholdDetailsPopup = React.forwardRef((props, ref) => {
                 <div>
                     <input
                         type="text"
-                        placeholder="Enter user email"
+                        placeholder="Enter user email to invite"
                         value={userEmail}
                         onChange={(e) => setUserEmail(e.target.value)}
                         style={{ border: "3px solid rgb(143, 143, 143)", borderRadius: "7px" }}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter') {
-                                handleAddUser();
+                                handleInviteUser();
                             }
                         }}
                     />
                     <button
                         className="button add-user-button"
-                        onClick={handleAddUser}
+                        onClick={handleInviteUser}
                     >
-                        Add User
+                        Invite User
                     </button>
                 </div>
 

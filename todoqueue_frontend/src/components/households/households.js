@@ -3,7 +3,7 @@ import useAuthCheck from '../../hooks/authCheck';
 
 import AlertMessage from "../popups/AlertPopup";
 
-import { createHousehold, deleteHousehold } from '../../api/households';
+import { createHousehold, deleteHousehold, fetchPendingInvitations, acceptInvitation, declineInvitation } from '../../api/households';
 import HouseholdDetailsPopup from "../popups/HouseholdDetailsPopup";
 
 import './households.css';
@@ -11,6 +11,7 @@ import '../../utils/inputs.css';
 
 export const ManageHouseholds = ({ households, updateHouseholds, setShowHouseholdSelector }) => {
     const [selectedHousehold, setSelectedHousehold] = useState("");
+    const [invitations, setInvitations] = useState([]);
 
     const [name, setName] = useState("");
 
@@ -29,7 +30,27 @@ export const ManageHouseholds = ({ households, updateHouseholds, setShowHousehol
 
     useEffect(() => {
         setShowHouseholdSelector(false);
+        loadPendingInvitations();
+
+        const invitationCheckInterval = setInterval(() => {
+            loadPendingInvitations();
+        }, 2500);
+
+        // Clear the interval when the component unmounts
+        return () => clearInterval(invitationCheckInterval);
     }, []);
+
+
+    const loadPendingInvitations = async () => {
+        console.log("Fetching invitations for this user");
+        try {
+            const pendingInvites = await fetchPendingInvitations();
+            setInvitations(pendingInvites);
+        } catch (error) {
+            console.error("Error fetching pending invitations:", error);
+            setErrorMessage("Failed to load pending invitations.");
+        }
+    };
 
 
     const handleCreate = async () => {
@@ -66,6 +87,28 @@ export const ManageHouseholds = ({ households, updateHouseholds, setShowHousehol
         }
 
         console.log("Updating household list");
+        updateHouseholds();
+    };
+
+
+    const handleAcceptInvitation = async (invitationId) => {
+        const response = await acceptInvitation(invitationId);
+        if (response.error) {
+            setErrorMessage(response.error);
+        } else {
+            loadPendingInvitations();
+        }
+        updateHouseholds();
+    };
+
+
+    const handleDeclineInvitation = async (invitationId) => {
+        const response = await declineInvitation(invitationId);
+        if (response.error) {
+            setErrorMessage(response.error);
+        } else {
+            loadPendingInvitations();
+        }
         updateHouseholds();
     };
 
@@ -147,6 +190,23 @@ export const ManageHouseholds = ({ households, updateHouseholds, setShowHousehol
                 />
                 <button className="button create-button" onClick={handleCreate}>Create</button>
             </div>
+
+
+            <div className="invitations-section">
+                <h3>Pending Invitations</h3>
+                {invitations.map((invitation) => (
+                    <div key={invitation.id} className="invitation-item">
+                        <span>{invitation.household.name} invited by {invitation.sender.email}</span>
+                        <button className="button complete-button" onClick={() => handleAcceptInvitation(invitation.id)}>
+                            Accept
+                        </button>
+                        <button className="button unfreeze-button" onClick={() => handleDeclineInvitation(invitation.id)}>
+                            Decline
+                        </button>
+                    </div>
+                ))}
+            </div>
+
 
             <div>
                 {

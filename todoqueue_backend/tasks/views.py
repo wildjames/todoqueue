@@ -28,6 +28,8 @@ from .models import (
     FlexibleTaskSerializer,
     Household,
     HouseholdSerializer,
+    Invitation,
+    InvitationSerializer,
     ScheduledTask,
     ScheduledTaskSerializer,
     AllTasksSerializer,
@@ -331,6 +333,93 @@ class AddUserToHouseholdView(APIView):
         household.save()
 
         return Response("OK", 200)
+
+
+class InviteUserToHouseholdView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, pk):
+        email = request.data.get("email")
+        if not email:
+            return Response(
+                {"detail": "Missing email"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            household = Household.objects.get(pk=pk)
+        except Household.DoesNotExist:
+            return Response(
+                {"detail": "Household does not exist"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        try:
+            recipient = get_user_model().objects.get(email=email)
+        except get_user_model().DoesNotExist:
+            return Response(
+                {"detail": "User does not exist"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Check if the user is already a member of the household
+        if household.users.filter(pk=recipient.pk).exists():
+            return Response(
+                {"detail": "User is already a member of the household"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Create the invitation
+        Invitation.objects.create(
+            household=household, sender=request.user, recipient=recipient
+        )
+
+        # TODO: Send a notification to the recipient about the invitation
+
+        return Response(
+            {"detail": "Invitation sent successfully"}, status=status.HTTP_200_OK
+        )
+
+
+class PendingInvitationsView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        invitations = Invitation.objects.filter(recipient=request.user, accepted=False)
+        serializer = InvitationSerializer(invitations, many=True)
+        return Response(serializer.data)
+
+
+class RespondToInvitationView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, invitation_id):
+        action = request.data.get("action")
+        if action not in ["accept", "decline"]:
+            return Response(
+                {"detail": "Invalid action"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            invitation = Invitation.objects.get(
+                id=invitation_id, recipient=request.user
+            )
+        except Invitation.DoesNotExist:
+            return Response(
+                {"detail": "Invitation does not exist"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if action == "accept":
+            invitation.household.users.add(request.user)
+            invitation.accepted = True
+            invitation.save()
+            return Response(
+                {"detail": "You have joined the household"}, status=status.HTTP_200_OK
+            )
+        elif action == "decline":
+            invitation.delete()
+            return Response(
+                {"detail": "You have declined the invitation"},
+                status=status.HTTP_200_OK,
+            )
 
 
 class RemoveUserFromHouseholdView(APIView):
