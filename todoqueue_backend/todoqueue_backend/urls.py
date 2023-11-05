@@ -26,9 +26,4 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("tasks.urls")),
     path("api/", include("accounts.urls")),
-    
-    # Serve the built React app
-    re_path(r'^static/(?P<path>.*)$', serve),
-    # Catch-all route to serve the React SPA
-    re_path(r'^.*$', TemplateView.as_view(template_name='index.html')),
 ]

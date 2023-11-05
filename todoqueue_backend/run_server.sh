@@ -17,7 +17,10 @@ python manage.py createsuperuser --noinput || true
 echo "Collecting static files..." && \
 python manage.py collectstatic --noinput && \
 
+# Start Nginx in the background
+echo "Starting Nginx..."
+nginx &
+
 # Start the Django server
 echo "Starting the Django server..."
-
 exec gunicorn todoqueue_backend.wsgi:application --bind 0.0.0.0:$DJANGO_HOST_PORT
