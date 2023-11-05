@@ -73,29 +73,6 @@ export const deleteHousehold = async (id) => {
 };
 
 
-export const addUserToHousehold = async (householdId, userEmail) => {
-  try {
-    let response = await axios.post(
-      `${backend_url}/api/households/${householdId}/add_user/`,
-      {
-        email: userEmail
-      },
-      {
-        headers: { "Content-Type": "application/json" },
-        withCredentials: true
-      }
-    );
-    console.log(response);
-    return { success: "Successfully added user to household." };
-  }
-  catch (error) {
-    console.log("Failed to add user to household");
-    console.log(error);
-    return { error: `Failed to add user to household. ${error.response.data.detail}` };
-  }
-};
-
-
 export const removeUserFromHousehold = async (householdId, userEmail) => {
   try {
     let response = await axios.post(
@@ -117,3 +94,84 @@ export const removeUserFromHousehold = async (householdId, userEmail) => {
     return { error: `Failed to remove user from household. ${error.response.data.detail}` };
   }
 }
+
+// Function to send an invitation to a user to join a household
+export const inviteUserToHousehold = async (householdId, userEmail) => {
+  try {
+    const response = await axios.post(
+      `${backend_url}/api/households/${householdId}/invite_user/`,
+      { email: userEmail },
+      {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true
+      }
+    );
+    console.log(response);
+    if (response.status === 200) {
+      return { success: "Invitation sent successfully." };
+    }
+    return { error: response };
+  } catch (error) {
+    console.error("Failed to send invitation:", error);
+    return { error: `Failed to send invitation. ${error.response?.data?.detail || error.message}` };
+  }
+};
+
+// Function to fetch pending invitations for the logged-in user
+export const fetchPendingInvitations = async () => {
+  try {
+    const response = await axios.get(
+      `${backend_url}/api/invitations/pending/`,
+      {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true
+      }
+    );
+    console.log(response);
+    if (response.status === 200) {
+      return response.data;
+    }
+    return [];
+  } catch (error) {
+    console.error("Failed to fetch pending invitations:", error);
+    return [];
+  }
+};
+
+// Function to accept an invitation
+export const acceptInvitation = async (invitationId) => {
+  try {
+    const response = await axios.post(
+      `${backend_url}/api/invitations/${invitationId}/respond/`,
+      { action: 'accept' },
+      {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true
+      }
+    );
+    console.log(response);
+    return { success: "Invitation accepted successfully." };
+  } catch (error) {
+    console.error("Failed to accept invitation:", error);
+    return { error: `Failed to accept invitation. ${error.response?.data?.detail || error.message}` };
+  }
+};
+
+// Function to decline an invitation
+export const declineInvitation = async (invitationId) => {
+  try {
+    const response = await axios.post(
+      `${backend_url}/api/invitations/${invitationId}/respond/`,
+      { action: 'decline' },
+      {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true
+      }
+    );
+    console.log(response);
+    return { success: "Invitation declined successfully." };
+  } catch (error) {
+    console.error("Failed to decline invitation:", error);
+    return { error: `Failed to decline invitation. ${error.response?.data?.detail || error.message}` };
+  }
+};

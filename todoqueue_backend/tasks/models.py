@@ -20,6 +20,8 @@ from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.validators import UniqueValidator
 
+from accounts.serializers import CustomUserSerializer
+
 logger = getLogger(__name__)
 usermodel = get_user_model()
 
@@ -328,6 +330,25 @@ def get_task_by_id(task_id):
     return None, None
 
 
+class Invitation(models.Model):
+    household = models.ForeignKey("Household", on_delete=models.CASCADE)
+    sender = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name="sent_invitations",
+        on_delete=models.CASCADE,
+    )
+    recipient = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name="received_invitations",
+        on_delete=models.CASCADE,
+    )
+    accepted = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Invitation from {self.sender} to {self.recipient} for {self.household}"
+
+
 # Serializers have to live here, to avoid circular imports :(
 
 
@@ -336,7 +357,9 @@ class ScheduledTaskSerializer(serializers.ModelSerializer):
     next_due = serializers.SerializerMethodField()
     last_due = serializers.SerializerMethodField()
     mean_completion_time = serializers.SerializerMethodField()
-    description = serializers.CharField(required=False, allow_blank=True, validators=[validate_profanity])
+    description = serializers.CharField(
+        required=False, allow_blank=True, validators=[validate_profanity]
+    )
 
     class Meta:
         model = ScheduledTask
@@ -358,7 +381,9 @@ class ScheduledTaskSerializer(serializers.ModelSerializer):
 class FlexibleTaskSerializer(serializers.ModelSerializer):
     staleness = serializers.SerializerMethodField()
     mean_completion_time = serializers.SerializerMethodField()
-    description = serializers.CharField(required=False, allow_blank=True, validators=[validate_profanity])
+    description = serializers.CharField(
+        required=False, allow_blank=True, validators=[validate_profanity]
+    )
 
     class Meta:
         model = FlexibleTask
@@ -488,7 +513,11 @@ class HouseholdSerializer(serializers.ModelSerializer):
 
 class CreateHouseholdSerializer(serializers.ModelSerializer):
     name = serializers.CharField(
-        max_length=255, validators=[UniqueValidator(queryset=Household.objects.all()), validate_profanity]
+        max_length=255,
+        validators=[
+            UniqueValidator(queryset=Household.objects.all()),
+            validate_profanity,
+        ],
     )
 
     class Meta:
@@ -498,3 +527,21 @@ class CreateHouseholdSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         logger.info(f"Creating household with name: {validated_data['name']}")
         return Household.objects.create(name=validated_data["name"])
+
+
+class InvitationSerializer(serializers.ModelSerializer):
+    sender = CustomUserSerializer(read_only=True)
+    recipient = CustomUserSerializer(read_only=True)
+    household = HouseholdSerializer(read_only=True)
+
+    class Meta:
+        model = Invitation
+        fields = ["id", "household", "sender", "recipient", "accepted", "timestamp"]
+
+    def create(self, validated_data):
+        # Custom create method, if needed. Might be useful if I ever add push notifications.
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        # Custom update method, if needed. Could push notification when invite is accepted
+        return super().update(instance, validated_data)

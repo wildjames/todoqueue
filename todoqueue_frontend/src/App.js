@@ -55,7 +55,7 @@ const App = () => {
   useEffect(() => {
     updateHouseholds();
 
-    const interval = setInterval(updateHouseholds, 10000);
+    const interval = setInterval(updateHouseholds, 1000);
     return () => clearInterval(interval);
   }, [selectedHousehold]);
 
