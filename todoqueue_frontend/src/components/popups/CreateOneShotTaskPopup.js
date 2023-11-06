@@ -1,20 +1,18 @@
 import React, { useState } from 'react';
 import BasePopup from './BasePopup';
-import { createFlexibleTask } from '../../api/tasks';
+import { createOneShotTask } from '../../api/tasks';
 import './popups.css';
 
-const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
+const CreateOneShotTaskPopup = React.forwardRef((props, ref) => {
     const [newTask, setNewTask] = useState({
         task_name: '',
-        max_interval: '0:0',
-        min_interval: '0:0',
+        due_date: '',
+        due_time: '09:00',
+        due_before: false,
+        time_to_complete_days: 0,
+        time_to_complete_hours: 0,
+        time_to_complete_minutes: 0,
         description: '',
-        min_interval_days: 0,
-        min_interval_hours: 0,
-        min_interval_minutes: 0,
-        max_interval_days: 0,
-        max_interval_hours: 0,
-        max_interval_minutes: 0,
     });
     const [inputError, setInputError] = useState(false);
 
@@ -22,16 +20,11 @@ const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
     const handleCreateTask = async (event) => {
         event.preventDefault();
 
-        // Convert max_interval and min_interval to minutes
-        const max_interval_in_minutes =
-            (newTask.max_interval_days || 0) * 24 * 60 +
-            (newTask.max_interval_hours || 0) * 60 +
-            (newTask.max_interval_minutes || 0);
-
-        const min_interval_in_minutes =
-            (newTask.min_interval_days || 0) * 24 * 60 +
-            (newTask.min_interval_hours || 0) * 60 +
-            (newTask.min_interval_minutes || 0);
+        // Convert time_to_complete to minutes
+        const time_to_complete_in_minutes =
+            (newTask.time_to_complete_days || 0) * 24 * 60 +
+            (newTask.time_to_complete_hours || 0) * 60 +
+            (newTask.time_to_complete_minutes || 0);
 
         // Check for invalid inputs
         if (newTask.task_name === "") {
@@ -40,48 +33,49 @@ const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
             return;
         }
 
+        if (newTask.due_date === "" || newTask.due_time === "") {
+            setInputError(true);
+            console.log("Due date and time may not be blank");
+            return;
+        }
+
         // integers only
-        if (max_interval_in_minutes % 1 !== 0 || min_interval_in_minutes % 1 !== 0) {
+        if (time_to_complete_in_minutes % 1 !== 0) {
             setInputError(true);
-            console.log("Max and Min intervals must be integers");
+            console.log("Time to complete must be an integer");
             return;
         }
 
-        if (max_interval_in_minutes < 0 || min_interval_in_minutes < 0) {
+        if (time_to_complete_in_minutes < 0) {
             setInputError(true);
-            console.log("Max and Min intervals must be positive");
-            return;
-        }
-
-        if (max_interval_in_minutes < min_interval_in_minutes) {
-            setInputError(true);
-            console.log("Max interval should be greater than or equal to Min interval");
-            console.log("Max interval: ", max_interval_in_minutes);
-            console.log("Min interval: ", min_interval_in_minutes);
+            console.log("Time to complete must be positive");
             return;
         }
 
         console.log("All inputs are OK");
         setInputError(false);
 
-        // Convert max_interval and min_interval to Django DurationField format "[-]DD HH:MM:SS"
-        const max_interval = `${newTask.max_interval_days || 0} ${newTask.max_interval_hours || 0}:${newTask.max_interval_minutes || 0}:00`;
-        const min_interval = `${newTask.min_interval_days || 0} ${newTask.min_interval_hours || 0}:${newTask.min_interval_minutes || 0}:00`;
+        // Combine date and time inputs into a single datetime string
+        const due_datetime = `${newTask.due_date}T${newTask.due_time}`;
 
-        const response = await createFlexibleTask(
+        // Convert time_to_complete to Django DurationField format "[-]DD HH:MM:SS"
+        const time_to_complete = `${newTask.time_to_complete_days || 0} ${newTask.time_to_complete_hours || 0}:${newTask.time_to_complete_minutes || 0}:00`;
+
+        const response = await createOneShotTask(
             newTask.task_name,
             props.selectedHousehold,
-            max_interval,
-            min_interval,
+            due_datetime,
+            newTask.due_before,
+            time_to_complete,
             newTask.description,
         );
         if (response.status !== 201) {
-            console.error("Error creating task. Response:", response.data);
+            console.error("Error creating one-shot task. Response:", response.data);
             setInputError(true);
             return;
         }
 
-        console.log("Created task. Response:", response.data);
+        console.log("Created one-shot task. Response:", response.data);
         await props.fetchSetTasks();
         props.closeCurrentPopup();
 
@@ -89,43 +83,24 @@ const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
         console.log("Resetting task")
         setNewTask({
             task_name: '',
-            max_interval: '0:0',
-            min_interval: '0:0',
-            description: ''
+            due_date: '',
+            due_before: false,
+            time_to_complete_days: 0,
+            time_to_complete_hours: 0,
+            time_to_complete_minutes: 0,
+            description: '',
         });
     };
 
 
     const handleCreateInputChange = (e) => {
         const { name, value } = e.target;
+        setNewTask((prevTask) => ({ ...prevTask, [name]: value }));
+    };
 
-        console.log("Setting new task in handleCreateInputChange");
-        setNewTask((prevTask) => {
-            const updatedTask = { ...prevTask, [name]: value };
 
-            let max_interval_in_minutes =
-                (updatedTask.max_interval_days || 0) * 24 * 60 +
-                (updatedTask.max_interval_hours || 0) * 60 +
-                (updatedTask.max_interval_minutes || 0);
-            max_interval_in_minutes = parseInt(max_interval_in_minutes);
-
-            let min_interval_in_minutes =
-                (updatedTask.min_interval_days || 0) * 24 * 60 +
-                (updatedTask.min_interval_hours || 0) * 60 +
-                (updatedTask.min_interval_minutes || 0);
-            min_interval_in_minutes = parseInt(min_interval_in_minutes);
-
-            if (max_interval_in_minutes < min_interval_in_minutes) {
-                setInputError(true);
-                console.log("Max interval, minutes: ", max_interval_in_minutes);
-                console.log("Min interval, minutes: ", min_interval_in_minutes);
-                console.error("Max interval should be greater than or equal to Min interval");
-            } else {
-                setInputError(false);
-            }
-
-            return updatedTask;
-        });
+    const handleDueBeforeChange = (e) => {
+        setNewTask((prevTask) => ({ ...prevTask, due_before: e.target.checked }));
     };
 
 
@@ -147,7 +122,7 @@ const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
                     </select>
                 </div>
 
-                <h2>Create a New Task</h2>
+                <h2>Create a New One-Shot Task</h2>
                 <form className="task-form">
                     <div className="task-input-group">
                         <input
@@ -158,41 +133,39 @@ const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
                             onChange={handleCreateInputChange}
                         />
                     </div>
-
-                    <div className="task-input-group task-input-group-horizontal">
-                        <label>Overdue after: </label>
+                    <div className="task-input-group">
                         <input
                             className={inputError ? "input-error" : ""}
-                            type="number"
-                            min="0"
-                            name="max_interval_days"
-                            placeholder="Days"
+                            type="date"
+                            name="due_date"
+                            placeholder="Due Date"
                             onChange={handleCreateInputChange}
                         />
                         <input
                             className={inputError ? "input-error" : ""}
-                            type="number"
-                            min="0"
-                            name="max_interval_hours"
-                            placeholder="Hours"
-                            onChange={handleCreateInputChange}
-                        />
-                        <input
-                            className={inputError ? "input-error" : ""}
-                            type="number"
-                            min="0"
-                            name="max_interval_minutes"
-                            placeholder="Minutes"
+                            type="time"
+                            name="due_time"
+                            defaultValue="09:00"
                             onChange={handleCreateInputChange}
                         />
                     </div>
+                    <div className="task-input-group">
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="due_before"
+                                onChange={handleDueBeforeChange}
+                            />
+                            Due Before
+                        </label>
+                    </div>
                     <div className="task-input-group task-input-group-horizontal">
-                        <label>Stale after: </label>
+                        <label>Time to complete: </label>
                         <input
                             className={inputError ? "input-error" : ""}
                             type="number"
                             min="0"
-                            name="min_interval_days"
+                            name="time_to_complete_days"
                             placeholder="Days"
                             onChange={handleCreateInputChange}
                         />
@@ -200,7 +173,7 @@ const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
                             className={inputError ? "input-error" : ""}
                             type="number"
                             min="0"
-                            name="min_interval_hours"
+                            name="time_to_complete_hours"
                             placeholder="Hours"
                             onChange={handleCreateInputChange}
                         />
@@ -208,7 +181,7 @@ const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
                             className={inputError ? "input-error" : ""}
                             type="number"
                             min="0"
-                            name="min_interval_minutes"
+                            name="time_to_complete_minutes"
                             placeholder="Minutes"
                             onChange={handleCreateInputChange}
                         />
@@ -236,4 +209,4 @@ const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
     );
 });
 
-export default CreateFlexibleTaskPopup;
+export default CreateOneShotTaskPopup;

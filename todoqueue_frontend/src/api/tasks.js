@@ -440,6 +440,121 @@ export const deleteScheduledTask = async (
 };
 
 
+export const createOneShotTask = async (
+    task_name,
+    household,
+    due_date,
+    due_before,
+    time_to_complete,
+    description,
+) => {
+    const createTaskUrl = `${backend_url}/api/oneshot-tasks/`;
+
+    const newTask = {
+        task_name,
+        household,
+        due_date,
+        due_before,
+        time_to_complete,
+    };
+
+    // Description is optional
+    if (description) {
+        newTask.description = description;
+    }
+
+    console.log("Creating a new one-shot task");
+    console.log("newTask: ", newTask);
+
+    const res = await axios.post(
+        createTaskUrl,
+        JSON.stringify(newTask),
+        {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+    if (res.status !== 201) {
+        console.log("Failed to create one-shot task.");
+        return res;
+    }
+
+    return res;
+};
+
+
+export const updateOneShotTask = async (
+    taskId,
+    task_name,
+    household,
+    due_date,
+    due_before,
+    time_to_complete,
+    description,
+) => {
+    const updateTaskUrl = `${backend_url}/api/oneshot-tasks/${taskId}/`;
+
+    const updatedTask = {
+        task_name,
+        household,
+        due_date,
+        due_before,
+        time_to_complete,
+    };
+
+    // Description is optional
+    if (description) {
+        updatedTask.description = description;
+    }
+
+    console.log("Updating the one-shot task");
+    console.log("updatedTask: ", updatedTask);
+
+    const res = await axios.put(
+        updateTaskUrl,
+        JSON.stringify(updatedTask),
+        {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+    if (res.status !== 200) {
+        console.log("Failed to update one-shot task.");
+        return;
+    }
+
+    return res.data;
+};
+
+
+export const deleteOneShotTask = async (
+    taskId,
+) => {
+    const deleteTaskUrl = `${backend_url}/api/oneshot-tasks/${taskId}/`;
+
+    console.log("Deleting one-shot task");
+    console.log("deleteTaskUrl: ", deleteTaskUrl);
+    console.log("taskId: ", taskId);
+
+    const res = await axios.delete(
+        deleteTaskUrl,
+        {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+    if (res.status !== 204) {
+        console.log("Failed to delete one-shot task: ", res);
+        return false;
+    }
+    console.log("Deleted one-shot task with ID: ", taskId);
+    return true;
+};
+
+
 export const freezeTask = async (taskId) => {
     const freezeTaskUrl = `${backend_url}/api/toggle_frozen/${taskId}/`;
 
@@ -489,7 +604,7 @@ export const deleteTask = async (taskId, selectedHousehold) => {
     return true;
 };
 
-export const dismissTask = async (taskId, selectedHousehold) => {
+export const dismissTask = async (taskId) => {
 
     const dismissTaskUrl = `${backend_url}/api/dismiss_task/${taskId}/`;
 

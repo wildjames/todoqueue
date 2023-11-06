@@ -233,6 +233,65 @@ class FlexibleTask(models.Model):
         return self.task_name
 
 
+class OneShotTask(models.Model):
+    """One-shot tasks only appear once, then when they are completed they never stop being fresh again"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    task_name = models.CharField(max_length=255, validators=[validate_profanity])
+    description = models.TextField(default="", validators=[validate_profanity])
+    due_date = models.DateTimeField()
+    due_before = models.BooleanField(default=False)
+    time_to_complete = models.DurationField(default="0:0")
+    household = models.ForeignKey(
+        Household, on_delete=models.CASCADE, related_name="oneshot_tasks"
+    )
+    frozen = models.BooleanField(default=False)
+    last_completed = models.DateTimeField(auto_now_add=True)
+    has_completed = models.BooleanField(default=False)
+
+    @property
+    def staleness(self):
+        if self.frozen or self.has_completed:
+            return 0
+
+        now = timezone.now()
+        remaining = None
+        
+        if self.due_before:
+            deadline = self.due_date - self.time_to_complete
+            
+            if now < deadline:
+                return 0
+            remaining = now - deadline
+            
+        else:
+            if now < self.due_date:
+                return 0
+            remaining = now - self.due_date
+            
+        logger.debug(f"Remaining: {remaining}")
+        logger.debug(f"")
+
+        # Normalize staleness to a value between 0 and 1
+        staleness = min(remaining / self.time_to_complete, 1)
+        return staleness
+
+    @property
+    def mean_completion_time(self):
+        work_logs = WorkLog.objects.filter(object_id=self.id)
+        if work_logs.count() == 0:
+            return timezone.timedelta(seconds=0)
+
+        total_completion_time = sum(
+            [work_log.completion_time for work_log in work_logs], timezone.timedelta()
+        )
+        mean_completion_time = total_completion_time / work_logs.count()
+        return mean_completion_time.total_seconds()
+
+    def __str__(self):
+        return self.task_name
+
+
 class DummyTask(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     household = models.ForeignKey(
@@ -280,6 +339,11 @@ class WorkLog(models.Model):
             try:
                 # Tasks MUST have a last_completed field
                 self.content_object.last_completed = timezone.now()
+                
+                # Check if the task is a OneShotTask and set has_completed to True
+                if isinstance(self.content_object, OneShotTask):
+                    self.content_object.has_completed = True
+                
                 self.content_object.save()
             except AttributeError:
                 logger.error(
@@ -313,7 +377,7 @@ class WorkLog(models.Model):
 def get_task_by_id(task_id):
     """Returns both the Task object, and the ContentType object for the given task ID, as a tuple."""
     # Add other task models to this list as needed
-    task_models = [DummyTask, FlexibleTask, ScheduledTask]
+    task_models = [DummyTask, FlexibleTask, ScheduledTask, OneShotTask]
 
     for model in task_models:
         try:
@@ -396,6 +460,24 @@ class FlexibleTaskSerializer(serializers.ModelSerializer):
         return obj.mean_completion_time
 
 
+class OneShotTaskSerializer(serializers.ModelSerializer):
+    staleness = serializers.SerializerMethodField()
+    mean_completion_time = serializers.SerializerMethodField()
+    description = serializers.CharField(
+        required=False, allow_blank=True, validators=[validate_profanity]
+    )
+
+    class Meta:
+        model = OneShotTask
+        fields = "__all__"
+
+    def get_staleness(self, obj):
+        return obj.staleness
+
+    def get_mean_completion_time(self, obj):
+        return obj.mean_completion_time
+
+
 class DummyTaskSerializer(serializers.ModelSerializer):
     staleness = serializers.SerializerMethodField()
     mean_completion_time = serializers.SerializerMethodField()
@@ -412,13 +494,15 @@ class DummyTaskSerializer(serializers.ModelSerializer):
 
 
 def get_serializer_for_task(
-    task_instance: FlexibleTask | ScheduledTask | DummyTask,
-) -> FlexibleTaskSerializer | ScheduledTaskSerializer | DummyTaskSerializer:
+    task_instance: FlexibleTask | ScheduledTask | OneShotTask | DummyTask,
+) -> FlexibleTaskSerializer | ScheduledTaskSerializer | OneShotTaskSerializer | DummyTaskSerializer:
     # Return the appropriate serializer based on the type of task_instance
     if isinstance(task_instance, FlexibleTask):
         return FlexibleTaskSerializer
     if isinstance(task_instance, ScheduledTask):
         return ScheduledTaskSerializer
+    if isinstance(task_instance, OneShotTask):
+        return OneShotTaskSerializer
     if isinstance(DummyTask):
         return DummyTaskSerializer
 

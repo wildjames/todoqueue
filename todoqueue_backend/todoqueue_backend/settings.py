@@ -12,36 +12,66 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from datetime import timedelta
 from pathlib import Path
-import os
-from decouple import config
-
+from os import path, urandom, environ
+from django.core.exceptions import ImproperlyConfigured
 from logging import getLogger, INFO, DEBUG, basicConfig
+from dotenv import load_dotenv
+
+
+def get_env_variable(var_name, default=None, cast_type=str):
+    """Get the environment variable or return exception"""
+    try:
+        value = environ[var_name]
+        if cast_type is not None:
+            if cast_type == bool:
+                value = value.lower() in ["true", "1", "t"]
+            else:
+                value = cast_type(value)
+    except KeyError:
+        if default is not None:
+            value = default
+        else:
+            error_msg = f"Set the {var_name} environment variable"
+            raise ImproperlyConfigured(error_msg)
+    return value
+
+
+# Load environment variables from .env file
+if get_env_variable("DEV", False, bool):
+    dotenv_path = path.join(path.dirname(__file__), "..", '.env')
+    print(f"Checking for env: {dotenv_path}")
+    if path.exists(dotenv_path):
+        print("Loading env")
+        load_dotenv(dotenv_path)
 
 
 # Fetch all the environment variables
-env_debug = os.environ.get("DJANGO_DEBUG", "false").lower()
-logging_level = os.environ.get("DJANGO_LOGGING_LEVEL", "info").lower()
-web_port = config("DJANGO_HOST_PORT", default=8000, cast=int)
-frontend_url = config("FRONTEND_URL", default=None)
+env_debug = get_env_variable("DJANGO_DEBUG", False, bool)
+logging_level = get_env_variable("DJANGO_LOGGING_LEVEL", "info", str).lower()
+web_port = get_env_variable("DJANGO_HOST_PORT", 8000, int)
+frontend_url = get_env_variable("FRONTEND_URL", "")
 
-cache_engine = os.environ.get("DJANGO_CACHE_BACKEND", None)
-redis_cache_location = os.environ.get(
+cache_engine = get_env_variable("DJANGO_CACHE_BACKEND", "")
+redis_cache_location = get_env_variable(
     "DJANGO_CACHE_LOCATION", "redis://127.0.0.1:6379/1"
 )
 
-db_name = os.environ.get("DJANGO_DB_NAME", "mydatabase")
-db_user = os.environ.get("DJANGO_DB_USER", "myuser")
-db_pass = os.environ.get("DJANGO_DB_PASSWORD", "mypassword")
-db_host = os.environ.get("DJANGO_DB_HOST", "db")
-db_port = os.environ.get("DJANGO_DB_PORT", "3306")
+db_name = get_env_variable("DJANGO_DB_NAME", "mydatabase")
+db_user = get_env_variable("DJANGO_DB_USER", "myuser")
+db_pass = get_env_variable("DJANGO_DB_PASSWORD", "mypassword")
+db_host = get_env_variable("DJANGO_DB_HOST", "db")
+db_port = get_env_variable("DJANGO_DB_PORT", "3306")
 
 # Email credentials
-EMAIL_HOST = config("EMAIL_HOST", default="localhost")
-EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
-EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
-EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
-DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="")
-EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+EMAIL_HOST = get_env_variable("EMAIL_HOST", "localhost")
+EMAIL_PORT = get_env_variable("EMAIL_PORT", 587, int)
+EMAIL_USE_TLS = get_env_variable("EMAIL_USE_TLS", True, bool)
+EMAIL_HOST_USER = get_env_variable("EMAIL_HOST_USER", "")
+DEFAULT_FROM_EMAIL = get_env_variable("DEFAULT_FROM_EMAIL", "")
+EMAIL_HOST_PASSWORD = get_env_variable("EMAIL_HOST_PASSWORD", "")
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = get_env_variable("DJANGO_SECRET", cast_type=None, default=urandom(32))
 
 
 # Logging verbosity
@@ -60,14 +90,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config("DJANGO_SECRET", default=os.urandom(32))
 
 # SECURITY WARNING: don't run with debug turned on in production!
-if env_debug.isdigit():
-    env_debug = int(env_debug) == 1
-else:
-    env_debug = env_debug in ["true", "yes"]
+env_debug = env_debug in [True, 1, "1", "true", "yes"]
 
 DEBUG = env_debug
 
@@ -86,7 +111,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 # Static files configurations
 # Static files configurations
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_ROOT = path.join(BASE_DIR, "static")
 
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
@@ -122,15 +147,15 @@ ROOT_URLCONF = "todoqueue_backend.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },

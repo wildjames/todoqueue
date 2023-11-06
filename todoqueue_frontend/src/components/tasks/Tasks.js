@@ -12,6 +12,7 @@ import CreateFlexibleTaskPopup from '../popups/CreateFlexibleTaskPopup';
 import EditFlexibleTaskPopup from '../popups/EditFlexibleTaskPopup';
 import CreateScheduledTaskPopup from '../popups/CreateScheduledTaskPopup';
 import EditScheduledTaskPopup from '../popups/EditScheduledTaskPopup';
+import CreateOneShotTaskPopup from '../popups/CreateOneShotTaskPopup';
 
 import { fetchTasks } from '../../api/tasks';
 import { fetchHouseholdUsers } from '../../api/users';
@@ -43,6 +44,7 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
         AWARD_BP: 'AWARD_BP',
         CREATE_SCHEDULED_TASK: 'CREATE_SCHEDULED_TASK',
         CREATE_FLEXIBLE_TASK: 'CREATE_FLEXIBLE_TASK',
+        CREATE_ONESHOT_TASK: 'CREATE_ONESHOT_TASK',
         EDIT_FLEXIBLE_TASK: 'EDIT_FLEXIBLE_TASK',
         EDIT_SCHEDULED_TASK: 'EDIT_SCHEDULED_TASK',
     };
@@ -265,15 +267,15 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
     };
 
 
-    const propsForEditTask = {
-        handleOverlayClick: handleOverlayClick,
-        setCurrentPopup: setCurrentPopup,
-        PopupType: PopupType,
+    const propsForCreateOneShotTask = {
         closeCurrentPopup: closeCurrentPopup,
+        handleOverlayClick: handleOverlayClick,
         fetchSetTasks: fetchSetTasks,
         selectedHousehold: selectedHousehold,
-        selectedTaskId: selectedTaskId,
-    };
+        PopupType: PopupType,
+        setCurrentPopup: setCurrentPopup,
+        currentPopup: currentPopup,
+    }
 
 
     const propsForCreateScheduledTask = {
@@ -284,6 +286,17 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
         PopupType: PopupType,
         setCurrentPopup: setCurrentPopup,
         currentPopup: currentPopup,
+    };
+
+
+    const propsForEditTask = {
+        handleOverlayClick: handleOverlayClick,
+        setCurrentPopup: setCurrentPopup,
+        PopupType: PopupType,
+        closeCurrentPopup: closeCurrentPopup,
+        fetchSetTasks: fetchSetTasks,
+        selectedHousehold: selectedHousehold,
+        selectedTaskId: selectedTaskId,
     };
 
 
@@ -305,14 +318,17 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
                         case PopupType.COMPLETE_TASK:
                             return <CompleteTaskPopup ref={popupInnerRef} {...propsForCompleteTask} />;
 
-                        case PopupType.CREATE_FLEXIBLE_TASK:
-                            return <CreateFlexibleTaskPopup ref={popupInnerRef} {...propsForCreateFlexibleTask} />;
-
                         case PopupType.AWARD_BP:
                             return <AwardBrowniePointsPopup ref={popupInnerRef} {...propsForAwardBrowniePoints} />;
 
+                        case PopupType.CREATE_FLEXIBLE_TASK:
+                            return <CreateFlexibleTaskPopup ref={popupInnerRef} {...propsForCreateFlexibleTask} />;
+
                         case PopupType.CREATE_SCHEDULED_TASK:
                             return <CreateScheduledTaskPopup ref={popupInnerRef} {...propsForCreateScheduledTask} />;
+
+                        case PopupType.CREATE_ONESHOT_TASK:
+                            return <CreateOneShotTaskPopup ref={popupInnerRef} {...propsForCreateOneShotTask} />;
 
                         case PopupType.EDIT_FLEXIBLE_TASK:
                             return <EditFlexibleTaskPopup ref={popupInnerRef} {...propsForEditTask} />;

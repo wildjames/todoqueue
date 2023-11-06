@@ -103,6 +103,62 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
     };
 
 
+    const renderFlexibleTaskDetails = () => {
+        return (
+            <>
+                <tr>
+                    <td className="task-popup-label">Overdue after:</td>
+                    <td className="task-popup-content">{formatDuration(props.selectedTask.max_interval)}</td>
+                </tr>
+                <tr>
+                    <td className="task-popup-label">Stale after:</td>
+                    <td className="task-popup-content">{formatDuration(props.selectedTask.min_interval)}</td>
+                </tr>
+            </>
+        );
+    }
+
+
+    const renderScheduledTaskDetails = () => {
+        return (
+            <>
+                <tr>
+                    <td className="task-popup-label">Due:</td>
+                    <td className="task-popup-content">{toHumanFriendlyDate(props.selectedTask.next_due)}</td>
+                </tr>
+                <tr>
+                    <td className="task-popup-label">Schedule expression:</td>
+                    <td className="task-popup-content">{props.selectedTask.cron_schedule}</td>
+                </tr>
+                <tr>
+                    <td className="task-popup-label">Stale after:</td>
+                    <td className="task-popup-content">{formatDuration(props.selectedTask.max_interval)}</td>
+                </tr>
+            </>
+        );
+    }
+
+
+    const renderOneShotTaskDetails = () => {
+        return (
+            <>
+                <tr>
+                    <td className="task-popup-label">Due date:</td>
+                    <td className="task-popup-content">{toHumanFriendlyDate(props.selectedTask.due_date)}</td>
+                </tr>
+                <tr>
+                    <td className="task-popup-label">Time to complete:</td>
+                    <td className="task-popup-content">{formatDuration(props.selectedTask.time_to_complete)}</td>
+                </tr>
+                <tr>
+                    <td className="task-popup-label">Completed:</td>
+                    <td className="task-popup-content">{props.selectedTask.has_completed ? "Yes" : "No"}</td>
+                </tr>
+            </>
+        );
+    };
+
+
     return (
         <BasePopup onClick={props.handleOverlayClick} innerClass={innerClass} ref={ref}>
             <div>
@@ -113,35 +169,11 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
                             (() => {
                                 switch (props.selectedTask.type) {
                                     case "flexibletask":
-                                        return (
-                                            <>
-                                                <tr>
-                                                    <td className="task-popup-label">Overdue after:</td>
-                                                    <td className="task-popup-content">{formatDuration(props.selectedTask.max_interval)}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="task-popup-label">Stale after:</td>
-                                                    <td className="task-popup-content">{formatDuration(props.selectedTask.min_interval)}</td>
-                                                </tr>
-                                            </>
-                                        );
+                                        return renderFlexibleTaskDetails();
                                     case "scheduledtask":
-                                        return (
-                                            <>
-                                                <tr>
-                                                    <td className="task-popup-label">Due:</td>
-                                                    <td className="task-popup-content">{toHumanFriendlyDate(props.selectedTask.next_due)}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="task-popup-label">Schedule expression:</td>
-                                                    <td className="task-popup-content">{props.selectedTask.cron_schedule}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="task-popup-label">Stale after:</td>
-                                                    <td className="task-popup-content">{formatDuration(props.selectedTask.max_interval)}</td>
-                                                </tr>
-                                            </>
-                                        );
+                                        return renderScheduledTaskDetails();
+                                    case "oneshottask":
+                                        return renderOneShotTaskDetails();
                                     default:
                                         return null;
                                 }

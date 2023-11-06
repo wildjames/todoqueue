@@ -5,6 +5,7 @@ from . import views
 router = DefaultRouter()
 router.register(r"flexible-tasks", views.FlexibleTaskViewSet)
 router.register(r"scheduled-tasks", views.ScheduledTaskViewSet)
+router.register(r"oneshot-tasks", views.OneShotTaskViewSet)
 router.register(r"all-tasks", views.AllTasksViewSet, basename="all-tasks")
 router.register(r"worklogs", views.WorkLogViewSet)
 router.register(r"households", views.HouseholdViewSet)
@@ -31,6 +32,7 @@ urlpatterns = [
         views.get_dummy_task_id,
         name="get_dummy_task_id",
     ),
+    # Force-adds users to a household without asking their permission
     # path(
     #     "households/<pk>/add_user/",
     #     views.AddUserToHouseholdView.as_view(),
