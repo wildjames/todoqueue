@@ -114,6 +114,7 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
                     <select value={props.currentPopup} onChange={handlePopupTypeChange} style={{ margin: "1rem" }}>
                         <option value={props.PopupType.CREATE_SCHEDULED_TASK}>Scheduled Task</option>
                         <option value={props.PopupType.CREATE_FLEXIBLE_TASK}>Flexible Task</option>
+                        <option value={props.PopupType.CREATE_ONESHOT_TASK}>One-Shot Task</option>
                     </select>
                 </div>
 
