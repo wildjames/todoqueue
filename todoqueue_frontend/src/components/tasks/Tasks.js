@@ -13,6 +13,7 @@ import EditFlexibleTaskPopup from '../popups/EditFlexibleTaskPopup';
 import CreateScheduledTaskPopup from '../popups/CreateScheduledTaskPopup';
 import EditScheduledTaskPopup from '../popups/EditScheduledTaskPopup';
 import CreateOneShotTaskPopup from '../popups/CreateOneShotTaskPopup';
+// import EditOneShotTaskPopup from '../popups/EditOneShotTask';
 
 import { fetchTasks } from '../../api/tasks';
 import { fetchHouseholdUsers } from '../../api/users';
@@ -47,6 +48,7 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
         CREATE_ONESHOT_TASK: 'CREATE_ONESHOT_TASK',
         EDIT_FLEXIBLE_TASK: 'EDIT_FLEXIBLE_TASK',
         EDIT_SCHEDULED_TASK: 'EDIT_SCHEDULED_TASK',
+        // EDIT_ONESHOT_TASK: 'EDIT_ONESHOT_TASK',
     };
 
     // State variable for the current popup
@@ -256,29 +258,7 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
     };
 
 
-    const propsForCreateFlexibleTask = {
-        closeCurrentPopup: closeCurrentPopup,
-        handleOverlayClick: handleOverlayClick,
-        fetchSetTasks: fetchSetTasks,
-        selectedHousehold: selectedHousehold,
-        PopupType: PopupType,
-        setCurrentPopup: setCurrentPopup,
-        currentPopup: currentPopup,
-    };
-
-
-    const propsForCreateOneShotTask = {
-        closeCurrentPopup: closeCurrentPopup,
-        handleOverlayClick: handleOverlayClick,
-        fetchSetTasks: fetchSetTasks,
-        selectedHousehold: selectedHousehold,
-        PopupType: PopupType,
-        setCurrentPopup: setCurrentPopup,
-        currentPopup: currentPopup,
-    }
-
-
-    const propsForCreateScheduledTask = {
+    const propsForCreateTask = {
         closeCurrentPopup: closeCurrentPopup,
         handleOverlayClick: handleOverlayClick,
         fetchSetTasks: fetchSetTasks,
@@ -322,19 +302,22 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
                             return <AwardBrowniePointsPopup ref={popupInnerRef} {...propsForAwardBrowniePoints} />;
 
                         case PopupType.CREATE_FLEXIBLE_TASK:
-                            return <CreateFlexibleTaskPopup ref={popupInnerRef} {...propsForCreateFlexibleTask} />;
+                            return <CreateFlexibleTaskPopup ref={popupInnerRef} {...propsForCreateTask} />;
 
                         case PopupType.CREATE_SCHEDULED_TASK:
-                            return <CreateScheduledTaskPopup ref={popupInnerRef} {...propsForCreateScheduledTask} />;
+                            return <CreateScheduledTaskPopup ref={popupInnerRef} {...propsForCreateTask} />;
 
                         case PopupType.CREATE_ONESHOT_TASK:
-                            return <CreateOneShotTaskPopup ref={popupInnerRef} {...propsForCreateOneShotTask} />;
+                            return <CreateOneShotTaskPopup ref={popupInnerRef} {...propsForCreateTask} />;
 
                         case PopupType.EDIT_FLEXIBLE_TASK:
                             return <EditFlexibleTaskPopup ref={popupInnerRef} {...propsForEditTask} />;
 
                         case PopupType.EDIT_SCHEDULED_TASK:
                             return <EditScheduledTaskPopup ref={popupInnerRef} {...propsForEditTask} />;
+
+                        // case PopupType.EDIT_ONESHOT_TASK:
+                        //     return <EditOneShotTaskPopup ref={popupInnerRef} {...propsForEditTask} />;
 
                         default:
                             return null;
