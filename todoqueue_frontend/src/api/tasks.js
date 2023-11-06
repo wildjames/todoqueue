@@ -604,7 +604,7 @@ export const deleteTask = async (taskId, selectedHousehold) => {
     return true;
 };
 
-export const dismissTask = async (taskId, selectedHousehold) => {
+export const dismissTask = async (taskId) => {
 
     const dismissTaskUrl = `${backend_url}/api/dismiss_task/${taskId}/`;
 
