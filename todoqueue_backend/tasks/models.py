@@ -246,6 +246,7 @@ class OneShotTask(models.Model):
         Household, on_delete=models.CASCADE, related_name="oneshot_tasks"
     )
     frozen = models.BooleanField(default=False)
+    last_completed = models.DateTimeField(auto_now_add=True)
     has_completed = models.BooleanField(default=False)
 
     @property
@@ -338,6 +339,11 @@ class WorkLog(models.Model):
             try:
                 # Tasks MUST have a last_completed field
                 self.content_object.last_completed = timezone.now()
+                
+                # Check if the task is a OneShotTask and set has_completed to True
+                if isinstance(self.content_object, OneShotTask):
+                    self.content_object.has_completed = True
+                
                 self.content_object.save()
             except AttributeError:
                 logger.error(

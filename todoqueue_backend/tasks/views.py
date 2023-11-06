@@ -104,19 +104,19 @@ class OneShotTaskViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = OneShotTask.objects.all().order_by("-task_name")
     serializer_class = OneShotTaskSerializer
-    
+
     def get_queryset(self):
         """When a user requests a task list, only get the ones part of that household"""
         logger.info(f"Getting tasks for user: {self.request.user}")
         user = self.request.user
         household_id = self.request.query_params.get("household", None)
-        
+
         if household_id is None:
             logger.info("No household provided")
             return OneShotTask.objects.none()
-        
+
         household = get_object_or_404(Household, id=household_id)
-        
+
         if user in household.users.all():
             return OneShotTask.objects.filter(household=household).order_by(
                 "-task_name"
@@ -142,15 +142,23 @@ class AllTasksViewSet(viewsets.ReadOnlyModelViewSet):
         if user in household.users.all():
             scheduled_tasks = ScheduledTask.objects.filter(household=household)
             flexible_tasks = FlexibleTask.objects.filter(household=household)
-            oneshot_tasks = OneShotTask.objects.filter(household=household)
+            # Only incomplete one-shots are listed
+            oneshot_tasks = OneShotTask.objects.filter(
+                household=household, has_completed=False
+            )
             return list(scheduled_tasks) + list(flexible_tasks) + list(oneshot_tasks)
         else:
             # Return an empty queryset if the user does not belong to the household
             return []
 
     def retrieve(self, request, *args, **kwargs):
-        task_id = kwargs.get("pk")
-        task, task_type = get_task_by_id(task_id)
+        try:
+            task_id = kwargs.get("pk")
+            task, task_type = get_task_by_id(task_id)
+        except:
+            return Response(
+                {"detail": "Task not found."}, status=status.HTTP_404_NOT_FOUND
+            )
 
         if not task:
             return Response(
@@ -204,7 +212,17 @@ def dismiss_task(request, taskId):
 
     # Set the last_completed field to the current time
     task.last_completed = timezone.now()
-    task.save(update_fields=["last_completed"])
+
+    # One-shots also need to have their "has_completed" field set to true
+    if isinstance(task, OneShotTask):
+        logger.debug(
+            f"This is a one-shot task, so setting the has_completed field to True"
+        )
+        task.has_completed = True
+    else:
+        logger.debug(f"Task is of type {task.__class__}")
+
+    task.save()
 
     return Response({"last_completed": task.last_completed}, status=status.HTTP_200_OK)
 
