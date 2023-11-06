@@ -30,6 +30,8 @@ from .models import (
     HouseholdSerializer,
     Invitation,
     InvitationSerializer,
+    OneShotTask,
+    OneShotTaskSerializer,
     ScheduledTask,
     ScheduledTaskSerializer,
     AllTasksSerializer,
@@ -98,6 +100,31 @@ class FlexibleTaskViewSet(viewsets.ModelViewSet):
             return FlexibleTask.objects.none()
 
 
+class OneShotTaskViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
+    queryset = OneShotTask.objects.all().order_by("-task_name")
+    serializer_class = OneShotTaskSerializer
+    
+    def get_queryset(self):
+        """When a user requests a task list, only get the ones part of that household"""
+        logger.info(f"Getting tasks for user: {self.request.user}")
+        user = self.request.user
+        household_id = self.request.query_params.get("household", None)
+        
+        if household_id is None:
+            logger.info("No household provided")
+            return OneShotTask.objects.none()
+        
+        household = get_object_or_404(Household, id=household_id)
+        
+        if user in household.users.all():
+            return OneShotTask.objects.filter(household=household).order_by(
+                "-task_name"
+            )
+        else:
+            return OneShotTask.objects.none()
+
+
 class AllTasksViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = AllTasksSerializer
@@ -115,7 +142,8 @@ class AllTasksViewSet(viewsets.ReadOnlyModelViewSet):
         if user in household.users.all():
             scheduled_tasks = ScheduledTask.objects.filter(household=household)
             flexible_tasks = FlexibleTask.objects.filter(household=household)
-            return list(scheduled_tasks) + list(flexible_tasks)
+            oneshot_tasks = OneShotTask.objects.filter(household=household)
+            return list(scheduled_tasks) + list(flexible_tasks) + list(oneshot_tasks)
         else:
             # Return an empty queryset if the user does not belong to the household
             return []
