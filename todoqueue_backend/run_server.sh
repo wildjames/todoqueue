@@ -22,7 +22,8 @@ echo "Starting Nginx..."
 nginx &
 
 # Default to a host port of 8000, and if the environment variable is set then use that
-if [[ -z "$DJANGO_HOST_PORT" ]]; then
+if [ -z "$DJANGO_HOST_PORT" ]; then
+   echo "Using default Django port of 8000"
    export DJANGO_HOST_PORT=8000
 fi
 

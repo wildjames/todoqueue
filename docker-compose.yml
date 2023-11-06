@@ -6,34 +6,47 @@ services:
     ports:
       - "80:80"
     environment:
+      DJANGO_DB_NAME: todoqueue
+      DJANGO_DB_USER: todo_user
+      DJANGO_DB_PASSWORD: todo_password
+      DJANGO_DB_HOST: db
+      DJANGO_DB_PORT: "3306"
+
       EMAIL_HOST: smtp-mail.outlook.com
       EMAIL_PORT: 587
       EMAIL_USE_TLS: "1"
-      EMAIL_HOST_USER: 
-      DEFAULT_FROM_EMAIL: 
-      EMAIL_HOST_PASSWORD: 
+      EMAIL_HOST_USER: admin@outlook.com
+      DEFAULT_FROM_EMAIL: admin@outlook.com
+      EMAIL_HOST_PASSWORD: MyPassword!
       
       DJANGO_DEBUG: true
       DJANGO_LOGGING_LEVEL: debug
 
       DJANGO_HOST_PORT: "8000"
-      DJANGO_DB_NAME: 
-      DJANGO_DB_USER: 
-      DJANGO_DB_PASSWORD: 
-      DJANGO_DB_HOST: 
-      DJANGO_DB_PORT: 
 
       DJANGO_CACHE_BACKEND: "redis"
-      DJANGO_CACHE_LOCATION: "redis://cache:8379/1"
+      DJANGO_CACHE_LOCATION: "redis://cache:6379/1"
 
-      DJANGO_SUPERUSER_EMAIL: 
-      DJANGO_SUPERUSER_USERNAME: 
-      DJANGO_SUPERUSER_PASSWORD: 
+      DJANGO_SUPERUSER_EMAIL: adminuser@gmail.com
+      DJANGO_SUPERUSER_USERNAME: James
+      DJANGO_SUPERUSER_PASSWORD: MyPassword!
     depends_on:
+      - db
       - cache
 
   cache:
     image: "redis:alpine"
-    ports:
-      - "8379:6379"
     
+  db:
+    image: mysql:8.2
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: todoqueue
+      MYSQL_USER: todo_user
+      MYSQL_PASSWORD: todo_password
+      MYSQL_ROOT_PASSWORD: root_password
+
+
+volumes:
+  mysql_data:
