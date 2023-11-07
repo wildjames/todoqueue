@@ -216,7 +216,9 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
                 <div className="task-popup-actions">
                     <button className="button freeze-button" onClick={() => handleFreezeTask(props.selectedTask.id)}>{props.selectedTask.frozen ? "Unfreeze Task" : "Freeze Task"}</button>
                     <button className="button delete-button" onClick={() => handleDeleteTask(props.selectedTask.id)}>Delete Task</button>
-                    <button className="button edit-button" onClick={() => handleOpenEditTaskPopup()}>Edit Task</button>
+                    {props.selectedTask.type !== 'oneshottask' ? (
+                        <button className="button edit-button" onClick={() => handleOpenEditTaskPopup()}>Edit Task</button>
+                    ) : null }
                 </div>
             </div>
         </BasePopup>
