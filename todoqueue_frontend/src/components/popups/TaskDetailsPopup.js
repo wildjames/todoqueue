@@ -95,6 +95,10 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
                 selectedType = props.PopupType.EDIT_SCHEDULED_TASK;
                 break;
 
+            case "oneshottask":
+                selectedType = props.PopupType.EDIT_ONESHOT_TASK;
+                break;
+
             default:
                 selectedType = props.PopupType.NONE;
                 break;
@@ -193,6 +197,8 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
                         </tr>
                     </tbody>
                 </table>
+
+
                 <div className="task-popup-description">
                     {props.selectedTask.description === "" ? "" :
                         <p><strong>Description:</strong> {props.selectedTask.description}</p>
@@ -201,14 +207,18 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
                         <p style={{ color: "black" }}><strong>Task is frozen, and won't ever appear on the queue</strong></p>
                     ) : null}
                 </div>
+                
                 <div className="task-popup-actions">
                     <button className="button complete-button" onClick={() => props.handleOpenCompleteTaskPopup(props.selectedTask)}>Complete Task</button>
                     <button className="button dismiss-button" onClick={() => handleDismissTask(props.selectedTask.id)}>Dismiss Task</button>
                 </div>
+
                 <div className="task-popup-actions">
                     <button className="button freeze-button" onClick={() => handleFreezeTask(props.selectedTask.id)}>{props.selectedTask.frozen ? "Unfreeze Task" : "Freeze Task"}</button>
                     <button className="button delete-button" onClick={() => handleDeleteTask(props.selectedTask.id)}>Delete Task</button>
-                    <button className="button edit-button" onClick={() => handleOpenEditTaskPopup()}>Edit Task</button>
+                    {props.selectedTask.type !== 'oneshottask' ? (
+                        <button className="button edit-button" onClick={() => handleOpenEditTaskPopup()}>Edit Task</button>
+                    ) : null }
                 </div>
             </div>
         </BasePopup>
