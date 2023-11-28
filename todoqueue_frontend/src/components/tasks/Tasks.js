@@ -342,7 +342,10 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
                                 style={
                                     windowWidth < 800
                                         ? { left: `calc(${task.staleness} * (100% - 200px))` }
-                                        : { bottom: `calc(${(task.staleness) * 100}% - ${task.staleness * 120}px)` }
+                                        : {
+                                            bottom: `calc(${(task.staleness) * 100}%)`,
+                                            transform: `translateY(calc(${task.staleness * 100}% + ${task.staleness * 30}px))`
+                                        }
                                 }
                             >
                                 <div className="task-content">
@@ -358,7 +361,9 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
                                 </div>
                             </div>
                         </div>
-                    ))}
+                    ))
+                }
+
 
                 <div className={`empty-state ${noTasks && selectedHousehold ? "show" : "hide"}`} >
                     <h3>You have no tasks!</h3>
