@@ -17,10 +17,16 @@ const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
         max_interval_minutes: 0,
     });
     const [inputError, setInputError] = useState(false);
+    const [enableSubmit, setEnableSubmit] = useState(true);
 
 
     const handleCreateTask = async (event) => {
         event.preventDefault();
+        if (!enableSubmit) {
+            return
+        }
+
+        setEnableSubmit(false);
 
         // Convert max_interval and min_interval to minutes
         const max_interval_in_minutes =
@@ -75,6 +81,7 @@ const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
             min_interval,
             newTask.description,
         );
+        setEnableSubmit(true);
         if (response.status !== 201) {
             console.error("Error creating task. Response:", response.data);
             setInputError(true);
@@ -97,6 +104,7 @@ const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
 
 
     const handleCreateInputChange = (e) => {
+        setEnableSubmit(true);
         const { name, value } = e.target;
 
         console.log("Setting new task in handleCreateInputChange");
@@ -224,7 +232,7 @@ const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
                     </div>
                     <div>
                         <button
-                            className={`button create-button ${inputError ? "disabled" : "enabled"}`}
+                            className={`button create-button ${!inputError && enableSubmit ? "enabled" : "disabled"}`}
                             onClick={handleCreateTask}
                         >
                             Create Task

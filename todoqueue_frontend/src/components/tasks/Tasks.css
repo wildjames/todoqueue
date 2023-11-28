@@ -122,15 +122,6 @@
     flex-shrink: 0;
 }
 
-.task-wrapper::after {
-    position: relative;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    width: 1px;
-    background-color: lightgrey;
-}
-
 @media (max-width: 800px) {
     .Tasks .task-container {
         flex-direction: column;
