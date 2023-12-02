@@ -79,7 +79,13 @@ const App = () => {
         <Routes>
           <Route path="/" element={<About />} />
           <Route path="/tasks" element={
-            <Tasks selectedHousehold={selectedHousehold} showSelectedHouseholdSelector={showHouseholdSelector} setShowHouseholdSelector={setShowHouseholdSelector} />} />
+            <Tasks
+              households={households}
+              selectedHousehold={selectedHousehold}
+              setSelectedHousehold={setSelectedHousehold}
+              showSelectedHouseholdSelector={showHouseholdSelector}
+              setShowHouseholdSelector={setShowHouseholdSelector}
+            />} />
           <Route path="/help" element={<Help />} />
           <Route path="/login" element={<Login setShowHouseholdSelector={setShowHouseholdSelector} />} />
           <Route path="/logout" element={<Logout setShowHouseholdSelector={setShowHouseholdSelector} />} />
@@ -88,7 +94,12 @@ const App = () => {
           <Route path="/registration_failed" element={<FailedRegistration />} />
           <Route path="/forgot_password" element={<ForgotPassword setShowHouseholdSelector={setShowHouseholdSelector} />} />
           <Route path="/reset_password/:uid/:token" element={<ResetPassword setShowHouseholdSelector={setShowHouseholdSelector} />} />
-          <Route path="/manage_households" element={<ManageHouseholds households={households} updateHouseholds={updateHouseholds} setShowHouseholdSelector={setShowHouseholdSelector} />} />
+          <Route path="/manage_households" element={
+            <ManageHouseholds
+              households={households}
+              updateHouseholds={updateHouseholds}
+              setShowHouseholdSelector={setShowHouseholdSelector}
+            />} />
         </Routes>
       </div>
     </BrowserRouter>

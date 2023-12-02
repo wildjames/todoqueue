@@ -4,6 +4,7 @@ import useAuthCheck from '../../hooks/authCheck';
 import './Tasks.css';
 
 import UserStatsBox from '../user_stats_box/UserStatsBox';
+import { HouseholdSelector } from '../navbar/HouseholdSelector';
 
 import TaskDetailsPopup from '../popups/TaskDetailsPopup';
 import CompleteTaskPopup from '../popups/CompleteTaskPopup';
@@ -19,7 +20,7 @@ import { fetchTasks } from '../../api/tasks';
 import { fetchHouseholdUsers } from '../../api/users';
 
 
-const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseholdSelector }) => {
+const Tasks = ({ households, selectedHousehold, setSelectedHousehold, showSelectedHouseholdSelector, setShowHouseholdSelector }) => {
     const [tasks, setTasks] = useState([]);
     const [users, setUsers] = useState([]);
 
@@ -284,8 +285,19 @@ const Tasks = ({ selectedHousehold, showSelectedHouseholdSelector, setShowHouseh
         <div className="Tasks">
 
             <div className={`empty-state ${selectedHousehold ? 'hide' : 'show'}`}>
-                <div className="arrow-up bounce"></div>
-                <div className="task-select-text">Select a household</div>
+                {windowWidth > 800
+                    ? <div>
+                        <div className="arrow-up bounce"></div>
+                        <div className="task-select-text">Select a household</div>
+                    </div>
+                    : <div>
+                        <HouseholdSelector
+                            households={households}
+                            selectedHousehold={selectedHousehold}
+                            setSelectedHousehold={setSelectedHousehold}
+                        />
+                    </div>
+                }
             </div>
 
             {
