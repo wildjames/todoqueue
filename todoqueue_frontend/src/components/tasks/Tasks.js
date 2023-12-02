@@ -284,21 +284,22 @@ const Tasks = ({ households, selectedHousehold, setSelectedHousehold, showSelect
     return (
         <div className="Tasks">
 
-            <div className={`empty-state ${selectedHousehold ? 'hide' : 'show'}`}>
-                {windowWidth > 800
-                    ? <div>
-                        <div className="arrow-up bounce"></div>
-                        <div className="task-select-text">Select a household</div>
-                    </div>
-                    : <div>
-                        <HouseholdSelector
-                            households={households}
-                            selectedHousehold={selectedHousehold}
-                            setSelectedHousehold={setSelectedHousehold}
-                        />
-                    </div>
-                }
-            </div>
+            {windowWidth > 992
+                ?
+                <div className={`empty-state ${selectedHousehold ? 'hide' : 'show'}`}>
+                    <div className="arrow-up bounce"></div>
+                    <div className="task-select-text">Select a household</div>
+                </div>
+                :
+                <div className={`empty-state ${selectedHousehold ? 'hide' : 'show'}`}>
+                <HouseholdSelector
+                    households={households}
+                    selectedHousehold={selectedHousehold}
+                    setSelectedHousehold={setSelectedHousehold}
+                />
+                </div>
+            }
+
 
             {
                 // Popups
