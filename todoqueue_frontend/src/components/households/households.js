@@ -216,7 +216,7 @@ export const ManageHouseholds = ({ households, updateHouseholds, setShowHousehol
                                 {household.name}
                             </span>
                             <div>
-                                <button className="button delete-button" onClick={() => handleDelete(household.id)}>Delete</button>
+                                {/* <button className="button delete-button" onClick={() => handleDelete(household.id)}>Delete</button> */}
                                 <button className="button manage-users-button" onClick={() => handleOpenUsersPopup(household)}>Manage Users</button>
                             </div>
                         </div>
