@@ -15,9 +15,16 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
         months: "*",
     });
     const [inputError, setInputError] = useState(false);
+    const [enableSubmit, setEnableSubmit] = useState(true);
+
 
     const handleCreateTask = async (event) => {
         event.preventDefault();
+        if (!enableSubmit) {
+            return
+        }
+
+        setEnableSubmit(false);
 
         console.log("Checking inputs", newTask);
 
@@ -69,6 +76,7 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
             max_interval,
             newTask.description,
         );
+        setEnableSubmit(true);
 
         console.log("Created scheduled task. Response:", response_data);
         await props.fetchSetTasks();
@@ -90,6 +98,7 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
 
     const handleCreateInputChange = (e) => {
         const { name, value } = e.target;
+        setEnableSubmit(true);
 
         console.log("Setting new task in handleCreateInputChange");
         setNewTask((prevTask) => {
@@ -102,6 +111,7 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
 
     const handlePopupTypeChange = (e) => {
         const selectedType = e.target.value;
+        setEnableSubmit(true);
         props.setCurrentPopup(selectedType);
     };
 
@@ -213,7 +223,9 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
                     </div>
 
                     <div>
-                        <button className="button create-button" onClick={handleCreateTask}>
+                        <button
+                            className={`button create-button ${!inputError && enableSubmit ? "enabled" : "disabled"}`}
+                            onClick={handleCreateTask}>
                             Create Task
                         </button>
                     </div>

@@ -139,6 +139,7 @@ const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
 
     const handlePopupTypeChange = (e) => {
         const selectedType = e.target.value;
+        setEnableSubmit(true);
         props.setCurrentPopup(selectedType);
     };
 
