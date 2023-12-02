@@ -21,6 +21,19 @@
     white-space: initial;
 }
 
+.empty-state.hide {
+    top: -300px;
+}
+
+.empty-state.show {
+    top: 100px;
+}
+
+.empty-state h3 {
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
 .arrow-up {
     width: 0;
     height: 0;
@@ -32,19 +45,6 @@
 .task-select-text {
     font-size: 1.2em;
     margin-top: 20px;
-}
-
-.empty-state.hide {
-    top: -100px;
-}
-
-.empty-state.show {
-    top: 100px;
-}
-
-.empty-state h3 {
-    word-wrap: break-word;
-    word-break: break-word;
 }
 
 @keyframes bounce-select-prompt {
