@@ -15,10 +15,16 @@ const CreateOneShotTaskPopup = React.forwardRef((props, ref) => {
         description: '',
     });
     const [inputError, setInputError] = useState(false);
+    const [enableSubmit, setEnableSubmit] = useState(true);
 
 
     const handleCreateTask = async (event) => {
         event.preventDefault();
+        if (!enableSubmit) {
+            return
+        }
+
+        setEnableSubmit(false);
 
         // Convert time_to_complete to minutes
         const time_to_complete_in_minutes =
@@ -69,6 +75,7 @@ const CreateOneShotTaskPopup = React.forwardRef((props, ref) => {
             time_to_complete,
             newTask.description,
         );
+        setEnableSubmit(true);
         if (response.status !== 201) {
             console.error("Error creating one-shot task. Response:", response.data);
             setInputError(true);
@@ -95,17 +102,20 @@ const CreateOneShotTaskPopup = React.forwardRef((props, ref) => {
 
     const handleCreateInputChange = (e) => {
         const { name, value } = e.target;
+        setEnableSubmit(true);
         setNewTask((prevTask) => ({ ...prevTask, [name]: value }));
     };
 
 
     const handleDueBeforeChange = (e) => {
+        setEnableSubmit(true);
         setNewTask((prevTask) => ({ ...prevTask, due_before: e.target.checked }));
     };
 
 
     const handlePopupTypeChange = (e) => {
         const selectedType = e.target.value;
+        setEnableSubmit(true);
         props.setCurrentPopup(selectedType);
     };
 
@@ -199,7 +209,7 @@ const CreateOneShotTaskPopup = React.forwardRef((props, ref) => {
                     </div>
                     <div>
                         <button
-                            className={`button create-button ${inputError ? "disabled" : "enabled"}`}
+                            className={`button create-button ${!inputError && enableSubmit ? "enabled" : "disabled"}`}
                             onClick={handleCreateTask}
                         >
                             Create Task

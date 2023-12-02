@@ -1,5 +1,6 @@
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
+import { HouseholdSelector } from './HouseholdSelector';
 import React, { useState, useEffect, useRef } from 'react';
 
 // My component CSS
@@ -89,20 +90,12 @@ export function Navigation({ households, selectedHousehold, setSelectedHousehold
                                 <Nav.Link href="/manage_households" style={{ paddingLeft: '2vw', paddingRight: '2vw' }}>Manage Households</Nav.Link>
 
                                 {showHouseholdSelector && (
-                                    <div className="navbar-center-panel">
-                                        <select
-                                            id="household-select"
-                                            className="household-select"
-                                            onChange={e => setSelectedHousehold(e.target.value)}
-                                            value={selectedHousehold}
-                                            aria-label="Select a household"
-                                        >
-                                            <option value="" disabled hidden>Select a household</option>
-                                            {households.map(household => (
-                                                <option key={household.id} value={household.id}>{household.name}</option>
-                                            ))}
-                                        </select>
-                                    </div>
+                                    // Replace this part with the HouseholdSelector component
+                                    <HouseholdSelector 
+                                        households={households} 
+                                        selectedHousehold={selectedHousehold} 
+                                        setSelectedHousehold={setSelectedHousehold} 
+                                    />
                                 )}
 
                             </>
