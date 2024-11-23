@@ -14,6 +14,7 @@ COPY todoqueue_backend/requirements.txt ./
 RUN apt-get update \
     && apt-get install -y --no-install-recommends gcc libpq-dev python3-dev default-libmysqlclient-dev pkg-config \
     && pip install --upgrade pip \
+    && pip install --upgrade setuptools \
     && pip install -r requirements.txt
 COPY todoqueue_backend todoqueue_backend
 RUN ls -alh

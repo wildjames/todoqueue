@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   web:
     build: .
@@ -18,7 +16,7 @@ services:
       EMAIL_HOST_USER: admin@outlook.com
       DEFAULT_FROM_EMAIL: admin@outlook.com
       EMAIL_HOST_PASSWORD: MyPassword!
-      
+
       DJANGO_DEBUG: true
       DJANGO_LOGGING_LEVEL: debug
 
@@ -36,7 +34,7 @@ services:
 
   cache:
     image: "redis:alpine"
-    
+
   db:
     image: mysql:8.2
     volumes:
