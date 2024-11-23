@@ -51,10 +51,10 @@ export const getTimeSince = (timestamp) => {
         output += years === 1 ? "1 year" : `${years} years`;
     }
     if (months !== 0) {
-        output += months === 1 ? "1 month" : `${months} months`;
+        output += months === 1 ? " 1 month" : ` ${months} months`;
     }
     if (days !== 0) {
-        output += days === "1" ? "1 day" : `${days} days`;
+        output += days === "1" ? " 1 day" : ` ${days} days`;
     }
     if (hours !== 0) {
         output += hours === 1 ? " 1 hour" : ` ${hours} hours`;
