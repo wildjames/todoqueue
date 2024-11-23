@@ -1,9 +1,9 @@
-import { useEffect, useState, useRef } from "react";
+import { React, useEffect, useState, useRef } from "react";
 import useAuthCheck from '../../hooks/authCheck';
 
 import AlertMessage from "../popups/AlertPopup";
 
-import { createHousehold, deleteHousehold, fetchPendingInvitations, acceptInvitation, declineInvitation } from '../../api/households';
+import { createHousehold, fetchPendingInvitations, acceptInvitation, declineInvitation } from '../../api/households';
 import HouseholdDetailsPopup from "../popups/HouseholdDetailsPopup";
 
 import './households.css';
@@ -38,6 +38,7 @@ export const ManageHouseholds = ({ households, updateHouseholds, setShowHousehol
 
         // Clear the interval when the component unmounts
         return () => clearInterval(invitationCheckInterval);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
 
@@ -72,23 +73,23 @@ export const ManageHouseholds = ({ households, updateHouseholds, setShowHousehol
     };
 
 
-    const handleDelete = async (id) => {
-        console.log("Deleting household:", id);
-        const promise = deleteHousehold(id);
+    // const handleDelete = async (id) => {
+    //     console.log("Deleting household:", id);
+    //     const promise = deleteHousehold(id);
 
-        setErrorMessage("");
-        const data = await promise;
+    //     setErrorMessage("");
+    //     const data = await promise;
 
 
-        if (data.error) {
-            setErrorMessage(data.error);
-        } else if (data.success) {
-            console.log("Successfully deleted household");
-        }
+    //     if (data.error) {
+    //         setErrorMessage(data.error);
+    //     } else if (data.success) {
+    //         console.log("Successfully deleted household");
+    //     }
 
-        console.log("Updating household list");
-        updateHouseholds();
-    };
+    //     console.log("Updating household list");
+    //     updateHouseholds();
+    // };
 
 
     const handleAcceptInvitation = async (invitationId) => {

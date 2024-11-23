@@ -1,4 +1,2 @@
-const development = "http://localhost:8000";
-const production = "";
-
-export const backend_url = production;
+export const backend_url = "http://localhost:8000";
+// export const backend_url = ""; // For production

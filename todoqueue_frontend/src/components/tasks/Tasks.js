@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { React, useState, useEffect, useRef } from 'react';
 import useAuthCheck from '../../hooks/authCheck';
 
 import './Tasks.css';
@@ -87,6 +87,7 @@ const Tasks = ({ households, selectedHousehold, setSelectedHousehold, showSelect
     // Show the household selector on first render
     useEffect(() => {
         setShowHouseholdSelector(true);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [showSelectedHouseholdSelector]);
 
 
@@ -104,6 +105,7 @@ const Tasks = ({ households, selectedHousehold, setSelectedHousehold, showSelect
             fetchSetUsers();
         }, 1000);
         return () => clearInterval(interval);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [showSidebar, selectedHousehold]);
 
 
@@ -347,7 +349,7 @@ const Tasks = ({ households, selectedHousehold, setSelectedHousehold, showSelect
             <div className="task-container ">
                 {tasks
                     .filter(task => task.staleness !== 0)
-                    .map((task, index) => (
+                    .map((task) => (
                         <div className="task-wrapper" key={task.id}>
                             <div
                                 className={`task-card ${task.staleness === 1 ? 'stale' : ''}`}
@@ -384,7 +386,7 @@ const Tasks = ({ households, selectedHousehold, setSelectedHousehold, showSelect
                 </div>
 
                 <div className={`empty-state ${!noTasks && noStaleTasks && selectedHousehold ? "show" : "hide"}`}>
-                    <h3>You've completed all your tasks!</h3>
+                    <h3>You&apos;ve completed all your tasks!</h3>
                 </div>
             </div>
 
@@ -400,7 +402,7 @@ const Tasks = ({ households, selectedHousehold, setSelectedHousehold, showSelect
                         // If 'frozen' is equal, sort by 'task_name' in ascending order
                         return a.task_name.localeCompare(b.task_name);
                     })
-                    .map((task, index) => (
+                    .map((task) => (
                         <div className="task-wrapper sidebar-wrapper" key={task.id}>
                             <div
                                 className={`task-card fresh ${task.frozen ? 'frozen' : ''}`}

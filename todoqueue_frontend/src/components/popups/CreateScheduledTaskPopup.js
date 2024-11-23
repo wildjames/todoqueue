@@ -237,4 +237,6 @@ const CreateScheduledTaskPopup = React.forwardRef((props, ref) => {
     );
 });
 
+CreateScheduledTaskPopup.displayName = "CreateScheduledTaskPopup";
+
 export default CreateScheduledTaskPopup;

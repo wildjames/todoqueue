@@ -7,33 +7,43 @@ import tasks.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tasks', '0003_dummytask'),
+        ("tasks", "0003_dummytask"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='flexibletask',
-            name='description',
-            field=models.TextField(default='', validators=[tasks.models.validate_profanity]),
+            model_name="flexibletask",
+            name="description",
+            field=models.TextField(
+                default="", validators=[tasks.models.validate_profanity]
+            ),
         ),
         migrations.AlterField(
-            model_name='flexibletask',
-            name='task_name',
-            field=models.CharField(max_length=255, validators=[tasks.models.validate_profanity]),
+            model_name="flexibletask",
+            name="task_name",
+            field=models.CharField(
+                max_length=255, validators=[tasks.models.validate_profanity]
+            ),
         ),
         migrations.AlterField(
-            model_name='household',
-            name='name',
-            field=models.CharField(max_length=255, validators=[tasks.models.validate_profanity]),
+            model_name="household",
+            name="name",
+            field=models.CharField(
+                max_length=255, validators=[tasks.models.validate_profanity]
+            ),
         ),
         migrations.AlterField(
-            model_name='scheduledtask',
-            name='description',
-            field=models.TextField(default='', validators=[tasks.models.validate_profanity]),
+            model_name="scheduledtask",
+            name="description",
+            field=models.TextField(
+                default="", validators=[tasks.models.validate_profanity]
+            ),
         ),
         migrations.AlterField(
-            model_name='scheduledtask',
-            name='task_name',
-            field=models.CharField(max_length=255, validators=[tasks.models.validate_profanity]),
+            model_name="scheduledtask",
+            name="task_name",
+            field=models.CharField(
+                max_length=255, validators=[tasks.models.validate_profanity]
+            ),
         ),
     ]

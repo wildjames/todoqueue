@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"; // Define the Login function.
+import { React, useState, useEffect } from "react";
 
 import "./Login.css";
 import "../../utils/buttons.css";
@@ -16,6 +16,7 @@ const Login = ({ setShowHouseholdSelector }) => {
 
     useEffect(() => {
         setShowHouseholdSelector(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Create the submit method.

@@ -239,6 +239,7 @@ class FlexibleTask(models.Model):
 
 class OneShotTask(models.Model):
     """One-shot tasks only appear once, then when they are completed they never stop being fresh again"""
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     task_name = models.CharField(max_length=255, validators=[validate_profanity])

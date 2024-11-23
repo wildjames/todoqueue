@@ -65,6 +65,7 @@ const EditFlexibleTaskPopup = React.forwardRef((props, ref) => {
         };
 
         fetchTaskDetails();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.selectedTaskId]);
 
 
@@ -172,10 +173,10 @@ const EditFlexibleTaskPopup = React.forwardRef((props, ref) => {
     };
 
 
-    const handlePopupTypeChange = (e) => {
-        const selectedType = e.target.value;
-        props.setCurrentPopup(selectedType);
-    };
+    // const handlePopupTypeChange = (e) => {
+    //     const selectedType = e.target.value;
+    //     props.setCurrentPopup(selectedType);
+    // };
 
 
     return (
@@ -194,7 +195,7 @@ const EditFlexibleTaskPopup = React.forwardRef((props, ref) => {
                     </div>
 
                     <div className="task-input-group task-input-group-horizontal">
-                        <label style={{marginTop: "1.5rem"}}>Overdue after: </label>
+                        <label style={{ marginTop: "1.5rem" }}>Overdue after: </label>
                         <div className="task-input-group-vertical">
                             <label>Days</label>
                             <input
@@ -208,64 +209,64 @@ const EditFlexibleTaskPopup = React.forwardRef((props, ref) => {
                             />
                         </div>
                         <div className="task-input-group-vertical">
-                        <label>Hours</label>
-                        <input
-                            className={inputError ? "input-error" : ""}
-                            type="number"
-                            min="0"
-                            name="max_interval_hours"
-                            placeholder="Hours"
-                            onChange={handleUpdateInputChange}
-                            value={task.max_interval_hours}
-                        />
+                            <label>Hours</label>
+                            <input
+                                className={inputError ? "input-error" : ""}
+                                type="number"
+                                min="0"
+                                name="max_interval_hours"
+                                placeholder="Hours"
+                                onChange={handleUpdateInputChange}
+                                value={task.max_interval_hours}
+                            />
                         </div>
                         <div className="task-input-group-vertical">
-                        <label>Minutes</label>
-                        <input
-                            className={inputError ? "input-error" : ""}
-                            type="number"
-                            min="0"
-                            name="max_interval_minutes"
-                            placeholder="Minutes"
-                            onChange={handleUpdateInputChange}
-                            value={task.max_interval_minutes}
-                        />
+                            <label>Minutes</label>
+                            <input
+                                className={inputError ? "input-error" : ""}
+                                type="number"
+                                min="0"
+                                name="max_interval_minutes"
+                                placeholder="Minutes"
+                                onChange={handleUpdateInputChange}
+                                value={task.max_interval_minutes}
+                            />
                         </div>
                     </div>
                     <div className="task-input-group task-input-group-horizontal">
                         <label>Stale after: </label>
                         <div>
-                        <input
-                            className={inputError ? "input-error" : ""}
-                            type="number"
-                            min="0"
-                            name="min_interval_days"
-                            placeholder="Days"
-                            onChange={handleUpdateInputChange}
-                            value={task.min_interval_days}
-                        />
+                            <input
+                                className={inputError ? "input-error" : ""}
+                                type="number"
+                                min="0"
+                                name="min_interval_days"
+                                placeholder="Days"
+                                onChange={handleUpdateInputChange}
+                                value={task.min_interval_days}
+                            />
                         </div>
                         <div>
-                        <input
-                            className={inputError ? "input-error" : ""}
-                            type="number"
-                            min="0"
-                            name="min_interval_hours"
-                            placeholder="Hours"
-                            onChange={handleUpdateInputChange}
-                            value={task.min_interval_hours}
-                        />
+                            <input
+                                className={inputError ? "input-error" : ""}
+                                type="number"
+                                min="0"
+                                name="min_interval_hours"
+                                placeholder="Hours"
+                                onChange={handleUpdateInputChange}
+                                value={task.min_interval_hours}
+                            />
                         </div>
                         <div>
-                        <input
-                            className={inputError ? "input-error" : ""}
-                            type="number"
-                            min="0"
-                            name="min_interval_minutes"
-                            placeholder="Minutes"
-                            onChange={handleUpdateInputChange}
-                            value={task.min_interval_minutes}
-                        />
+                            <input
+                                className={inputError ? "input-error" : ""}
+                                type="number"
+                                min="0"
+                                name="min_interval_minutes"
+                                placeholder="Minutes"
+                                onChange={handleUpdateInputChange}
+                                value={task.min_interval_minutes}
+                            />
                         </div>
                     </div>
                     <div className="task-input-group">
@@ -290,5 +291,7 @@ const EditFlexibleTaskPopup = React.forwardRef((props, ref) => {
         </BasePopup>
     );
 });
+
+EditFlexibleTaskPopup.displayName = "EditFlexibleTaskPopup";
 
 export default EditFlexibleTaskPopup;

@@ -1,4 +1,4 @@
-.PHONY: install dev build clean
+.PHONY: install dev build clean lint
 
 install:
 	# Install backend dependencies
@@ -25,3 +25,9 @@ clean:
 	rm -rf todoqueue_backend/staticfiles
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -delete
+
+lint:
+	# Lint Python code with Black
+	black todoqueue_backend
+	# Lint JavaScript code with ESLint
+	cd todoqueue_frontend && npx eslint .

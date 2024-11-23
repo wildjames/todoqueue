@@ -3,15 +3,19 @@ from django.utils import timezone
 from datetime import timedelta
 
 from logging import getLogger, DEBUG, basicConfig
+
 basicConfig(level=DEBUG)
 logger = getLogger(__name__)
 
-def is_rate_limited(identifier, request_type, max_attempts=5, period=timedelta(hours=1)):
+
+def is_rate_limited(
+    identifier, request_type, max_attempts=5, period=timedelta(hours=1)
+):
     """
     Check if the identifier has exceeded the maximum number of attempts within the period.
     """
     logger.debug("Checking rate limit")
-    
+
     current_time = timezone.now()
     cache_key = f"password_reset_attempts_{request_type}_{identifier}"
     attempts = cache.get(cache_key, [])

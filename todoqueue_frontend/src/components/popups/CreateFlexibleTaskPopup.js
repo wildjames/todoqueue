@@ -245,4 +245,6 @@ const CreateFlexibleTaskPopup = React.forwardRef((props, ref) => {
     );
 });
 
+CreateFlexibleTaskPopup.displayName = "CreateFlexibleTaskPopup";
+
 export default CreateFlexibleTaskPopup;

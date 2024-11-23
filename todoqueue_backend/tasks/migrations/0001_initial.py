@@ -13,58 +13,129 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('contenttypes', '0002_remove_content_type_name'),
+        ("contenttypes", "0002_remove_content_type_name"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Household',
+            name="Household",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('users', models.ManyToManyField(related_name='households', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                (
+                    "users",
+                    models.ManyToManyField(
+                        related_name="households", to=settings.AUTH_USER_MODEL
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='WorkLog',
+            name="WorkLog",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('grossness', models.FloatField(validators=[django.core.validators.MinValueValidator(0), django.core.validators.MaxValueValidator(5)])),
-                ('completion_time', models.DurationField()),
-                ('brownie_points', models.IntegerField()),
-                ('object_id', models.UUIDField()),
-                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("timestamp", models.DateTimeField(auto_now_add=True)),
+                (
+                    "grossness",
+                    models.FloatField(
+                        validators=[
+                            django.core.validators.MinValueValidator(0),
+                            django.core.validators.MaxValueValidator(5),
+                        ]
+                    ),
+                ),
+                ("completion_time", models.DurationField()),
+                ("brownie_points", models.IntegerField()),
+                ("object_id", models.UUIDField()),
+                (
+                    "content_type",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="contenttypes.contenttype",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ScheduledTask',
+            name="ScheduledTask",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('task_name', models.CharField(max_length=255)),
-                ('description', models.TextField(default='')),
-                ('last_completed', models.DateTimeField(auto_now_add=True)),
-                ('frozen', models.BooleanField(default=False)),
-                ('recur_dayhour', models.IntegerField(default=-1)),
-                ('recur_weekday', models.IntegerField(default=-1)),
-                ('recur_monthday', models.IntegerField(default=-1)),
-                ('recur_yearmonth', models.IntegerField(default=-1)),
-                ('max_interval', models.DurationField(default='0:0')),
-                ('household', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='scheduled_tasks', to='tasks.household')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                ("task_name", models.CharField(max_length=255)),
+                ("description", models.TextField(default="")),
+                ("last_completed", models.DateTimeField(auto_now_add=True)),
+                ("frozen", models.BooleanField(default=False)),
+                ("recur_dayhour", models.IntegerField(default=-1)),
+                ("recur_weekday", models.IntegerField(default=-1)),
+                ("recur_monthday", models.IntegerField(default=-1)),
+                ("recur_yearmonth", models.IntegerField(default=-1)),
+                ("max_interval", models.DurationField(default="0:0")),
+                (
+                    "household",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="scheduled_tasks",
+                        to="tasks.household",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='FlexibleTask',
+            name="FlexibleTask",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('task_name', models.CharField(max_length=255)),
-                ('description', models.TextField(default='')),
-                ('max_interval', models.DurationField(default='0:0')),
-                ('min_interval', models.DurationField(default='0:0')),
-                ('last_completed', models.DateTimeField(auto_now_add=True)),
-                ('frozen', models.BooleanField(default=False)),
-                ('household', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='flexible_tasks', to='tasks.household')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                ("task_name", models.CharField(max_length=255)),
+                ("description", models.TextField(default="")),
+                ("max_interval", models.DurationField(default="0:0")),
+                ("min_interval", models.DurationField(default="0:0")),
+                ("last_completed", models.DateTimeField(auto_now_add=True)),
+                ("frozen", models.BooleanField(default=False)),
+                (
+                    "household",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="flexible_tasks",
+                        to="tasks.household",
+                    ),
+                ),
             ],
         ),
     ]

@@ -9,6 +9,7 @@ from rest_framework.test import APITestCase, APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from logging import getLogger
+
 logger = getLogger(__name__)
 
 from .serializers import CustomUserSerializer
@@ -173,44 +174,46 @@ class CustomUserTests(APITestCase):
         )
 
     def test_register_existing_email(self):
-        url = reverse('register')
+        url = reverse("register")
         data = {
             "email": "testuser@example.com",
             "username": "someotheruser",
-            "password": "somepass"
+            "password": "somepass",
         }
-        response = self.client.post(url, data, format='json')
+        response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('detail', response.data)
-        self.assertEqual(response.data['detail'], 'User with this email already exists.')
+        self.assertIn("detail", response.data)
+        self.assertEqual(
+            response.data["detail"], "User with this email already exists."
+        )
 
     def test_failed_login(self):
-        url = reverse('token_obtain_pair')
-        data = {
-            "email": "testuser@example.com",
-            "password": "wrongpassword"
-        }
-        response = self.client.post(url, data, format='json')
+        url = reverse("token_obtain_pair")
+        data = {"email": "testuser@example.com", "password": "wrongpassword"}
+        response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(response.data["detail"], "No active account found with the given credentials")
+        self.assertEqual(
+            response.data["detail"],
+            "No active account found with the given credentials",
+        )
 
     def test_custom_user_viewset_list(self):
         # First get a token for the user
         token = RefreshToken.for_user(self.user)
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token.access_token}')
-        
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token.access_token}")
+
         # Now, retrieve list of users
-        url = reverse('customuser-list')
-        response = self.client.get(url, format='json')
+        url = reverse("customuser-list")
+        response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_custom_user_viewset_retrieve(self):
         # First get a token for the user
         token = RefreshToken.for_user(self.user)
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token.access_token}')
-        
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token.access_token}")
+
         # Now, retrieve the user's own details
-        url = reverse('customuser-detail', args=[self.user.id])
-        response = self.client.get(url, format='json')
+        url = reverse("customuser-detail", args=[self.user.id])
+        response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['email'], self.user.email)
+        self.assertEqual(response.data["email"], self.user.email)

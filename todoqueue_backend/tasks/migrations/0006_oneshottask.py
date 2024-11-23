@@ -9,22 +9,47 @@ import uuid
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tasks', '0005_invitation'),
+        ("tasks", "0005_invitation"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='OneShotTask',
+            name="OneShotTask",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('task_name', models.CharField(max_length=255, validators=[tasks.models.validate_profanity])),
-                ('description', models.TextField(default='', validators=[tasks.models.validate_profanity])),
-                ('due_date', models.DateField()),
-                ('due_before', models.BooleanField(default=False)),
-                ('time_to_complete', models.DurationField(default='0:0')),
-                ('frozen', models.BooleanField(default=False)),
-                ('has_completed', models.BooleanField(default=False)),
-                ('household', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='oneshot_tasks', to='tasks.household')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "task_name",
+                    models.CharField(
+                        max_length=255, validators=[tasks.models.validate_profanity]
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(
+                        default="", validators=[tasks.models.validate_profanity]
+                    ),
+                ),
+                ("due_date", models.DateField()),
+                ("due_before", models.BooleanField(default=False)),
+                ("time_to_complete", models.DurationField(default="0:0")),
+                ("frozen", models.BooleanField(default=False)),
+                ("has_completed", models.BooleanField(default=False)),
+                (
+                    "household",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="oneshot_tasks",
+                        to="tasks.household",
+                    ),
+                ),
             ],
         ),
     ]

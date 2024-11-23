@@ -8,17 +8,32 @@ import uuid
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tasks', '0002_remove_scheduledtask_recur_dayhour_and_more'),
+        ("tasks", "0002_remove_scheduledtask_recur_dayhour_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='DummyTask',
+            name="DummyTask",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('last_completed', models.DateTimeField(auto_now_add=True)),
-                ('frozen', models.BooleanField(default=False)),
-                ('household', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='dummy_tasks', to='tasks.household')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                ("last_completed", models.DateTimeField(auto_now_add=True)),
+                ("frozen", models.BooleanField(default=False)),
+                (
+                    "household",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="dummy_tasks",
+                        to="tasks.household",
+                    ),
+                ),
             ],
         ),
     ]

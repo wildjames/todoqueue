@@ -24,7 +24,7 @@ const CompleteTaskPopup = React.forwardRef((props, ref) => {
         // "[-]DD HH:MM:SS" and completion time is in minutes
         const completionTime_str = `0 ${Math.floor(completionTime_minutes / 60)}:${completionTime_minutes % 60}:00`;
 
-        // Create the work log. 
+        // Create the work log.
         const browniePoints = await createWorkLog(
             props.selectedHousehold,
             props.selectedTask.id,
@@ -60,6 +60,7 @@ const CompleteTaskPopup = React.forwardRef((props, ref) => {
                                     .sort((a, b) => a.username.localeCompare(b.username))
                                     .map(user => (
                                         <button
+                                            key={user.id}
                                             type="button"
                                             // If no users are selected, add a red shadow to indicate that someone needs to be selected.
                                             // If this user is selected, make their name button green
@@ -120,5 +121,7 @@ const CompleteTaskPopup = React.forwardRef((props, ref) => {
         </BasePopup>
     );
 });
+
+CompleteTaskPopup.displayName = "CompleteTaskPopup";
 
 export default CompleteTaskPopup;

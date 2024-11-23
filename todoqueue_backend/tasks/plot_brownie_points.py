@@ -19,14 +19,14 @@ Z = vect_func(A, B)
 
 # Create a surface plot
 fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-ax.plot_surface(A, B, Z, cmap='viridis')
+ax = fig.add_subplot(111, projection="3d")
+ax.plot_surface(A, B, Z, cmap="viridis")
 
 
 # Set labels and title
-ax.set_xlabel('Time')
-ax.set_ylabel('Grossness')
-ax.set_zlabel('BP Score')
+ax.set_xlabel("Time")
+ax.set_ylabel("Grossness")
+ax.set_zlabel("BP Score")
 
 ax.set_zlim(0, 300)
 

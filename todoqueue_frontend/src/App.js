@@ -2,7 +2,7 @@ import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, BrowserRouter } from 'react-router-dom';
+import { Route, Routes, BrowserRouter } from 'react-router-dom';
 
 import { Helmet } from 'react-helmet';
 
@@ -57,6 +57,7 @@ const App = () => {
 
     const interval = setInterval(updateHouseholds, 1000);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedHousehold]);
 
 
@@ -65,7 +66,7 @@ const App = () => {
       <Helmet>
         <meta charset="UTF-8" />
         <meta name="google" content="notranslate" />
-        <meta http-equiv="Content-Language" content="en" />
+        <meta httpEquiv="Content-Language" content="en" />
       </Helmet>
 
       <Navigation

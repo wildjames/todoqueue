@@ -54,7 +54,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
 
 class GetUserData(APIView):
     permission_classes = (IsAuthenticated,)
-    
+
     def get(self, request):
         """Return the serialization of the user who authenticated this request"""
         logger.info("Getting serialization of a single user")
@@ -62,8 +62,9 @@ class GetUserData(APIView):
         serializer = CustomUserSerializer(user)
         serialized_data = serializer.data
         logger.info(f"User data: {serialized_data}")
-        
+
         return Response(serialized_data)
+
 
 class AuthView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -94,7 +95,10 @@ class RegisterView(APIView):
     def post(self, request):
         # Check if the rate limit has been exceeded
         if is_rate_limited(
-            request.META['REMOTE_ADDR'], "init_registration", max_attempts=20, period=timedelta(hours=1)
+            request.META["REMOTE_ADDR"],
+            "init_registration",
+            max_attempts=20,
+            period=timedelta(hours=1),
         ):
             return Response(
                 {"detail": "Registration requests are limited to 20 per hour."},
@@ -184,7 +188,10 @@ class ConfirmRegistrationView(APIView):
     def get(self, request, uidb64, token):
         # Check if the rate limit has been exceeded
         if is_rate_limited(
-            request.META['REMOTE_ADDR'], "confirm_registration", max_attempts=50, period=timedelta(hours=1)
+            request.META["REMOTE_ADDR"],
+            "confirm_registration",
+            max_attempts=50,
+            period=timedelta(hours=1),
         ):
             return Response(
                 {"detail": "Please stop spamming the confirmation endpoint."},
@@ -216,7 +223,10 @@ class ForgotPasswordView(APIView):
     def post(self, request):
         # Check if the rate limit has been exceeded
         if is_rate_limited(
-            request.META['REMOTE_ADDR'], "forgot_password", max_attempts=5, period=timedelta(hours=1)
+            request.META["REMOTE_ADDR"],
+            "forgot_password",
+            max_attempts=5,
+            period=timedelta(hours=1),
         ):
             return Response(
                 {"detail": "Password reset requests are limited to 5 per hour."},
@@ -291,7 +301,10 @@ class CompleteForgotPasswordView(APIView):
     def post(self, request, uidb64, token):
         # Check if the rate limit has been exceeded
         if is_rate_limited(
-            request.META['REMOTE_ADDR'], "new_password", max_attempts=20, period=timedelta(hours=1)
+            request.META["REMOTE_ADDR"],
+            "new_password",
+            max_attempts=20,
+            period=timedelta(hours=1),
         ):
             return Response(
                 {"detail": "Please stop spamming the password reset endpoint."},

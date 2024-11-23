@@ -38,7 +38,7 @@ def get_env_variable(var_name, default=None, cast_type=str):
 
 # Load environment variables from .env file
 if get_env_variable("DEV", False, bool):
-    dotenv_path = path.join(path.dirname(__file__), "..", '.env')
+    dotenv_path = path.join(path.dirname(__file__), "..", ".env")
     print(f"Checking for env: {dotenv_path}")
     if path.exists(dotenv_path):
         print("Loading env")

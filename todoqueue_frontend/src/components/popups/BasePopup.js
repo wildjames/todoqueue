@@ -11,4 +11,6 @@ const BasePopup = React.forwardRef((props, ref) => {
     );
 });
 
+BasePopup.displayName = 'BasePopup';
+
 export default BasePopup;

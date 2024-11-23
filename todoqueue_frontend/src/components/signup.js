@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { React, useState, useEffect } from "react";
 
 import { signUp } from "../api/users";
 import Spinner from "./spinner/Spinner";
@@ -15,6 +15,7 @@ export const SignUp = ({ setShowHouseholdSelector }) => {
 
     useEffect(() => {
         setShowHouseholdSelector(false);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     function getFirstErrorMessage(response) {
@@ -34,12 +35,12 @@ export const SignUp = ({ setShowHouseholdSelector }) => {
             setFeedbackMessage("Passwords do not match");
             return;
         }
-        
+
         const promise = signUp(email, username, password);
         setShowSpinner(true);
 
         const data = await promise;
-        
+
         setShowSpinner(false);
         if (data.success) {
             setFeedbackMessage(data.success);
@@ -55,9 +56,9 @@ export const SignUp = ({ setShowHouseholdSelector }) => {
             <form className="Auth-form" onSubmit={submit}>
                 <div className="Auth-form-content">
 
-                    { showSpinner && <Spinner /> }
+                    {showSpinner && <Spinner />}
 
-                    { feedbackMessage !== "" && <AlertMessage message={feedbackMessage} /> }
+                    {feedbackMessage !== "" && <AlertMessage message={feedbackMessage} />}
 
                     <h3 className="Auth-form-title">Sign Up</h3>
 
@@ -71,7 +72,7 @@ export const SignUp = ({ setShowHouseholdSelector }) => {
                             required
                             onChange={e => setEmail(e.target.value)} />
                     </div>
-                    
+
                     <div className="form-group mt-3">
                         <label>Display Name</label>
                         <input className="form-control mt-1"
@@ -82,7 +83,7 @@ export const SignUp = ({ setShowHouseholdSelector }) => {
                             required
                             onChange={e => setUsername(e.target.value)} />
                     </div>
-                    
+
                     <div className="form-group mt-3">
                         <label>Password</label>
                         <input name='password'
@@ -93,7 +94,7 @@ export const SignUp = ({ setShowHouseholdSelector }) => {
                             required
                             onChange={e => setPassword(e.target.value)} />
                     </div>
-                    
+
                     <div className="form-group mt-3">
                         <label>Confirm password</label>
                         <input name='password'
@@ -104,12 +105,12 @@ export const SignUp = ({ setShowHouseholdSelector }) => {
                             required
                             onChange={e => setPasswordConfirm(e.target.value)} />
                     </div>
-                    
+
                     <div className="d-grid gap-2 mt-3">
                         <button type="submit"
                             className="btn btn-primary">Register</button>
                     </div>
-                    
+
                     <div className="mt-3">
                         <a href="/login">Already have an account?</a>
                     </div>
