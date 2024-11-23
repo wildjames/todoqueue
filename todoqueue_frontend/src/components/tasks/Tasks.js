@@ -292,11 +292,11 @@ const Tasks = ({ households, selectedHousehold, setSelectedHousehold, showSelect
                 </div>
                 :
                 <div className={`empty-state ${selectedHousehold ? 'hide' : 'show'}`}>
-                <HouseholdSelector
-                    households={households}
-                    selectedHousehold={selectedHousehold}
-                    setSelectedHousehold={setSelectedHousehold}
-                />
+                    <HouseholdSelector
+                        households={households}
+                        selectedHousehold={selectedHousehold}
+                        setSelectedHousehold={setSelectedHousehold}
+                    />
                 </div>
             }
 

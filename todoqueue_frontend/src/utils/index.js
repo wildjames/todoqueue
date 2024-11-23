@@ -39,11 +39,20 @@ export const getTimeSince = (timestamp) => {
         return "Just now";
     }
 
+    const years = duration.years();
+    const months = duration.months();
     const days = duration.days();
     const hours = duration.hours();
     const minutes = duration.minutes();
 
     let output = ''
+
+    if (years !== 0) {
+        output += years === 1 ? "1 year" : `${years} years`;
+    }
+    if (months !== 0) {
+        output += months === 1 ? "1 month" : `${months} months`;
+    }
     if (days !== 0) {
         output += days === "1" ? "1 day" : `${days} days`;
     }
@@ -62,6 +71,8 @@ export const getTimeSince = (timestamp) => {
     output = output.trim();
 
     output += " ago";
+
+    console.log("Last done at timestamp, rendering as output", timestamp, output);
 
     return output;
 };

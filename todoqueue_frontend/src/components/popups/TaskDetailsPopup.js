@@ -207,7 +207,7 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
                         <p style={{ color: "black" }}><strong>Task is frozen, and won't ever appear on the queue</strong></p>
                     ) : null}
                 </div>
-                
+
                 <div className="task-popup-actions">
                     <button className="button complete-button" onClick={() => props.handleOpenCompleteTaskPopup(props.selectedTask)}>Complete Task</button>
                     <button className="button dismiss-button" onClick={() => handleDismissTask(props.selectedTask.id)}>Dismiss Task</button>
@@ -218,7 +218,7 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
                     <button className="button delete-button" onClick={() => handleDeleteTask(props.selectedTask.id)}>Delete Task</button>
                     {props.selectedTask.type !== 'oneshottask' ? (
                         <button className="button edit-button" onClick={() => handleOpenEditTaskPopup()}>Edit Task</button>
-                    ) : null }
+                    ) : null}
                 </div>
             </div>
         </BasePopup>

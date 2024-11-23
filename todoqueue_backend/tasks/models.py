@@ -125,7 +125,9 @@ class ScheduledTask(models.Model):
         cron = croniter.croniter(
             self.cron_schedule, timezone.now().astimezone(), ret_type=datetime
         )
-        return cron.get_prev()
+        prev_due = cron.get_prev()
+        logger.debug(f"The last time this task was due was: {prev_due}")
+        return prev_due
 
     @property
     def next_due(self):
@@ -133,7 +135,9 @@ class ScheduledTask(models.Model):
         cron = croniter.croniter(
             self.cron_schedule, timezone.now().astimezone(), ret_type=datetime
         )
-        return cron.get_next()
+        next_due = cron.get_next()
+        logger.debug(f"The next time this task is due is: {next_due}")
+        return next_due
 
     # Calculate the staleness of this task
     @property
@@ -256,19 +260,19 @@ class OneShotTask(models.Model):
 
         now = timezone.now()
         remaining = None
-        
+
         if self.due_before:
             deadline = self.due_date - self.time_to_complete
-            
+
             if now < deadline:
                 return 0
             remaining = now - deadline
-            
+
         else:
             if now < self.due_date:
                 return 0
             remaining = now - self.due_date
-            
+
         logger.debug(f"Remaining: {remaining}")
         logger.debug(f"")
 
@@ -339,11 +343,11 @@ class WorkLog(models.Model):
             try:
                 # Tasks MUST have a last_completed field
                 self.content_object.last_completed = timezone.now()
-                
+
                 # Check if the task is a OneShotTask and set has_completed to True
                 if isinstance(self.content_object, OneShotTask):
                     self.content_object.has_completed = True
-                
+
                 self.content_object.save()
             except AttributeError:
                 logger.error(
