@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { React, useState, useEffect } from "react";
 import { resetPassword } from "../api/users";
 import Spinner from "./spinner/Spinner";
 import AlertMessage from "./popups/AlertPopup";
@@ -15,6 +15,7 @@ export const ResetPassword = ({ setShowHouseholdSelector }) => {
 
     useEffect(() => {
         setShowHouseholdSelector(false);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
 

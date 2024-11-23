@@ -39,10 +39,10 @@ const EditScheduledTaskPopup = React.forwardRef((props, ref) => {
                 const [hours, minutes] = time.split(':').map(Number);
                 return { days, hours, minutes };
             };
-            
-            
+
+
             const maxInterval = parseInterval(taskData.max_interval);
-            
+
             // The cron_schedule needs to be split into the individual fields.
             // Replace any "*" with "All" so that it can be displayed in the input field.
             const cron_schedule = taskData.cron_schedule.split(' ').map((field) => {
@@ -65,6 +65,7 @@ const EditScheduledTaskPopup = React.forwardRef((props, ref) => {
         };
 
         fetchTaskDetails();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.selectedTaskId]);
 
     const handleEditTask = async (event) => {
@@ -274,5 +275,7 @@ const EditScheduledTaskPopup = React.forwardRef((props, ref) => {
         </BasePopup>
     );
 });
+
+EditScheduledTaskPopup.displayName = "EditScheduledTaskPopup";
 
 export default EditScheduledTaskPopup;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { React, useState, useEffect } from "react";
 
 import { forgotPassword } from "../api/users";
 import AlertMessage from "./popups/AlertPopup";
@@ -11,6 +11,7 @@ const ForgotPassword = ({ setShowHouseholdSelector }) => {
 
     useEffect(() => {
         setShowHouseholdSelector(false);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const submit = async e => {

@@ -18,7 +18,7 @@ export const formatDuration = (duration) => {
     }
 
     // Extract hours, minutes, and seconds
-    const [hours, minutes, seconds] = time.split(":").map(Number);
+    const [hours, minutes] = time.split(":").map(Number);
 
     // Construct human-readable string
     const daysStr = days === "1" ? "1 day" : `${days} days`;

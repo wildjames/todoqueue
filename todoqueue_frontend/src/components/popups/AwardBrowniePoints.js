@@ -64,6 +64,7 @@ const AwardBrowniePointsPopup = React.forwardRef((props, ref) => {
                                     .sort((a, b) => a.username.localeCompare(b.username))
                                     .map(user => (
                                         <button
+                                            key={user.id}
                                             type="button"
                                             // If no users are selected, add a red shadow to indicate that someone needs to be selected.
                                             // If this user is selected, make their name button green
@@ -124,5 +125,7 @@ const AwardBrowniePointsPopup = React.forwardRef((props, ref) => {
         </BasePopup>
     );
 });
+
+AwardBrowniePointsPopup.displayName = "AwardBrowniePointsPopup";
 
 export default AwardBrowniePointsPopup;

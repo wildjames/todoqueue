@@ -146,7 +146,7 @@ const CreateOneShotTaskPopup = React.forwardRef((props, ref) => {
                     <div className="task-input-group task-input-group-horizontal">
                         <input
                             className={inputError ? "input-error" : ""}
-                            style={{maxWidth: "initial"}}
+                            style={{ maxWidth: "initial" }}
                             type="date"
                             name="due_date"
                             placeholder="Due Date"
@@ -154,7 +154,7 @@ const CreateOneShotTaskPopup = React.forwardRef((props, ref) => {
                         />
                         <input
                             className={inputError ? "input-error" : ""}
-                            style={{maxWidth: "initial"}}
+                            style={{ maxWidth: "initial" }}
                             type="time"
                             name="due_time"
                             defaultValue="09:00"
@@ -220,5 +220,7 @@ const CreateOneShotTaskPopup = React.forwardRef((props, ref) => {
         </BasePopup>
     );
 });
+
+CreateOneShotTaskPopup.displayName = "CreateOneShotTaskPopup";
 
 export default CreateOneShotTaskPopup;

@@ -30,7 +30,7 @@ const UserStatsBox = ({ selectedHousehold, windowWidth, viewMode, setViewMode, u
                 </label>
             </div>
             <div className="user-stats-flex" onClick={handleOpenAwardBrowniePointsPopup}>
-                {sortedUsers.slice(0, 5).map((user, index) => (
+                {sortedUsers.slice(0, 5).map((user) => (
                     <div key={user.id} className="user-row">
                         <span className="user-name">{user.username}</span>
                         <SimpleFlipper

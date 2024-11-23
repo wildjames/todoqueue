@@ -7,13 +7,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0002_alter_customuser_username'),
+        ("accounts", "0002_alter_customuser_username"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='customuser',
-            name='username',
-            field=models.CharField(max_length=30, validators=[accounts.models.validate_profanity]),
+            model_name="customuser",
+            name="username",
+            field=models.CharField(
+                max_length=30, validators=[accounts.models.validate_profanity]
+            ),
         ),
     ]

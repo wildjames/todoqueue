@@ -34,9 +34,10 @@ const CountdownTracker = ({ value }) => {
                 setPreviousValue(value);
                 el.removeEventListener('animationend', handleAnimationEnd);
             };
-            
+
             el.addEventListener('animationend', handleAnimationEnd);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [value]);
 
     return (

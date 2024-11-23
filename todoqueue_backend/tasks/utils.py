@@ -77,11 +77,11 @@ def bp_function(
     Returns:
         float: The brownie points
     """
-    
+
     if completion_time_minutes == 0:
         logger.debug("Completion time is 0, returning 0 brownie points")
         return 0
-    
+
     user_gross_scale_range = [0, 5]
     output_gross_scale_range = [0, 100]
 
@@ -92,14 +92,14 @@ def bp_function(
 
     # completion_time_minutes = piecewise_linear(completion_time_minutes, 2.0, 0.75, 30)
 
-    random_factor = 1 #random.uniform(1.0, 1.1)
+    random_factor = 1  # random.uniform(1.0, 1.1)
     random_base = random.uniform(0, 50)
 
     # Calculate the brownie points
     # The sigmoid scales are just hand tuned to make the graph look nice
     brownie_points = 200 * sigmoid(completion_time_minutes / 20) + grossness - 100
     brownie_points = (brownie_points * random_factor) + random_base
-    
+
     logger.debug(f"  Completion time: {completion_time_minutes}")
     logger.debug(f"  Grossness: {grossness}")
     logger.debug(f"  Random factor: {random_factor:.2f}")
@@ -112,4 +112,3 @@ def bp_function(
 def validate_profanity(value):
     logger.info("Validating profanity")
     return is_profane([value])[0] == 1
-

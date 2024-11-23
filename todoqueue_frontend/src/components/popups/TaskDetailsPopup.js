@@ -31,6 +31,7 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
                 clearInterval(updateSelectedTaskTimer.current);
             }
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.selectedTaskId]);
 
     const handleDeleteTask = async (taskId) => {
@@ -84,7 +85,7 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
     }
 
 
-    const handleOpenEditTaskPopup = (e) => {
+    const handleOpenEditTaskPopup = () => {
         let selectedType = props.PopupType.NONE;
         switch (props.selectedTask.type) {
             case "flexibletask":
@@ -204,7 +205,7 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
                         <p><strong>Description:</strong> {props.selectedTask.description}</p>
                     }
                     {props.selectedTask.frozen ? (
-                        <p style={{ color: "black" }}><strong>Task is frozen, and won't ever appear on the queue</strong></p>
+                        <p style={{ color: "black" }}><strong>Task is frozen, and won&apos;t ever appear on the queue</strong></p>
                     ) : null}
                 </div>
 
@@ -224,5 +225,7 @@ const TaskDetailsPopup = React.forwardRef((props, ref) => {
         </BasePopup>
     );
 });
+
+TaskDetailsPopup.displayName = 'TaskDetailsPopup';
 
 export default TaskDetailsPopup;

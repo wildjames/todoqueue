@@ -37,10 +37,16 @@ class CustomUserWithBrowniePointsSerializer(CustomUserSerializer):
 
 class CustomUserRegistrationSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
-        validators=[UniqueValidator(queryset=get_user_model().objects.all()), validate_profanity]
+        validators=[
+            UniqueValidator(queryset=get_user_model().objects.all()),
+            validate_profanity,
+        ]
     )
     username = serializers.CharField(
-        validators=[UniqueValidator(queryset=get_user_model().objects.all()), validate_profanity]
+        validators=[
+            UniqueValidator(queryset=get_user_model().objects.all()),
+            validate_profanity,
+        ]
     )
     password = serializers.CharField(write_only=True)
 

@@ -13,7 +13,7 @@ router.register(r"households", views.HouseholdViewSet)
 urlpatterns = [
     path("", include(router.urls)),
     path("toggle_frozen/<uuid:taskId>/", views.toggle_frozen, name="toggle_frozen"),
-    path('dismiss_task/<uuid:taskId>/', views.dismiss_task, name='dismiss_task'),
+    path("dismiss_task/<uuid:taskId>/", views.dismiss_task, name="dismiss_task"),
     path(
         "calculate_brownie_points/",
         views.calculate_brownie_points_view,

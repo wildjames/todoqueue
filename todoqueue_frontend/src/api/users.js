@@ -37,7 +37,7 @@ export const loginUser = async (email, password) => {
             return { error: "Error logging in, please try again or reset your password." };
         }
         console.log("Login successful, setting access token.", data);
-        // Initialize the access & refresh token in localstorage.      
+        // Initialize the access & refresh token in localstorage.
         localStorage.clear();
         localStorage.setItem('access_token', data.access);
         localStorage.setItem('refresh_token', data.refresh);
@@ -54,27 +54,27 @@ export const loginUser = async (email, password) => {
 export const logOutUser = async () => {
     console.log("Logging out user");
     try {
-      await axios.post(
-        `${backend_url}/api/logout/`,
-        {
-          refresh_token: localStorage.getItem('refresh_token')
-        },
-        {
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: true
-        }
-      );
+        await axios.post(
+            `${backend_url}/api/logout/`,
+            {
+                refresh_token: localStorage.getItem('refresh_token')
+            },
+            {
+                headers: { 'Content-Type': 'application/json' },
+                withCredentials: true
+            }
+        );
 
-      console.log("Clearing local storage");
-      localStorage.clear();
-      axios.defaults.headers.common['Authorization'] = null;
+        console.log("Clearing local storage");
+        localStorage.clear();
+        axios.defaults.headers.common['Authorization'] = null;
 
-      console.log("Redirecting to login page");
-      window.location.href = '/login';
+        console.log("Redirecting to login page");
+        window.location.href = '/login';
     } catch (e) {
-      console.log('logout not working', e);
+        console.log('logout not working', e);
     }
-  }
+}
 
 
 export const fetchHouseholdUsers = async (selectedHousehold) => {
@@ -175,21 +175,17 @@ export const resetPassword = async (uid, token, newPassword, confirmPassword) =>
         confirm_new_password: confirmPassword,
     };
 
-    try {
-        const res = await axios.post(
-            `${backend_url}/api/complete_forgot_password/${uid}/${token}/`,
-            payload,
-            {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                withCredentials: true
+    const res = await axios.post(
+        `${backend_url}/api/complete_forgot_password/${uid}/${token}/`,
+        payload,
+        {
+            headers: {
+                'Content-Type': 'application/json'
             },
-        );
-        return res.data;
-    } catch (error) {
-        throw error;
-    }
+            withCredentials: true
+        },
+    );
+    return res.data;
 };
 
 
@@ -218,15 +214,15 @@ export const signUp = async (email, username, password) => {
         );
         if (res.status === 201) {
             console.log("New user created:", res.data);
-            return { "success": "New user created. Please check your email for a verification link."};
+            return { "success": "New user created. Please check your email for a verification link." };
         }
         else {
             console.log("The registration response contains an error:", res);
-            return {"error": res.data};
+            return { "error": res.data };
         }
 
     } catch (error) {
         console.log("Error during registration:", error);
-        return {"error": "Error during registration."};
+        return { "error": "Error during registration." };
     }
 };

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import BasePopup from './BasePopup';
 import { fetchHouseholdUsers } from '../../api/users';
-import { fetchPendingInvitations, inviteUserToHousehold, removeUserFromHousehold } from '../../api/households';
+import { inviteUserToHousehold, removeUserFromHousehold } from '../../api/households';
 
 import Spinner from '../spinner/Spinner';
 import AlertMessage from "./AlertPopup";
@@ -11,21 +11,21 @@ import './popups.css';
 const HouseholdDetailsPopup = React.forwardRef((props, ref) => {
     const [users, setUsers] = useState([]);
     const [userEmail, setUserEmail] = useState('');
-    const [invitations, setInvitations] = useState([]);
+    // const [invitations, setInvitations] = useState([]);
 
     const [showSpinner, setShowSpinner] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
 
-    const updateInvitations = async (id) => {
-        try {
-            const pendingInvitations = await fetchPendingInvitations();
-            setInvitations(pendingInvitations);
-        } catch (error) {
-            console.error("An error occurred while fetching data:", error);
-            setErrorMessage("Failed to fetch data.");
-        }
-    };
+    // const updateInvitations = async (id) => {
+    //     try {
+    //         const pendingInvitations = await fetchPendingInvitations();
+    //         setInvitations(pendingInvitations);
+    //     } catch (error) {
+    //         console.error("An error occurred while fetching data:", error);
+    //         setErrorMessage("Failed to fetch data.");
+    //     }
+    // };
 
 
     const handleInviteUser = async () => {
@@ -64,7 +64,6 @@ const HouseholdDetailsPopup = React.forwardRef((props, ref) => {
         }
     }
 
-
     // Fetch users for the selected household at regular intervals
     useEffect(() => {
         if (props.selectedHousehold) {
@@ -76,6 +75,7 @@ const HouseholdDetailsPopup = React.forwardRef((props, ref) => {
             }
         }, 500);
         return () => clearInterval(interval);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.selectedHousehold]);
 
 
@@ -152,5 +152,7 @@ const HouseholdDetailsPopup = React.forwardRef((props, ref) => {
         </BasePopup>
     );
 });
+
+HouseholdDetailsPopup.displayName = 'HouseholdDetailsPopup';
 
 export default HouseholdDetailsPopup;
