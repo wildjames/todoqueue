@@ -7,14 +7,17 @@ install:
 	# Install frontend dependencies
 	cd todoqueue_frontend && npm install
 
-dev:
-	./run_dev.sh
+dev-frontend:
+	cd todoqueue_frontend && npm start
+
+dev-backend:
+	cd todoqueue_backend && python3 manage.py runserver
 
 build:
 	# Build the React frontend
 	cd todoqueue_frontend && npm run build
 	# Collect static files for Django
-	cd todoqueue_backend && python manage.py collectstatic --noinput
+	cd todoqueue_backend && python3 manage.py collectstatic --noinput
 	# Build the Docker image
 	docker build -t todoqueue:latest .
 
