@@ -43,7 +43,8 @@ if get_env_variable("DEV", False, bool):
     if path.exists(dotenv_path):
         print("Loading env")
         load_dotenv(dotenv_path)
-
+else:
+    load_dotenv()
 
 # Fetch all the environment variables
 env_debug = get_env_variable("DJANGO_DEBUG", False, bool)
@@ -56,14 +57,14 @@ redis_cache_location = get_env_variable(
     "DJANGO_CACHE_LOCATION", "redis://127.0.0.1:6379/1"
 )
 
-db_name = get_env_variable("DJANGO_DB_NAME", "mydatabase")
-db_user = get_env_variable("DJANGO_DB_USER", "myuser")
-db_pass = get_env_variable("DJANGO_DB_PASSWORD", "mypassword")
-db_host = get_env_variable("DJANGO_DB_HOST", "db")
-db_port = get_env_variable("DJANGO_DB_PORT", "3306")
+db_name = get_env_variable("DJANGO_DB_NAME")
+db_user = get_env_variable("DJANGO_DB_USER")
+db_pass = get_env_variable("DJANGO_DB_PASSWORD")
+db_host = get_env_variable("DJANGO_DB_HOST")
+db_port = get_env_variable("DJANGO_DB_PORT", 3306, int)
 
 # Email credentials
-EMAIL_HOST = get_env_variable("EMAIL_HOST", "localhost")
+EMAIL_HOST = get_env_variable("EMAIL_HOST", "")
 EMAIL_PORT = get_env_variable("EMAIL_PORT", 587, int)
 EMAIL_USE_TLS = get_env_variable("EMAIL_USE_TLS", True, bool)
 EMAIL_HOST_USER = get_env_variable("EMAIL_HOST_USER", "")
@@ -71,7 +72,8 @@ DEFAULT_FROM_EMAIL = get_env_variable("DEFAULT_FROM_EMAIL", "")
 EMAIL_HOST_PASSWORD = get_env_variable("EMAIL_HOST_PASSWORD", "")
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_env_variable("DJANGO_SECRET", cast_type=None, default=urandom(32))
+SECRET_KEY = get_env_variable(
+    "DJANGO_SECRET", cast_type=None, default=urandom(32))
 
 
 # Logging verbosity
