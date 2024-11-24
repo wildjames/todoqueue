@@ -4,7 +4,7 @@ services:
     ports:
       - "80:80"
     environment:
-      DJANGO_BACKEND_URL: "http://localhost:8000"
+      REACT_APP_BACKEND_URL: "http://localhost:8000"
 
       DJANGO_DB_NAME: todoqueue
       DJANGO_DB_USER: todo_user
