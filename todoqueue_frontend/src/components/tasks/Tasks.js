@@ -349,6 +349,21 @@ const Tasks = ({ households, selectedHousehold, setSelectedHousehold, showSelect
             <div className="task-container ">
                 {tasks
                     .filter(task => task.staleness !== 0)
+                    .sort((a, b) => {
+                        if (a.staleness === b.staleness) {
+                            // If staleness is the same, sort by averageTimeToComplete
+                            return a.averageTimeToComplete - b.averageTimeToComplete;
+                        } else if (a.staleness === 1) {
+                            // a is stale (staleness === 1), so it comes before b
+                            return -1;
+                        } else if (b.staleness === 1) {
+                            // b is stale, so a comes after b
+                            return 1;
+                        } else {
+                            // Both have staleness between 0 and 1, sort by averageTimeToComplete
+                            return a.averageTimeToComplete - b.averageTimeToComplete;
+                        }
+                    })
                     .map((task) => (
                         <div className="task-wrapper" key={task.id}>
                             <div
