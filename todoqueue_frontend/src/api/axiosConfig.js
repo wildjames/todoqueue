@@ -59,6 +59,7 @@ axios.interceptors.response.use(
         localStorage.setItem('access_token', response.data.access);
         localStorage.setItem('refresh_token', response.data.refresh);
 
+        refresh = false;
         return axios(error.config);
       } else {
         console.log("Failed to refresh token. Logging out.");

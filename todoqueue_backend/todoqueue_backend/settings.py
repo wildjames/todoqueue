@@ -227,8 +227,11 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
+# Keep the 30-day access token so clients regularly refresh and rotate tokens
+# each month, but extend the refresh token lifetime so a user can remain
+# logged in for up to a year without re-authenticating.
     "ACCESS_TOKEN_LIFETIME": timedelta(days=30),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=90),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=365),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
 }
